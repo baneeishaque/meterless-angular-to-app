@@ -1,0 +1,60 @@
+<section class="panel" aria-labelledby="assistant-title">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">Scout · H-MEM · Markovian</p>
+      <h2 id="assistant-title">Assistant</h2>
+    </div>
+    <span class="badge">local</span>
+  </header>
+
+  <div class="chat" aria-live="polite">
+    @if (assistant.messages().length === 0) {
+      <p class="hint">
+        Try “Add a task: buy milk”, “Plan my week”, or “Remember that I prefer short answers”.
+      </p>
+    }
+
+    @for (message of assistant.messages(); track message.id) {
+      <article
+        class="message"
+        [class.user]="message.role === 'user'"
+        [class.error]="message.tone === 'error'"
+        [class.success]="message.tone === 'success'"
+      >
+        <p class="text">{{ message.text }}</p>
+        @if (message.meta) {
+          <p class="meta">{{ message.meta }}</p>
+        }
+      </article>
+    }
+
+    @if (assistant.busy()) {
+      <p class="thinking">Thinking…</p>
+    }
+  </div>
+
+  @if (assistant.pending(); as pending) {
+    <div class="confirm" role="alert">
+      <p>{{ pending.label }}</p>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-btn" (click)="assistant.confirm()">Confirm</button>
+        <button type="button" class="cancel-btn" (click)="assistant.cancel()">Cancel</button>
+      </div>
+    </div>
+  }
+
+  <form class="composer" (submit)="$event.preventDefault(); send(input)">
+    <label class="sr-only" for="assistant-input">Ask the assistant</label>
+    <input
+      #input
+      id="assistant-input"
+      type="text"
+      placeholder="Add a task, plan a goal, remember a preference…"
+      autocomplete="off"
+      [value]="draft()"
+      [disabled]="assistant.busy()"
+      (input)="onInput($event)"
+    />
+    <button type="submit" [disabled]="!draft().trim() || assistant.busy()">Send</button>
+  </form>
+</section>

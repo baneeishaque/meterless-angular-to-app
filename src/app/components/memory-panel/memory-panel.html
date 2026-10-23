@@ -1,0 +1,42 @@
+<section class="panel" aria-labelledby="memory-title">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">H-MEM</p>
+      <h2 id="memory-title">Memory</h2>
+    </div>
+    <span class="count">{{ memory.count() }}</span>
+  </header>
+
+  @if (memory.memories().length === 0) {
+    <p class="hint">Nothing remembered yet. Add a preference or fact below.</p>
+  } @else {
+    <ul class="memory-list">
+      @for (record of memory.memories().slice(0, 6); track record.id) {
+        <li>
+          <p>{{ record.content }}</p>
+          <button
+            type="button"
+            [attr.aria-label]="'Forget ' + record.content"
+            (click)="memory.delete(record.id)"
+          >
+            ×
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  <form class="remember" (submit)="$event.preventDefault(); remember(input)">
+    <label class="sr-only" for="memory-input">Remember a preference</label>
+    <input
+      #input
+      id="memory-input"
+      type="text"
+      placeholder="Remember a preference or fact…"
+      autocomplete="off"
+      [value]="draft()"
+      (input)="onInput($event)"
+    />
+    <button type="submit" [disabled]="!draft().trim()">Save</button>
+  </form>
+</section>

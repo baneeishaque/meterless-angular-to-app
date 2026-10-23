@@ -1,0 +1,34 @@
+<section class="panel" aria-labelledby="world-title">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">World Model</p>
+      <h2 id="world-title">Activity</h2>
+    </div>
+    <span class="badge">{{ world.eventCount() }} events</span>
+  </header>
+
+  <div class="stats">
+    <div>
+      <strong>{{ world.taskEntities().length }}</strong>
+      <span>active task entities</span>
+    </div>
+    <div>
+      <strong>{{ world.recentAudit().length }}</strong>
+      <span>recent audit entries</span>
+    </div>
+  </div>
+
+  @if (world.recentEvents().length === 0) {
+    <p class="hint">Add a task and the event-sourced audit trail starts here.</p>
+  } @else {
+    <ol class="events">
+      @for (event of world.recentEvents(); track event.id) {
+        <li>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="label">{{ kindLabel(event.kind) }}</span>
+          <time [attr.datetime]="event.at">{{ time(event.at) }}</time>
+        </li>
+      }
+    </ol>
+  }
+</section>

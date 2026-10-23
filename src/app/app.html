@@ -1,0 +1,58 @@
+<main class="shell">
+  <div class="layout">
+    <section class="card" aria-labelledby="app-title">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Today</p>
+          <h1 id="app-title">Tasks</h1>
+        </div>
+        <p class="remaining" aria-live="polite">
+          <strong>{{ store.remainingCount() }}</strong>
+          {{ store.remainingCount() === 1 ? 'task' : 'tasks' }} left
+        </p>
+      </header>
+
+      <app-task-input (taskAdded)="store.add($event)" />
+
+      @if (store.counts().all > 0) {
+        <app-task-filters
+          [filter]="store.filter()"
+          [counts]="store.counts()"
+          (filterChange)="store.setFilter($event)"
+        />
+      }
+
+      @if (store.visibleTasks().length > 0) {
+        <ul class="task-list" aria-label="Tasks">
+          @for (task of store.visibleTasks(); track task.id) {
+            <li
+              app-task-item
+              [task]="task"
+              (toggled)="store.toggle($event)"
+              (renamed)="store.rename($event.id, $event.title)"
+              (removed)="store.remove($event)"
+            ></li>
+          }
+        </ul>
+      } @else {
+        <div class="empty">
+          <div class="empty-icon" aria-hidden="true">✓</div>
+          <p class="empty-title">{{ emptyState().title }}</p>
+          <p class="empty-hint">{{ emptyState().hint }}</p>
+        </div>
+      }
+
+      <footer class="footer">
+        <span>{{ store.completedCount() }} completed</span>
+        <span class="dot" aria-hidden="true">·</span>
+        <span>Saved on this device</span>
+      </footer>
+    </section>
+
+    <aside class="rail" aria-label="Engine activity">
+      <app-assistant-panel />
+      <app-memory-panel />
+      <app-world-panel />
+    </aside>
+  </div>
+</main>

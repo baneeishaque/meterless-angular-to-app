@@ -1,0 +1,13 @@
+<form class="task-input" (submit)="$event.preventDefault(); addTask(input)">
+  <label class="sr-only" for="new-task">New task</label>
+  <input
+    #input
+    id="new-task"
+    type="text"
+    placeholder="What needs to be done?"
+    autocomplete="off"
+    [value]="draft()"
+    (input)="onInput($event)"
+  />
+  <button type="submit" [disabled]="!draft().trim()">Add</button>
+</form>

@@ -1,0 +1,171 @@
+.panel {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 20px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.chat {
+  display: grid;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.hint,
+.thinking {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.thinking {
+  font-style: italic;
+}
+
+.message {
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: #f7f8fc;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.message.user {
+  background: var(--accent);
+  color: #fff;
+  justify-self: end;
+  max-width: 92%;
+}
+
+.message.error {
+  background: #fef3f2;
+  color: var(--danger);
+}
+
+.message.success {
+  background: #ecfdf3;
+}
+
+.text {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.meta {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.message.user .meta {
+  color: rgb(255 255 255 / 75%);
+}
+
+.confirm {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #fedf89;
+  border-radius: 12px;
+  background: #fffaeb;
+  font-size: 0.84rem;
+}
+
+.confirm p {
+  margin: 0 0 8px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.confirm-btn {
+  background: var(--danger);
+  color: #fff;
+}
+
+.cancel-btn {
+  border-color: var(--line);
+  background: #fff;
+  color: var(--text);
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  outline: none;
+}
+
+.composer input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.composer button {
+  padding: 0 16px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.composer button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
