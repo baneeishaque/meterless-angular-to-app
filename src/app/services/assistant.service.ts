@@ -1,9 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import type { Decision } from '../engines/scout';
 import type { Task } from '../models/task.model';
+import { AssistantPipelineService } from './assistant-pipeline.service';
+import type { AssistantTrace, PipelineDecision } from './assistant-pipeline.service';
 import { MemoryService } from './memory.service';
-import { PlanningService } from './planning.service';
-import { ScoutService } from './scout.service';
+import { readJson, writeJson } from './persistence';
+import { ContractRefusalError, PlanningService } from './planning.service';
 import { TaskStore } from './task-store';
 
 export interface AssistantMessage {
@@ -14,19 +16,22 @@ export interface AssistantMessage {
   tone?: 'normal' | 'success' | 'error';
 }
 
+const TRACE_KEY = 'angular-todo-app.trace.v1';
+
 export interface PendingAction {
-  decision: Decision;
+  pipeline: PipelineDecision;
   label: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AssistantService {
-  private readonly scout = inject(ScoutService);
+  private readonly pipeline = inject(AssistantPipelineService);
   private readonly tasks = inject(TaskStore);
   private readonly memory = inject(MemoryService);
   private readonly planning = inject(PlanningService);
 
   readonly lastPlan = this.planning.lastPlan;
+  readonly lastTrace = signal<AssistantTrace | null>(readJson<AssistantTrace>(TRACE_KEY) ?? null);
   readonly messages = signal<AssistantMessage[]>([]);
   readonly busy = signal(false);
   readonly pending = signal<PendingAction | null>(null);
@@ -39,6 +44,23 @@ export class AssistantService {
     }
 
     this.push('user', text);
+
+    const choice = text.match(/^(?:use\s+)?(?:option\s+)?([1-9])$/i);
+    if (!this.pending() && choice && this.planning.lastAlternatives().length > 0) {
+      this.busy.set(true);
+      try {
+        const run = this.planning.selectAlternative(Number(choice[1]) - 1);
+        this.push(
+          'assistant',
+          run ? run.output : 'That option does not exist.',
+          run ? `Markovian ${run.id} · selected option ${choice[1]}` : undefined,
+          run ? 'success' : 'error',
+        );
+      } finally {
+        this.busy.set(false);
+      }
+      return;
+    }
 
     if (this.pending()) {
       if (/^(confirm|yes|do it|approve)\b/i.test(text)) {
@@ -57,10 +79,12 @@ export class AssistantService {
     this.busy.set(true);
 
     try {
-      const decision = await this.scout.decide(text);
+      const pipeline = await this.pipeline.decide(text);
+      const { decision } = pipeline;
+      this.setTrace(pipeline.trace);
 
       if (decision.clarification) {
-        this.push('assistant', decision.clarification.question, this.meta(decision));
+        this.push('assistant', decision.clarification.question, this.meta(pipeline));
         return;
       }
 
@@ -68,24 +92,32 @@ export class AssistantService {
         this.push(
           'assistant',
           `I cannot run that request: ${decision.risk.reason ?? 'it was blocked by policy'}.`,
-          this.meta(decision),
+          this.meta(pipeline),
           'error',
         );
         return;
       }
 
       if (decision.risk.level === 'high') {
-        this.pending.set({ decision, label: this.describe(decision) });
+        this.pending.set({ pipeline, label: this.describe(decision) });
         this.push(
           'assistant',
           `This is a high-risk action: ${this.describe(decision)}. Confirm to proceed.`,
-          this.meta(decision),
+          this.meta(pipeline),
         );
         return;
       }
 
-      await this.execute(decision);
+      await this.execute(pipeline);
+      this.finishTrace();
     } catch (error) {
+      if (error instanceof ContractRefusalError) {
+        this.lastTrace.update((trace) =>
+          trace ? { ...trace, route: 'refused', stages: [...trace.stages, 'refused'] } : trace,
+        );
+        this.push('assistant', `I cannot run that plan: ${error.message}`, undefined, 'error');
+        return;
+      }
       this.push(
         'assistant',
         `Something went wrong: ${(error as Error).message}`,
@@ -108,7 +140,8 @@ export class AssistantService {
     this.busy.set(true);
 
     try {
-      await this.execute(pending.decision);
+      await this.execute(pending.pipeline);
+      this.finishTrace();
     } finally {
       this.busy.set(false);
     }
@@ -119,10 +152,11 @@ export class AssistantService {
     this.push('assistant', 'Cancelled. Nothing was changed.');
   }
 
-  private async execute(decision: Decision): Promise<void> {
+  private async execute(pipeline: PipelineDecision): Promise<void> {
+    const { decision } = pipeline;
     const id = decision.intent.primary.id;
     const params = decision.intent.primary.parameters;
-    const meta = this.meta(decision);
+    const meta = this.meta(pipeline);
 
     switch (id) {
       case 'task.add': {
@@ -231,11 +265,41 @@ export class AssistantService {
 
       case 'task.plan': {
         const goal = this.stringParam(params['goal']) ?? decision.prompt;
-        const run = await this.planning.plan(goal);
+        const run = await this.planning.planFromContract(decision, pipeline, goal);
         this.push(
           'assistant',
           run.output,
           `${meta} · Markovian ${run.id} · ${run.efficiencyPercent}% efficient`,
+          'success',
+        );
+        return;
+      }
+
+      case 'task.research': {
+        const topic = this.stringParam(params['topic']) ?? decision.prompt;
+        const run = await this.planning.planFromContract(decision, pipeline, topic);
+        this.push(
+          'assistant',
+          run.output,
+          `${meta} · Markovian ${run.id} · ${run.efficiencyPercent}% efficient`,
+          'success',
+        );
+        return;
+      }
+
+      case 'task.compare': {
+        const goal = this.stringParam(params['goal']) ?? decision.prompt;
+        const runs = await this.planning.planAlternatives(decision, pipeline, 3, goal);
+        const lines = runs.map((run, index) => {
+          const first = run.output.split('\n').find((line) => line.trim().length > 0) ?? 'Plan';
+          return `${index + 1}. ${first}`;
+        });
+        this.push(
+          'assistant',
+          ['Here are three plan options:', ...lines, '', 'Ask me to use option 1, 2, or 3.'].join(
+            '\n',
+          ),
+          `${meta} · ${runs.length} alternatives`,
           'success',
         );
         return;
@@ -247,7 +311,8 @@ export class AssistantService {
           this.push('assistant', 'What should I remember?', meta);
           return;
         }
-        this.memory.remember(content);
+        const project = this.tasks.projectFilter();
+        this.memory.remember(content, project === 'all' ? undefined : { project });
         this.push('assistant', `Remembered: ${content}`, meta, 'success');
         return;
       }
@@ -292,12 +357,39 @@ export class AssistantService {
         return;
       }
 
-      default:
+      default: {
+        if (pipeline.contextPlan.sources.includes('memory') && pipeline.memory.count > 0) {
+          const lines = pipeline.memory.text.split('\n').filter((line) => line.startsWith('- '));
+          this.push('assistant', ['From memory:', ...lines].join('\n'), meta);
+          return;
+        }
+
         this.push(
           'assistant',
-          'I can add, complete, reopen, rename, delete, filter, and summarize tasks; plan a goal; and remember or recall notes.',
+          'I can add, complete, reopen, rename, delete, filter, and summarize tasks; plan a goal; research a topic; compare plans; and remember or recall notes.',
           meta,
         );
+      }
+    }
+  }
+
+  private finishTrace(): void {
+    const trace = this.lastTrace();
+    if (!trace || trace.stages.includes('execution')) {
+      return;
+    }
+
+    this.setTrace({
+      ...trace,
+      stages: [...trace.stages, 'execution', 'memory-write'],
+      durationMs: Date.now() - trace.startedAt,
+    });
+  }
+
+  private setTrace(trace: AssistantTrace | null): void {
+    this.lastTrace.set(trace);
+    if (trace) {
+      writeJson(TRACE_KEY, trace);
     }
   }
 
@@ -333,10 +425,13 @@ export class AssistantService {
     return id.replace('.', ' ');
   }
 
-  private meta(decision: Decision): string {
+  private meta(pipeline: PipelineDecision): string {
+    const { decision, trace } = pipeline;
     return `Scout → ${decision.intent.primary.id} · ${Math.round(
       decision.intent.primary.confidence * 100,
-    )}% · ${decision.risk.level} risk`;
+    )}% · ${decision.risk.level} risk · ${trace.route} · ${trace.memoryIds.length} memory · ${
+      trace.worldEntityIds.length
+    } world`;
   }
 
   private stringParam(value: unknown): string | undefined {

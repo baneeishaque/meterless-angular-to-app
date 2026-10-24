@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { AssistantService } from './assistant.service';
 import { MemoryService } from './memory.service';
+import { WorldModelService } from './world-model.service';
 import { PlanningService } from './planning.service';
 import { TaskStore } from './task-store';
-import { WorldModelService } from './world-model.service';
 
 describe('AssistantService', () => {
   let assistant: AssistantService;
@@ -162,5 +162,99 @@ describe('AssistantService', () => {
     expect(world.taskEntities()).toHaveLength(1);
     expect(world.eventCount()).toBeGreaterThan(0);
     expect(world.recentEvents()[0]?.kind).toBe('upsertEntity');
+  });
+});
+
+describe('AssistantService full stack', () => {
+  let assistant: AssistantService;
+  let store: TaskStore;
+  let memory: MemoryService;
+  let planning: PlanningService;
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    assistant = TestBed.inject(AssistantService);
+    store = TestBed.inject(TaskStore);
+    memory = TestBed.inject(MemoryService);
+    planning = TestBed.inject(PlanningService);
+  });
+
+  it('records a trace for a direct action', async () => {
+    await assistant.submit('Add a task: buy milk');
+
+    expect(assistant.lastTrace()?.intent).toBe('task.add');
+    expect(assistant.lastTrace()?.route).toBe('direct');
+    expect(assistant.lastTrace()?.contextPlan.sources).toEqual([]);
+    expect(assistant.lastTrace()?.stages).toContain('execution');
+    expect(assistant.lastTrace()?.stages).toContain('memory-write');
+  });
+
+  it('restores the last trace after service recreation', async () => {
+    await assistant.submit('Add a task: buy milk');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+
+    const restored = TestBed.inject(AssistantService);
+
+    expect(restored.lastTrace()?.intent).toBe('task.add');
+    expect(restored.lastTrace()?.stages).toContain('memory-write');
+  });
+
+  it('researches a topic and remembers the completed run', async () => {
+    await assistant.submit('Research local-first sync options');
+
+    expect(planning.lastPlan()).not.toBeNull();
+    expect(planning.lastPlan()?.chunkConfig.maxChunks).toBe(6);
+    expect(memory.memories().some((item) => item.source?.startsWith('markovian:'))).toBe(true);
+    expect(assistant.messages().at(-1)?.text).toContain('Research plan for');
+  });
+
+  it('recalls the first research completion on a second identical request', async () => {
+    await assistant.submit('Research local-first sync options');
+    const first = planning.lastPlan();
+    const firstMemory = memory.findBySource(`markovian:${first?.id}`);
+
+    await assistant.submit('Research local-first sync options');
+
+    expect(firstMemory).toBeDefined();
+    expect(assistant.lastTrace()?.memoryIds).toContain(firstMemory?.id);
+  });
+
+  it('resolves a vague reference from memory', async () => {
+    await assistant.submit('Remember that I prefer short answers');
+    await assistant.submit('The usual');
+
+    expect(assistant.messages().at(-1)?.text).toContain('From memory:');
+    expect(assistant.messages().at(-1)?.text).toContain('short answers');
+  });
+
+  it('creates alternatives and selects one by number', async () => {
+    await assistant.submit('Compare plan options for my week');
+
+    const alternatives = planning.lastAlternatives();
+    expect(alternatives.length).toBe(3);
+    expect(TestBed.inject(WorldModelService).planDrafts()).toHaveLength(3);
+
+    await assistant.submit('2');
+
+    expect(planning.lastPlan()?.id).toBe(alternatives[1].id);
+    expect(assistant.messages().at(-1)?.text).toContain('Next actions');
+    expect(
+      TestBed.inject(WorldModelService)
+        .planDrafts()
+        .filter((draft) => draft.attrs['selected']),
+    ).toHaveLength(1);
+  });
+
+  it('uses project context in a plan', async () => {
+    const project = store.addProject('Launch');
+    store.add('Ship the launch', project?.id);
+
+    await assistant.submit('Plan the launch project');
+
+    expect(assistant.lastTrace()?.contextPlan.subjectId).toBe(`project:todo:${project?.id}`);
+    expect(assistant.messages().at(-1)?.text).toContain('Ship the launch');
   });
 });
