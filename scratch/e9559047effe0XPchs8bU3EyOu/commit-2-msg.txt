@@ -1,0 +1,10 @@
+test(app): cover engine services, task store, and UI integration
+
+Adds 37 Vitest cases across seven spec files for assistant routing,
+H-MEM recall, Markovian planning, World Model sync, Scout guards, task
+store behavior, and the app shell.
+
+The tests exercise destructive-action confirmation, prompt-injection
+blocking, persistence-backed engine facades, and active-entity filtering.
+They are committed separately so the source commit remains the buildable
+baseline and test-only changes stay reviewable.

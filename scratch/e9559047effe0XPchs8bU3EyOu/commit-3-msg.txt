@@ -1,0 +1,8 @@
+test(evals): add Scout conformance adapter
+
+Adds a Node-only adapter that lets the Scout eval harness pass a registry
+file path while the browser core continues to accept a composed registry.
+
+The adapter reads JSON with node:fs and imports the Scout source with
+explicit .ts specifiers; it is kept out of the Angular build and committed
+separately from app tests.

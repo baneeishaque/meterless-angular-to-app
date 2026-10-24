@@ -1,0 +1,8 @@
+chore(legal): add Meterless attribution and license
+
+Adds third-party notices and the Apache License 2.0 text for the Meterless
+engine ports.
+
+The notice records the upstream project, license, and browser-specific
+modifications: removed filesystem dependencies, injected persistence, and
+synchronous Angular write seams.

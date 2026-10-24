@@ -1,0 +1,12 @@
+feat(app): add local-first todo app with Meterless engine integration
+
+Bootstraps the Angular 22 standalone app and ports Scout Intent, H-MEM,
+World Model, and Markovian into browser-safe TypeScript modules.
+
+The app shell, task store, engine facades, and UI panels share runtime
+contracts, so they are added together to keep the initial commit buildable.
+Node filesystem dependencies are removed, persistence is injected through
+localStorage, and crypto uses Web Crypto.
+
+Includes workspace configuration, task CRUD, assistant confirmations,
+memory and world activity panels, and the shared persistence/crypto seams.

@@ -1,0 +1,10 @@
+docs(app): document Meterless architecture and testing
+
+Documents the four-engine implementation map, browser adaptations,
+persistence keys, deliberate limits, and the maximum-detail manual and
+automated test guide.
+
+Includes the docs index, testing entry point, 37-test inventory,
+conformance commands, expected results, troubleshooting, CI, and release
+checklist. Kept separate from code so behavior and verification
+documentation can be reviewed independently.
