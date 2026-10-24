@@ -1,0 +1,16 @@
+
+> angular-todo-app@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names         |  Raw size | Estimated transfer size
+main-YVQCYFAB.js    | main          | 231.62 kB |                66.45 kB
+styles-N63C6YOP.css | styles        | 778 bytes |               778 bytes
+
+                    | Initial total | 232.40 kB |                67.23 kB
+
+Application bundle generation complete. [5.135 seconds] - 2026-10-23T23:19:19.903Z
+
+Output location: /home/ext_root/lab-data/angular-todo-app/dist/angular-todo-app
+

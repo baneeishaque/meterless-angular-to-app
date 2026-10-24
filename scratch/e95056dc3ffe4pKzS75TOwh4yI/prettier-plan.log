@@ -1,0 +1,4 @@
+Checking formatting...
+[warn] docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md
+[warn] docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md
+[warn] Code style issues found in 2 files. Run Prettier with --write to fix.
