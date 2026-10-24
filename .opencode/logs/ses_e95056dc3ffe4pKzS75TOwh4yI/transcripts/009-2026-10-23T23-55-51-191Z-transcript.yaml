@@ -1,0 +1,156 @@
+user:
+  text: |-
+    approve all
+
+    i also need tests too: refer /home/ext_root/lab-data/angular-todo-app/docs
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Implement all approved Meterless combined mechanisms in `/home/ext_root/lab-data/angular-todo-app`, including optional Phases 6-8, with tests and documentation.
+      - Follow `/home/ext_root/lab-data/angular-todo-app/docs` testing conventions; the user explicitly approved all phases and requires tests.
+
+      ## Important Details
+      - Approval: `approve all`; implement core Phases 1-5 plus optional Phases 6-8.
+      - Plan artifact: `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`.
+      - Task artifact: `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`.
+      - Baseline: 37/37 tests across 7 spec files, production build passes, HEAD `38fe6c1`, only `.opencode/` untracked before planning artifacts.
+      - Plan and task artifacts pass markdownlint and Prettier. Plan Phase 0 will add `/home/ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc` with MD013 line length 120, MD007 indent 2 (to match Prettier), and MD046 fenced.
+      - Direct CRUD invariant remains: task UI → `TaskStore` → `localStorage`; `TaskStore` → `WorldModelService`; engines only assist AI/ambiguous/long-horizon actions.
+      - No backend, network, remote LLM, auth, multi-user, destructive automation, or commits without explicit request.
+      - Engine order: 1 Scout Intent, 2 H-MEM, 3 World Model, 4 Markovian.
+      - Spec repo: `/home/ext_root/lab-data/meterless-spec`; use `mise x node@26.10.0 --` if Node shim errors occur.
+      - Test runner: Angular CLI 22 unit-test builder + Vitest 5 + jsdom; command `CI=true npm test -- --watch=false`; build `npm run build`.
+      - Conformance commands:
+        - `HMEM_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`
+        - `WORLD_MODEL_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts`
+        - `MARKOVIAN_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts`
+        - `SCOUT_IMPL=/home/ext_root/lab-data/angular-todo-app/eval/scout-entry.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/runner/index.ts all`
+      - Existing conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8; Scout eval thresholds pass.
+      - “Sign every tool call” is an IMPLEMENT prompt, not a COMBINE prompt; its useful part is the strict contract gate in Phase 3.
+      - Core mechanisms: 1 memory plus long tasks, 2 check memory before acting, 3 route long jobs, 4 world state into memory, 5 plan from world model, 7 full stack, 8 upgrade starter.
+      - Optional approved mechanisms: 6 plan alternatives, 9 research agent that remembers, 10 project context that remembers.
+      - Planned architecture: `AssistantPipelineService` orchestrates `ScoutService.planContext` → `MemoryService.recallForPlan` → `WorldModelService.buildPromptContext` → `ScoutService.decide` → contract → execution.
+      - Planned contract gate: `PlanningService.planFromContract` verifies signature, expiry, primary intent (`task.plan`/`task.research`, likely `task.compare`), capability `markovian.chain`, and `risk.level !== 'block'`; throw `ContractRefusalError`; no unverified fallback.
+      - Planned context scoring: add `contextualScorer?: (prompt, intent, context) => number`; use `score = clamp01(0.8 * baseScore + 0.2 * contextualScore)` only when context exists; preserve baseline otherwise.
+      - Planned context-plan rules: `task.plan` memory+world, topN 8, maxTokens 8000, maxChunks 4; list/summary world only; task mutations world for resolution; `memory.recall` memory only; `task.add`/`GENERAL` none; vague markers add memory; deictic task references add world.
+      - Planned plan-completion memory: content `Completed plan for "<goal>": <summary>`, type factual, layer long_term, tags `plan_completion`, `markovian`, `run:<id>`, confidence 0.75, source `markovian:<run.id>`, provenance `plan_completion`, `goalRunId`.
+      - Planned world-fact memory: content `Task "<name>" is active/completed.`, type factual, layer long_term, tags `world:task`, `task:<id>`, confidence 0.9, source `world:<entity.id>`, provenance `world_model`; tombstone updates to `Task "<name>" was archived.` plus `archived` tag; one-way sync only.
+      - Planned deterministic grounded plan: chunk 1 `buildGroundedPlan` includes memory/world counts, up to 3 real task names, `[STATE_CHECKPOINT]`; chunk 2 `buildPlanContinuation` ends `[TASK_COMPLETE]`.
+      - `PlanningService.plan(goal)` legacy one-chunk path must remain for existing tests; assistant uses `planFromContract`.
+      - Existing tests likely assert `Plan for` and `chunkConfig.maxChunks === 4`; preserve.
+      - H-MEM store lacks `findBySource`; add source-keyed lookup/update. `MemoryStoreService.update` does not recompute embedding/entities; likely add `updateContent` or equivalent.
+      - H-MEM `ProvenanceOrigin` lacks `world_model`; add.
+      - World Model `relate` is async; project `contains` relations may need a synchronous `relateSync` or attrs-based project filtering. This is an active design choice, not a blocker.
+      - App config currently only `provideBrowserGlobalErrorListeners`; add `provideAppInitializer(() => inject(EngineSyncService).start())`.
+      - App currently renders three panels; Phase 5 adds trace panel, so `app.spec.ts` expectations must update to four panels.
+      - New intents planned: `task.research` and likely `task.compare`; adding them may affect Scout eval, so rerun and adjust.
+      - Trace data planned: `traceId`, `contractId`, intent, confidence, risk, route (`direct`/`markovian`/`refused`), context plan, memory IDs, world entity IDs, stages, duration.
+      - UI planned: assistant meta line with intent/confidence/memory count/world count/route; collapsible trace panel; memory provenance labels.
+      - Optional Phase 6 planned: `PlanningService.planAlternatives`, shared world snapshot, `plan_draft` entities, selection.
+      - Optional Phase 7 planned: `task.research`, RESEARCH mode, repeat-run memory reuse.
+      - Optional Phase 8 planned: `Task.projectId/projectName`, project entities, project-scoped memory tags, project filters/selectors, project-grounded planning.
+      - Existing docs to consult: `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`, `docs/testing/README.md`, `docs/README.md`, `docs/meterless-fit.md`.
+      - No source code for combined mechanisms has been changed yet; only plan/task artifacts were written.
+
+      ## Work State
+      ### Completed
+      - Read planning rules, engines page, Meterless spec examples, app services/engines/components/specs, and testing guide sections.
+      - Created and linted the v1 implementation plan and task artifact.
+      - Verified baseline: 37/37 tests pass; production build succeeds.
+      - Obtained user approval for all phases, including optional 6-8, with tests required.
+      - Created an 11-item todo list; first item “Read app docs/testing conventions and confirm scope for all phases” is in progress.
+      - Inspected current `AssistantService`, `ScoutService`, `Scout` engine, `MemoryService`, H-MEM store/mining, `WorldModelService`, World Model graph/timeline APIs, `PlanningService`, Markovian options, `TaskStore`, app config, panels, and specs.
+      - Confirmed `ScoutService` currently constructs `Scout` with `APP_INTENT_REGISTRY`, `policyPack: ['default', 'adversarial-tight']`, `signingSecret: 'local-todo-app'`; `decide(prompt)` passes no context.
+      - Confirmed `AssistantService` handles clarification, block, pending confirmation, then executes primary intent only.
+      - Confirmed `MemoryService` uses key `angular-todo-app.hmem.v1`, `recall` threshold 0.2/topN 5.
+      - Confirmed World Model graph view supports `entity`, `neighborsOf`, `incoming`, `entitiesInContext`, `traverse`, `query`; timeline view supports `subscribe`.
+      - Confirmed H-MEM `AddInput` supports `source`, `provenance`, `goalRunId`, `supersedes`, `derivedFrom`.
+      - Confirmed `WorldModelService` currently has `taskEntities`, `upsertTask`, `archiveTask`, `entityFor`, recent events; no `buildPromptContext` or `subscribe`.
+      - Confirmed `PlanningService.plan` currently uses one-chunk `buildPlan` and `lastPlan`; Markovian `RunOptions` includes `memoryContext`; prompt builder injects memory only in chunk 1.
+      - Confirmed `TaskStore` model is `id/title/completed/createdAt`; project fields not present.
+      - Confirmed app currently imports `AssistantPanel`, `MemoryPanel`, `WorldPanel`; `app.spec.ts` expects three panels.
+
+      ### Active
+      - Reading remaining app docs/testing conventions and current source/spec details before coding.
+      - Designing exact implementation for Phases 1-8 with focused specs for every service/component.
+      - Todo status: Phase 0-8 and final verification all pending; docs/testing review in progress.
+      - Need to update `task.md` to mark plan presentation approved and implementation started.
+      - Need to add `.markdownlint-cli2.jsonc` as Phase 0.
+      - Need to decide project relation approach: add `relateSync` to World Model or use task `attrs.project` filtering; current plan prefers project entities plus `contains` relations.
+      - Need to add `ContextPlanService`, `AssistantPipelineService`, `EngineSyncService`, and trace panel as planned.
+      - Need to preserve existing direct task behavior and all 37 baseline tests.
+
+      ### Blocked
+      - None.
+      - Open design detail: synchronous project relation sync versus attrs-based project filtering; resolve during Phase 8 implementation without changing user-visible behavior.
+
+      ## Next Move
+      1. Finish reading `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md` and remaining relevant specs; update `task.md` with approval/implementation status.
+      2. Implement Phase 0 (`.markdownlint-cli2.jsonc`), then Phase 1 (`ContextPlanService`, contextual Scout scoring, `MemoryService.recallForPlan`, `AssistantPipelineService`, wiring, tests); run `CI=true npm test -- --watch=false` and `npm run build` after each phase.
+      3. Continue sequentially through Phases 2-8, adding focused specs and preserving baseline tests, then run full conformance, Prettier, markdownlint, build, and browser smoke checks.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`: approved v1 plan and exact phased design.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`: task checklist to update.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: testing conventions, layers, commands, expected behavior.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: primary orchestrator; must consume `AssistantPipelineService`, context, trace, contract refusals.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts`: add `planContext`, `classify`, contextual scoring, contract verification helpers.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/types.ts`: add `contextualScorer` and context input.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/index.ts`: pass context into classification/decision.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/scoring.ts`: contextual score blend.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/context-plan.service.ts`: new context-plan policy and types.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant-pipeline.service.ts`: new full-stack pipeline and trace.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts`: `recallForPlan`, `findBySource`, `updateBySource`, `upsertWorldFact`, `archiveWorldFact`, `recordPlanCompletion`.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/memoryStore.ts`: source lookup and content update support.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/types.ts`: add `world_model` provenance origin.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts`: `buildPromptContext`, `subscribe`, project helpers, project/task context.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts`: `planFromContract`, grounded deterministic steps, plan completion memory, alternatives.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/engine-sync.service.ts`: new World→H-MEM one-way sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.config.ts`: register `EngineSyncService` initializer.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.ts`: add trace panel.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.html`: add trace panel to rail.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.spec.ts`: update panel expectations.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/trace-panel/`: new trace panel component/spec.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/assistant-panel/`: meta line and plan comparison actions.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/`: provenance/source/layer display.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/models/task.model.ts`: optional project fields.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: project persistence/filtering.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/task-input/`, `task-item/`, `task-filters/`: project UI for Phase 8.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/app-registry.ts`: add `task.research`/`task.compare` intents.
+      - `/home/ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc`: Phase 0 docs lint config to add.
+      - `/home/ext_root/lab-data/meterless-spec`: conformance/eval harnesses and reference examples.

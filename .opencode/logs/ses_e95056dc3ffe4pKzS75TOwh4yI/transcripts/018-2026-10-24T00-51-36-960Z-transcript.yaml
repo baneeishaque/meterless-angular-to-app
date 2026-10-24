@@ -1,0 +1,40 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Batch 3 committed:
+
+      `6101691` `chore(lint): add markdownlint configuration`  
+      `84502e0` `docs(testing): document combined engine coverage`
+
+      All **12/12** preview entries verified. Final verification:
+
+      - **100/100 tests** pass across 15 files, including the concurrent provider specs; the committed 74/12 scope remains green.
+      - Production build passes.
+      - Conformance: H-MEM **13/13**, World Model **8/8**, Markovian **8/8**.
+      - Scout eval: intent top-1/top-3, injection precision/recall, tool precision all **1.0**.
+      - Playwright smoke passes: page renders, task add works, zero page errors.
+      - Prettier: committed files pass; only two concurrent provider files fail.
+      - Markdownlint: planning artifacts **0 issues**; docs retain **67 MD013 line-length** warnings.
+      - HEAD `84502e0`, **12 commits ahead**, nothing pushed.
+
+      Safety stash audit: 49/52 files identical to HEAD; `app.ts` differs only by Prettier import formatting; the two planning artifacts are byte-identical in the working tree. The stash is fully superseded, but `git stash apply` was blocked by concurrent `app.ts` changes.
+
+      Authorize dropping `stash@{0}`?

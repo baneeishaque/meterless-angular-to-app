@@ -1,0 +1,152 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Plan the implementation of the combined Meterless mechanisms from `https://meterless.ai/engines.html` in `/home/ext_root/lab-data/angular-todo-app`, showing exactly where each combined mechanism plugs in, what it improves for users, and additional user scenarios/enhancements.
+      - Follow `/home/ext_root/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md` strictly; present a maximum-detail v1 plan and wait for approval before implementation.
+
+      ## Important Details
+      - User-supplied path `/Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md` does not exist; actual rules file is `/home/ext_root/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md`.
+      - Planning rules mandate: plan before acting, no implementation until approved, H1 format `# [Goal Description] (v1)`, `## Rule Compliance Reference` immediately after H1, task artifact creation at planning start, timestamped task checklists, user Q&A at top of revised plans, no version bump without explicit request.
+      - Planning artifact naming: `docs/<YYYY-MM-DD>_<session-id>_<session-name-slug>_<artifact-type>_v<version>.md`.
+      - Selected session: `ses_e95056dc3ffe4pKzS75TOwh4yI`, title `Angular To-Do app: Meterless engine integration (fork #1)`, slug `angular-todo-app-meterless-engine-integration`; session script warned multiple in-flight sessions and selected the newest pending.
+      - Planned artifacts:
+        - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`
+        - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`
+      - Current date/time: `2026-10-23 23:16 UTC`.
+      - The 10 COMBINE prompts extracted from `engines.html`:
+        1. Memory plus long tasks
+        2. Check memory before acting
+        3. Route long jobs to Markovian
+        4. World state into memory
+        5. Plan from the world model
+        6. Many drafts, one shared state
+        7. The full stack in one agent
+        8. Upgrade the hackathon starter
+        9. A research agent that remembers
+        10. Accounts that remember people
+      - `Sign every tool call` is categorized `IMPLEMENT`, not `COMBINE`; it is still relevant as contract-gating hardening for combined flows.
+      - App is a git repo on `main`; commits include `38fe6c1 chore(legal): add Meterless attribution and license`; `.opencode/` is untracked.
+      - Engine adoption order remains **1 Scout Intent, 2 H-MEM, 3 World Model, 4 Markovian**.
+      - Normal task CRUD must remain direct: component → `TaskStore` → `localStorage`; engines only assist AI/ambiguous/tool-driven actions.
+      - Stack: Angular 22.2.x, standalone components, signals, `OnPush`, Vitest/jsdom, `localStorage`.
+      - Use `mise x node@26.10.0 --` if Node shim errors occur.
+      - Spec repo: `/home/ext_root/lab-data/meterless-spec`.
+      - Browser ports remove `node:fs`/`node:path`, inject persistence adapters, keep engine cores framework-free.
+      - Scout eval metrics pass: `intent_top1=1`, `intent_top3_recall=1`, `injection_precision=1`, `injection_recall=1`, `tool_precision=1`, `clarification_rate=0.0625`, `override_frequency=0`.
+      - Conformance results: H-MEM **13/13**, World Model **8/8**, Markovian **8/8**.
+      - Test inventory: **37 tests across 7 spec files**; `app.spec.ts` 4, `task-store.spec.ts` 9, `assistant.service.spec.ts` 16, `memory.service.spec.ts` 2, `planning.service.spec.ts` 1, `world-model.service.spec.ts` 2, `scout.service.spec.ts` 3.
+      - Coverage is not configured; `--coverage` fails until `@vitest/coverage-v8` or `@vitest/coverage-istanbul` is installed; documented as optional.
+      - Docs naming convention: lowercase kebab-case except `README.md`.
+      - Apache-2.0 attribution exists via `THIRD_PARTY_NOTICES.md` and `THIRD_PARTY_LICENSES/meterless-APACHE-2.0.txt`.
+      - App gaps identified:
+        - `AssistantService` executes only primary intent; secondary intents ignored.
+        - `ScoutService.decide` does not use memory/context; Scout port lacks `planContext`.
+        - H-MEM conflict detection, dreaming, sleep cycle, trust ledger exist but are not exposed in `MemoryService`/UI; `remember` always adds without conflict checks.
+        - `WorldModelService` exposes task entities/audit only; no World→H-MEM sync, no read-surface/context-plan query.
+        - `PlanningService` does not pass `memoryContext` to Markovian, does not mine plan completion into H-MEM, and has no marker/crash-safe resume.
+        - Scout execution contracts are generated but not verified before assistant execution.
+        - No full-stack orchestrator; no world-grounded planning; no multi-intent execution.
+      - Planned combined-mechanism mapping:
+        - `Memory plus long tasks` → `AssistantService` + `PlanningService` + `MemoryService`; H-MEM `memoryContext` into Markovian chunk 0; mine `plan_completion`.
+        - `Check memory before acting` → `ScoutService` + `MemoryService`; add `planContext` shape `{subjectId, sources, maxTokens, relations, redactionPolicy}` and contextual scoring.
+        - `Route long jobs to Markovian` → `ScoutService` + `PlanningService`; pass and verify signed execution contract; short requests stay direct.
+        - `World state into memory` → `WorldModelService` event subscription + `MemoryService`; durable facts with `source: world:<id>`.
+        - `Plan from the world model` → `ScoutService`/`PlanningService` + `WorldModelService`; query graph/timeline before planning.
+        - `Many drafts, one shared state` → optional parallel Markovian runs with shared world snapshot; actual swarm is out of scope.
+        - `The full stack in one agent` → new `AssistantPipeline` orchestrator: Scout → context plan → H-MEM recall → World read → Markovian if long → TaskStore commit → World events → H-MEM ingest.
+        - `Upgrade the hackathon starter` → umbrella equivalent: Scout guard + Markovian long tasks + existing H-MEM wiring.
+        - `A research agent that remembers` → adapt to planning/research runs that recall prior plans and mine outcomes.
+        - `Accounts that remember people` → adapt to projects/task collections with per-project memory; defer until project entity support exists.
+      - Additional scenarios/enhancements to include in plan: “Plan my week” grounded in open tasks and remembered work preferences; “What should I do next?”; bulk triage; project workspaces; meeting-notes-to-tasks; daily standup/weekly retro summaries; smart rescheduling; natural-language bulk edits; explain-why/audit trail; memory conflict resolution UI; privacy controls/trust ledger; crash-safe long-plan resume; proactive nudges; plan comparison; task decomposition into subtasks.
+
+      ## Work State
+      ### Completed
+      - Testing documentation work is finished and verified:
+        - `docs/testing/meterless-engines-testing-guide.md`, `docs/testing/README.md`, `docs/README.md` created.
+        - Root `README.md` and `docs/meterless-fit.md` updated with testing-guide links.
+        - `npx prettier --write` applied; `npx prettier --check "src/app/**/*.{ts,html,css}" "docs/**/*.md" "README.md" "THIRD_PARTY_NOTICES.md"` passes.
+        - Local Markdown link checks report `missing: none`.
+        - `CI=true npm test -- --watch=false` passes **37/37**.
+        - `npm run build` passes cleanly.
+      - Planning research completed:
+        - Read all 319 lines of `ai-agent-planning-rules.md`.
+        - Loaded skills: `planning-artifact-naming`, `opencode-current-session-id`, `markdown-generation`, `planning-artifact-lifecycle`.
+        - Fetched and parsed `https://meterless.ai/engines.html`; saved copy at `/home/ext_root/lab-data/angular-todo-app/scratch/e95056dc3ffe4pKzS75TOwh4yI/engines.html`.
+        - Read Meterless spec docs/examples for H-MEM reinjection/retrieval, Scout execution contracts/model routing, World Model read surface/stable IDs, Markovian chunk config/markers, and cross-engine examples.
+        - Inspected app services, engine ports, types, components, and tests to identify exact integration seams.
+      - No source code for combined mechanisms has been changed yet.
+      - No planning artifacts have been written yet.
+
+      ### Active
+      - Drafting the session-scoped `task.md` and `implementation-plan-combined-mechanisms_v1.md`.
+      - Building the 10-combined mapping table, gap analysis, user scenarios/enhancements, phased implementation plan, test plan, acceptance criteria, risks, rollback, and user questions.
+      - Need to present the plan in chat and obtain approval before implementation.
+
+      ### Blocked
+      - None.
+      - Open scope decisions to include in the plan’s `User Questions & Answers`: whether to implement all 10 combined mechanisms or only the core 7; whether to adapt CRM/accounts to projects; whether parallel draft comparison is in scope; whether to add a projects feature; whether to include contract-gating hardening.
+
+      ## Next Move
+      1. Create `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md` with top-level planning checklist and timestamps.
+      2. Create `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md` with required H1, `## Rule Compliance Reference`, objective/scope, 10-combined mapping table, exact app seams, user benefits, scenarios/enhancements, phased task breakdown, tests, acceptance criteria, risks, rollback, and user Q&A.
+      3. Run Prettier/markdownlint/link checks on the new artifacts.
+      4. Present the mapping, scenarios, and plan summary in chat; wait for approval before coding.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md`: mandatory planning protocol; must be followed exactly.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/`: location for session-scoped planning artifacts and testing docs.
+      - `/home/ext_root/lab-data/angular-todo-app/scratch/e95056dc3ffe4pKzS75TOwh4yI/engines.html`: saved engines page used to extract COMBINE prompts.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: primary intent execution and confirmation flow; main orchestrator seam.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts`: Scout facade; needs memory/context plan and contract verification.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts`: H-MEM facade; needs conflict resolution, trust ledger, retrieval strategy, and world-fact ingestion.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts`: task entity sync/audit; needs event subscription, read-surface queries, and H-MEM sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts`: Markovian facade; needs `memoryContext`, contract input, plan-completion mining, and crash-safe resume.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: direct task mutations and World Model sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/`: Scout port, scoring, registry; lacks `planContext` and contextual memory scoring.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/`: H-MEM port; conflict/dreaming/sleep/trust ledger APIs available.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/`: World Model port; views, ingest, stable IDs, events.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/`: Markovian port; orchestrator, history, markers, carryover, prompt builder.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/assistant-panel/`: chat UI; needs multi-intent/plan/audit display.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/`: memory UI; needs trust ledger, conflicts, privacy controls.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/world-panel/`: Activity panel; could show world/H-MEM sync events.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: completed testing guide; reference for test additions.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/examples/markovian-handoff/README.md`: H-MEM → Markovian chunk-0 pattern.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/examples/query-hmem-before-action/README.md`: Scout context-plan → H-MEM recall pattern.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/examples/route-to-markovian/README.md`: Scout → Markovian long-job routing.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/examples/world-to-hmem-sync/README.md`: World → H-MEM fact sync.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/examples/scout-context-plan-to-world-query/README.md`: context plan → World Model query.
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/examples/markovian-with-hmem/README.md`: `memoryContext` and `skipSemanticMemoryAugmentation`.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/docs/reinjection.md`: reinjection format and safety rules.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/docs/execution-contract.md`: contract shape and downstream enforcement.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/docs/read-surface.md`: graph/timeline/search/snapshot views.
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/docs/marker-protocol.md`: marker/resume behavior.

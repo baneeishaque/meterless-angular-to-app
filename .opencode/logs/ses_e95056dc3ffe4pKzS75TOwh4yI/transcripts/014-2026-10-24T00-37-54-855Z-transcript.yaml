@@ -1,0 +1,9 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Next step is executing Batch 1 (commits 1–5), but the commit protocol requires the exact authorization trigger — “continue” is insufficient.
+
+      Reply **`start batch 1`** and I’ll execute it. No commits have been made yet.

@@ -1,0 +1,157 @@
+---
+user:
+  text: yes, also push
+  time: 10/24/2026, 12:52:27.245 AM UTC
+assistant:
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Need drop stash and push. User authorized both. Drop stash, then push origin main. Before push maybe final fetch/status. Push with normal push. Need ensure no provider files committed. All good. Drop stash then push.
+    thinking_duration: 295ms
+    thinking_duration_ms: 295
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git stash drop stash@{0} && git stash list
+        result: |
+          Dropped stash@{0} (4a96e324104f9ddd3cc4e9c2a51f24283841d299)
+    time: 10/24/2026, 12:52:27.363 AM UTC
+    response: "\n\n"
+    duration: 1.566s
+    duration_ms: 1566
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Push. Check remote and branch. `git push origin main`. Then verify.
+    thinking_duration: 71ms
+    thinking_duration_ms: 71
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git fetch origin && git rev-list --left-right --count HEAD...origin/main && git push origin main
+          timeout: 180000
+        result: "12\t0\nTo https://github.com/baneeishaque/meterless-angular-to-app.git\n   fe9f290..84502e0  main -> main\n"
+    time: 10/24/2026, 12:52:29.033 AM UTC
+    response: "\n\n"
+    duration: 3.446s
+    duration_ms: 3446
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Verify remote HEAD and status.
+    thinking_duration: 18ms
+    thinking_duration_ms: 18
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git fetch origin && git rev-parse HEAD origin/main && git status --short --branch | head -3 && git stash list
+        result: |
+          84502e0ac926d816fe87266903f122dff1595d78
+          84502e0ac926d816fe87266903f122dff1595d78
+          ## main...origin/main
+           M README.md
+           M docs/testing/README.md
+    time: 10/24/2026, 12:52:32.575 AM UTC
+    response: "\n\n"
+    duration: 1.737s
+    duration_ms: 1737
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Wait `M docs/testing/README.md` now modified? It was committed. Why modified? Maybe concurrent process changed it after commit? Or line endings? Need inspect. Also README provider. Docs/testing/README.md modified after commit—maybe another concurrent change? We need check diff.
+    thinking_duration: 222ms
+    thinking_duration_ms: 222
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff -- docs/testing/README.md
+        result: |
+          diff --git a/docs/testing/README.md b/docs/testing/README.md
+          index 7e767a0..abf29f6 100644
+          --- a/docs/testing/README.md
+          +++ b/docs/testing/README.md
+          @@ -4,7 +4,8 @@ This folder owns the test strategy, commands, and expected results for the app a
+           
+           ## Start here
+           
+          -- [Meterless Engines Testing Guide](meterless-engines-testing-guide.md) — full manual and automated test guide for the natural-language assistant, Scout Intent, H-MEM, World Model, and Markovian.
+          +- [Meterless Engines Testing Guide](meterless-engines-testing-guide.md) — full manual and automated test guide
+          +  for the natural-language assistant, Scout Intent, H-MEM, World Model, and Markovian.
+           - [Meterless Engines implementation map](../meterless-fit.md) — architecture, persistence keys, and engine limits.
+           
+           ## Fast verification
+          @@ -17,13 +18,13 @@ npm run build
+           
+           Expected on the current implementation:
+           
+          -- **74 Vitest tests pass** across 12 spec files.
+          +- **101 Vitest tests pass** across 15 spec files.
+           - **Production build succeeds** with no budget errors.
+           - **Scout eval** passes all thresholds.
+           - **H-MEM conformance** passes 13/13 checks.
+           - **World Model conformance** passes 8/8 checks.
+           - **Markovian conformance** passes 8/8 checks.
+          -- **Playwright headless Chromium smoke** passes the assistant, project, trace, and persistence flows.
+          +- **Playwright headless Chromium smoke** passes the assistant, project, trace, persistence, and provider flows.
+           
+           ## Test layers
+           
+          @@ -31,7 +32,7 @@ Expected on the current implementation:
+           | ---------------- | -------------------------------------- | ---------------------------------------------------------- |
+           | Unit             | Angular CLI unit-test builder + Vitest | Store math, persistence, engine service behavior           |
+           | Integration      | Angular `TestBed` + jsdom              | Assistant intent -> action -> store -> engine side effects |
+          -| Component        | Angular `TestBed` + jsdom              | App shell and engine panels render                         |
+          +| Component        | Angular `TestBed` + jsdom              | App shell, engine panels, and provider panel render        |
+           | Conformance      | Meterless runners under `tsx`          | Engine invariants that are independent of this app         |
+           | Eval             | Scout eval harness under `tsx`         | Intent accuracy, injection recall/precision, tool routing  |
+           | Production build | Angular AOT build                      | Templates, types, CSS budgets, and bundling                |
+          @@ -49,6 +50,8 @@ The current suite adds dedicated coverage for:
+           - Project tasks: project creation, task scoping, and unassignment on project removal.
+           - Trace UI: direct-action traces, reload restoration, and routing metadata.
+           - Vague references: “the usual” resolved from remembered preferences.
+          +- Runtime provider: URL/connect-link normalization, token rejection, auth/app/scope headers, status
+          +  classification, Auto Detect, model filtering, and plain-text chat.
+           
+           ## Test data reset
+           
+          @@ -67,6 +70,8 @@ localStorage.removeItem('angular-todo-app.hmem.v1');
+           localStorage.removeItem('angular-todo-app.world.v1');
+           localStorage.removeItem('angular-todo-app.markovian.v1');
+           localStorage.removeItem('angular-todo-app.trace.v1');
+          +localStorage.removeItem('meterless_runtime_token');
+          +localStorage.removeItem('meterless_runtime_settings');
+           ```
+           
+           ## Related
+    time: 10/24/2026, 12:52:34.388 AM UTC
+    response: "\n\n"
+    duration: 1.222s
+    duration_ms: 1222
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Concurrent provider work updated docs/testing/README after our commit (to 101/15). It happened during our push. This is untracked/modified from concurrent agent. We must not commit. But wait, it says 101 tests, not 100. Maybe provider added another test after our run. This is concurrent. We need mention working tree has new provider docs changes; not ours. Push succeeded for our commits. Fine.
+
+      But important: docs/testing/README committed says 74/12; working tree now says 101/15 due provider. That's expected concurrent. No action.
+
+      Need final answer: stash dropped, push succeeded `fe9f290..84502e0`, remote matches. Mention working tree still has concurrent provider changes including README.md and docs/testing/README.md; left untouched. Maybe note docs/testing/README was modified after commit by concurrent work. Do not claim clean.
+
+      Need maybe mention remote HEAD. Concise.
+    thinking_duration: 836ms
+    thinking_duration_ms: 836
+    time: 10/24/2026, 12:52:35.710 AM UTC
+    response: |-
+      Stash dropped and push completed.
+
+      - Remote: `fe9f290..84502e0 main -> main`
+      - `HEAD` and `origin/main` both at `84502e0`
+      - Working tree still contains the concurrent provider changes, including `README.md` and a post-commit update to `docs/testing/README.md`; left untouched.
+    duration: 1.752s
+    duration_ms: 1752
+

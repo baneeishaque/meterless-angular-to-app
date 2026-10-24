@@ -1,0 +1,1796 @@
+---
+user:
+  text: start batch 2
+  time: 10/24/2026, 12:47:07.112 AM UTC
+assistant:
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      We have authorization. Execute commits 6-10 carefully, handling mixed files and ProviderPanel exclusion.
+
+      Plan:
+      - Safety stash already exists and covers pre-batch working tree. Batch 2 begins after batch 1. Need re-verify stash presence (2b). Do.
+      - Commit 6: assistant-pipeline service/spec. Stage. Diff. Commit.
+      - Commit 7: planning service/spec. Stage. Diff. Commit.
+      - Commit 8: TaskStore/spec, task input/filters/item, app.ts/html/css. Need temporary edit to exclude TracePanel and ProviderPanel from app.ts/html. No app.spec in C8.
+        - Backup app.ts, app.html to scratch (gitignored) using cp.
+        - Edit app.ts: remove ProviderPanel import, TracePanel import; change imports array to baseline one-line without ProviderPanel/TracePanel. Need ensure project additions remain.
+        - Edit app.html: remove `<app-provider-panel />` and `<app-trace-panel />` lines.
+        - Stage app.ts/html/css + other files.
+        - Check diff; commit.
+        - Restore backups.
+      - Commit 9: assistant service/spec. Stage. Commit.
+      - Commit 10: trace panel dir, assistant-panel.html, assistant-panel.spec, memory-panel css/html, app.ts/html/spec trace wiring.
+        - Backup app.ts, app.html, app.spec.ts.
+        - Edit app.ts: remove ProviderPanel only; keep TracePanel. Ensure imports array includes TracePanel and not ProviderPanel.
+        - Edit app.html: remove `<app-provider-panel />` only; keep trace.
+        - Edit app.spec.ts: remove provider assertion only; keep trace assertion.
+        - Stage trace panel files, assistant-panel html/spec, memory panel files, app.ts/html/spec.
+        - Check diff; commit.
+        - Restore backups.
+      - After batch: tests/build (working tree has provider files, which build may include? App imports ProviderPanel; provider files exist, so build passes. But tests? app.spec expects provider panel; app includes it, so pass. Fine.)
+      - Present batch 3 preview? Batch 3 has lint config + docs. Need separate authorization. We can stop after batch 2 and present.
+
+      Need be careful with `edit` tool: must read files before editing. We have read diffs, but not full files. `edit` requires read at least once. We can use `read` for app.ts/html/spec. Or use `cp` and `edit` after read. Let's read them now (small).
+    thinking_duration: 2.944s
+    thinking_duration_ms: 2944
+    tool_calls:
+      - tool: bash
+        args:
+          command: git -C /home/ext_root/lab-data/angular-todo-app --no-pager stash list
+        result: |
+          stash@{0}: On main: safety: pre-batch-1 snapshot of 49 working-tree entries before commits 1..5 land (2026-10-24)
+      - tool: read
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.ts
+        result: |-
+          <path>/home/ext_root/lab-data/angular-todo-app/src/app/app.ts</path>
+          <type>file</type>
+          <content>
+          1: import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+          2: import { AssistantPanel } from './components/assistant-panel/assistant-panel';
+          3: import { MemoryPanel } from './components/memory-panel/memory-panel';
+          4: import { ProviderPanel } from './components/provider-panel/provider-panel';
+          5: import { TaskFilters } from './components/task-filters/task-filters';
+          6: import { TaskInput } from './components/task-input/task-input';
+          7: import type { TaskAddedEvent } from './components/task-input/task-input';
+          8: import { TaskItem } from './components/task-item/task-item';
+          9: import { TracePanel } from './components/trace-panel/trace-panel';
+          10: import { WorldPanel } from './components/world-panel/world-panel';
+          11: import { TaskStore } from './services/task-store';
+          12: 
+          13: @Component({
+          14:   selector: 'app-root',
+          15:   changeDetection: ChangeDetectionStrategy.OnPush,
+          16:   imports: [
+          17:     TaskInput,
+          18:     TaskFilters,
+          19:     TaskItem,
+          20:     AssistantPanel,
+          21:     ProviderPanel,
+          22:     MemoryPanel,
+          23:     TracePanel,
+          24:     WorldPanel,
+          25:   ],
+          26:   templateUrl: './app.html',
+          27:   styleUrl: './app.css',
+          28: })
+          29: export class App {
+          30:   protected readonly store = inject(TaskStore);
+          31: 
+          32:   protected readonly emptyState = computed(() => {
+          33:     const total = this.store.counts().all;
+          34: 
+          35:     switch (this.store.filter()) {
+          36:       case 'active':
+          37:         return total === 0
+          38:           ? { title: 'Your list is clear', hint: 'Add a task above to get started.' }
+          39:           : { title: 'Nothing left to do', hint: 'Every task is complete. Enjoy the quiet.' };
+          40:       case 'completed':
+          41:         return {
+          42:           title: 'No completed tasks yet',
+          43:           hint: 'Check off a task and it will appear here.',
+          44:         };
+          45:       default:
+          46:         return { title: 'Your list is clear', hint: 'Add your first task above.' };
+          47:     }
+          48:   });
+          49: 
+          50:   protected addTask(event: TaskAddedEvent): void {
+          51:     this.store.add(event.title, event.projectId);
+          52:   }
+          53: 
+          54:   protected addProject(input: HTMLInputElement): void {
+          55:     const project = this.store.addProject(input.value);
+          56:     if (project) {
+          57:       input.value = '';
+          58:       this.store.setProjectFilter(project.id);
+          59:     }
+          60:   }
+          61: }
+
+          (End of file - total 61 lines)
+          </content>
+      - tool: read
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.html
+        result: |-
+          <path>/home/ext_root/lab-data/angular-todo-app/src/app/app.html</path>
+          <type>file</type>
+          <content>
+          1: <main class="shell">
+          2:   <div class="layout">
+          3:     <section class="card" aria-labelledby="app-title">
+          4:       <header class="header">
+          5:         <div>
+          6:           <p class="eyebrow">Today</p>
+          7:           <h1 id="app-title">Tasks</h1>
+          8:         </div>
+          9:         <p class="remaining" aria-live="polite">
+          10:           <strong>{{ store.remainingCount() }}</strong>
+          11:           {{ store.remainingCount() === 1 ? 'task' : 'tasks' }} left
+          12:         </p>
+          13:       </header>
+          14: 
+          15:       <app-task-input [projects]="store.projects()" (taskAdded)="addTask($event)" />
+          16: 
+          17:       @if (store.tasks().length > 0) {
+          18:         <app-task-filters
+          19:           [filter]="store.filter()"
+          20:           [counts]="store.counts()"
+          21:           [projects]="store.projects()"
+          22:           [projectFilter]="store.projectFilter()"
+          23:           (filterChange)="store.setFilter($event)"
+          24:           (projectFilterChange)="store.setProjectFilter($event)"
+          25:         />
+          26:       }
+          27: 
+          28:       <form class="project-add" (submit)="$event.preventDefault(); addProject(projectName)">
+          29:         <label class="sr-only" for="new-project">New project</label>
+          30:         <input
+          31:           #projectName
+          32:           id="new-project"
+          33:           type="text"
+          34:           placeholder="New project"
+          35:           autocomplete="off"
+          36:         />
+          37:         <button type="submit">Add project</button>
+          38:       </form>
+          39: 
+          40:       @if (store.visibleTasks().length > 0) {
+          41:         <ul class="task-list" aria-label="Tasks">
+          42:           @for (task of store.visibleTasks(); track task.id) {
+          43:             <li
+          44:               app-task-item
+          45:               [task]="task"
+          46:               (toggled)="store.toggle($event)"
+          47:               (renamed)="store.rename($event.id, $event.title)"
+          48:               (removed)="store.remove($event)"
+          49:             ></li>
+          50:           }
+          51:         </ul>
+          52:       } @else {
+          53:         <div class="empty">
+          54:           <div class="empty-icon" aria-hidden="true">✓</div>
+          55:           <p class="empty-title">{{ emptyState().title }}</p>
+          56:           <p class="empty-hint">{{ emptyState().hint }}</p>
+          57:         </div>
+          58:       }
+          59: 
+          60:       <footer class="footer">
+          61:         <span>{{ store.completedCount() }} completed</span>
+          62:         <span class="dot" aria-hidden="true">·</span>
+          63:         <span>Saved on this device</span>
+          64:       </footer>
+          65:     </section>
+          66: 
+          67:     <aside class="rail" aria-label="Engine activity">
+          68:       <app-assistant-panel />
+          69:       <app-provider-panel />
+          70:       <app-memory-panel />
+          71:       <app-trace-panel />
+          72:       <app-world-panel />
+          73:     </aside>
+          74:   </div>
+          75: </main>
+
+          (End of file - total 75 lines)
+          </content>
+      - tool: read
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.spec.ts
+        result: |-
+          <path>/home/ext_root/lab-data/angular-todo-app/src/app/app.spec.ts</path>
+          <type>file</type>
+          <content>
+          1: import { TestBed } from '@angular/core/testing';
+          2: import { App } from './app';
+          3: 
+          4: describe('App', () => {
+          5:   beforeEach(async () => {
+          6:     localStorage.clear();
+          7: 
+          8:     await TestBed.configureTestingModule({
+          9:       imports: [App],
+          10:     }).compileComponents();
+          11:   });
+          12: 
+          13:   it('creates the app', () => {
+          14:     const fixture = TestBed.createComponent(App);
+          15:     const app = fixture.componentInstance;
+          16: 
+          17:     expect(app).toBeTruthy();
+          18:   });
+          19: 
+          20:   it('renders the engine panels', async () => {
+          21:     const fixture = TestBed.createComponent(App);
+          22:     await fixture.whenStable();
+          23: 
+          24:     const compiled = fixture.nativeElement as HTMLElement;
+          25: 
+          26:     expect(compiled.querySelector('app-assistant-panel')).toBeTruthy();
+          27:     expect(compiled.querySelector('app-provider-panel')).toBeTruthy();
+          28:     expect(compiled.querySelector('app-memory-panel')).toBeTruthy();
+          29:     expect(compiled.querySelector('app-trace-panel')).toBeTruthy();
+          30:     expect(compiled.querySelector('app-world-panel')).toBeTruthy();
+          31:   });
+          32: 
+          33:   it('renders the empty state', async () => {
+          34:     const fixture = TestBed.createComponent(App);
+          35:     await fixture.whenStable();
+          36: 
+          37:     const compiled = fixture.nativeElement as HTMLElement;
+          38: 
+          39:     expect(compiled.querySelector('h1')?.textContent).toContain('Tasks');
+          40:     expect(compiled.querySelector('.empty-title')?.textContent).toContain('Your list is clear');
+          41:   });
+          42: 
+          43:   it('adds a task through the form', async () => {
+          44:     const fixture = TestBed.createComponent(App);
+          45:     await fixture.whenStable();
+          46: 
+          47:     const compiled = fixture.nativeElement as HTMLElement;
+          48:     const input = compiled.querySelector('#new-task') as HTMLInputElement;
+          49: 
+          50:     input.value = 'Buy milk';
+          51:     input.dispatchEvent(new Event('input'));
+          52: 
+          53:     await fixture.whenStable();
+          54: 
+          55:     compiled.querySelector('form')?.dispatchEvent(new Event('submit'));
+          56: 
+          57:     await fixture.whenStable();
+          58: 
+          59:     expect(compiled.querySelector('.title')?.textContent).toContain('Buy milk');
+          60:     expect(compiled.querySelector('.remaining')?.textContent).toContain('1 task left');
+          61:   });
+          62: });
+
+          (End of file - total 62 lines)
+          </content>
+    time: 10/24/2026, 12:47:07.261 AM UTC
+    response: "\n\n"
+    duration: 4.771s
+    duration_ms: 4771
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Need backup. Use `mkdir -p scratch/batch2-backup` and cp. Is scratch gitignored? Yes. Use bash.
+    thinking_duration: 82ms
+    thinking_duration_ms: 82
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && mkdir -p scratch/batch2-backup && cp src/app/app.ts scratch/batch2-backup/app.ts && cp src/app/app.html scratch/batch2-backup/app.html && cp src/app/app.spec.ts scratch/batch2-backup/app.spec.ts && ls -l scratch/batch2-backup
+        result: |
+          total 12
+          -rw-rw-r-- 1 ext_root ext_root 2409 Oct 24 00:47 app.html
+          -rw-rw-r-- 1 ext_root ext_root 1996 Oct 24 00:47 app.spec.ts
+          -rw-rw-r-- 1 ext_root ext_root 2078 Oct 24 00:47 app.ts
+    time: 10/24/2026, 12:47:12.122 AM UTC
+    response: "\n\n"
+    duration: 1.770s
+    duration_ms: 1770
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Commit 6. Stage pipeline files.
+    thinking_duration: 78ms
+    thinking_duration_ms: 78
+    tool_calls:
+      - tool: bash
+        args:
+          command: git -C /home/ext_root/lab-data/angular-todo-app add -- src/app/services/assistant-pipeline.service.ts src/app/services/assistant-pipeline.service.spec.ts && git -C /home/ext_root/lab-data/angular-todo-app diff --cached --stat && git -C /home/ext_root/lab-data/angular-todo-app diff --cached --check
+        result: |2
+           .../services/assistant-pipeline.service.spec.ts    | 42 +++++++++++
+           src/app/services/assistant-pipeline.service.ts     | 87 ++++++++++++++++++++++
+           2 files changed, 129 insertions(+)
+    time: 10/24/2026, 12:47:13.992 AM UTC
+    response: "\n\n"
+    duration: 1.195s
+    duration_ms: 1195
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Inspect pipeline diff.
+    thinking_duration: 40ms
+    thinking_duration_ms: 40
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached -- src/app/services/assistant-pipeline.service.ts
+        result: |
+          diff --git a/src/app/services/assistant-pipeline.service.ts b/src/app/services/assistant-pipeline.service.ts
+          new file mode 100644
+          index 0000000..bf6e994
+          --- /dev/null
+          +++ b/src/app/services/assistant-pipeline.service.ts
+          @@ -0,0 +1,87 @@
+          +import { inject, Injectable } from '@angular/core';
+          +import type { Decision } from '../engines/scout';
+          +import { ContextPlanService } from './context-plan.service';
+          +import type { ContextPlan, MemoryContext, WorldContext } from './context-plan.service';
+          +import { MemoryService } from './memory.service';
+          +import { ScoutService } from './scout.service';
+          +import { WorldModelService } from './world-model.service';
+          +
+          +export interface AssistantTrace {
+          +  traceId: string;
+          +  contractId: string;
+          +  intent: string;
+          +  confidence: number;
+          +  risk: string;
+          +  route: 'direct' | 'markovian' | 'refused';
+          +  contextPlan: ContextPlan;
+          +  memoryIds: string[];
+          +  worldEntityIds: string[];
+          +  startedAt: number;
+          +  durationMs: number;
+          +  stages: string[];
+          +}
+          +
+          +export interface PipelineDecision {
+          +  decision: Decision;
+          +  contextPlan: ContextPlan;
+          +  memory: MemoryContext;
+          +  world: WorldContext;
+          +  trace: AssistantTrace;
+          +}
+          +
+          +const EMPTY_MEMORY: MemoryContext = { text: '', ids: [], count: 0 };
+          +const EMPTY_WORLD: WorldContext = {
+          +  text: '',
+          +  entityIds: [],
+          +  entityCount: 0,
+          +  truncated: false,
+          +};
+          +
+          +@Injectable({ providedIn: 'root' })
+          +export class AssistantPipelineService {
+          +  private readonly scout = inject(ScoutService);
+          +  private readonly contextPlans = inject(ContextPlanService);
+          +  private readonly memory = inject(MemoryService);
+          +  private readonly world = inject(WorldModelService);
+          +
+          +  async decide(prompt: string): Promise<PipelineDecision> {
+          +    const startedAt = Date.now();
+          +    const candidates = await this.scout.classify(prompt);
+          +    const contextPlan = this.contextPlans.plan(prompt, candidates, this.world.projectSummaries());
+          +    const memory = contextPlan.sources.includes('memory')
+          +      ? this.memory.recallForPlan(prompt, contextPlan.topN, {
+          +          projectId: contextPlan.projectId,
+          +        })
+          +      : EMPTY_MEMORY;
+          +    const world = contextPlan.sources.includes('world')
+          +      ? this.world.buildPromptContext({
+          +          subjectId: contextPlan.subjectId,
+          +          limit: 12,
+          +          include: contextPlan.relations,
+          +          maxChars: contextPlan.maxTokens,
+          +        })
+          +      : EMPTY_WORLD;
+          +    const decision = await this.scout.decide(prompt, { memory, world, contextPlan });
+          +    const route = isMarkovianIntent(decision.intent.primary.id) ? 'markovian' : 'direct';
+          +    const trace: AssistantTrace = {
+          +      traceId: decision.executionContract.traceId,
+          +      contractId: decision.executionContract.contractId,
+          +      intent: decision.intent.primary.id,
+          +      confidence: decision.intent.primary.confidence,
+          +      risk: decision.risk.level,
+          +      route,
+          +      contextPlan,
+          +      memoryIds: memory.ids,
+          +      worldEntityIds: world.entityIds,
+          +      startedAt,
+          +      durationMs: Date.now() - startedAt,
+          +      stages: ['context-plan', 'memory-recall', 'world-query', 'scout-decide', 'contract'],
+          +    };
+          +
+          +    return { decision, contextPlan, memory, world, trace };
+          +  }
+          +}
+          +
+          +function isMarkovianIntent(intent: string): boolean {
+          +  return intent === 'task.plan' || intent === 'task.research' || intent === 'task.compare';
+          +}
+    time: 10/24/2026, 12:47:15.369 AM UTC
+    response: "\n\n"
+    duration: 1.265s
+    duration_ms: 1265
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Good. Commit 6.
+    thinking_duration: 270ms
+    thinking_duration_ms: 270
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "feat(assistant): add the engine context pipeline" -m "Assemble the context plan, H-MEM recall, World Model query, Scout decision, and trace metadata behind one pipeline service. The pipeline is the shared read path consumed by both the assistant service and planning tests."'
+          timeout: 120000
+        result: "5\t0\n[main 19f3dba] feat(assistant): add the engine context pipeline\n 2 files changed, 129 insertions(+)\n create mode 100644 src/app/services/assistant-pipeline.service.spec.ts\n create mode 100644 src/app/services/assistant-pipeline.service.ts\n"
+    time: 10/24/2026, 12:47:16.751 AM UTC
+    response: "\n\n"
+    duration: 2.559s
+    duration_ms: 2559
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Commit 7 planning. Stage.
+    thinking_duration: 34ms
+    thinking_duration_ms: 34
+    tool_calls:
+      - tool: bash
+        args:
+          command: git -C /home/ext_root/lab-data/angular-todo-app add -- src/app/services/planning.service.ts src/app/services/planning.service.spec.ts && git -C /home/ext_root/lab-data/angular-todo-app diff --cached --stat && git -C /home/ext_root/lab-data/angular-todo-app diff --cached --check
+        result: |2
+           src/app/services/planning.service.spec.ts | 110 ++++++++++++++-
+           src/app/services/planning.service.ts      | 220 +++++++++++++++++++++++++++++-
+           2 files changed, 328 insertions(+), 2 deletions(-)
+    time: 10/24/2026, 12:47:19.419 AM UTC
+    response: "\n\n"
+    duration: 1.711s
+    duration_ms: 1711
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Inspect planning diff briefly.
+    thinking_duration: 44ms
+    thinking_duration_ms: 44
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached -- src/app/services/planning.service.ts | head -280
+        result: |
+          diff --git a/src/app/services/planning.service.ts b/src/app/services/planning.service.ts
+          index a28dae3..a9902a3 100644
+          --- a/src/app/services/planning.service.ts
+          +++ b/src/app/services/planning.service.ts
+          @@ -1,13 +1,29 @@
+          -import { computed, Injectable, signal } from '@angular/core';
+          +import { computed, inject, Injectable, signal } from '@angular/core';
+           import { Markovian } from '../engines/markovian';
+           import type { MarkovianRun } from '../engines/markovian';
+          +import type { Decision } from '../engines/scout';
+          +import type { PlanningContext } from './context-plan.service';
+          +import { MemoryService } from './memory.service';
+          +import { WorldModelService } from './world-model.service';
+           import { readJson, writeJson } from './persistence';
+          +import { ScoutService } from './scout.service';
+           
+           const MARKOVIAN_KEY = 'angular-todo-app.markovian.v1';
+          +const ALLOWED_PLAN_INTENTS = new Set(['task.plan', 'task.research', 'task.compare']);
+          +
+          +export class ContractRefusalError extends Error {
+          +  constructor(message: string) {
+          +    super(message);
+          +    this.name = 'ContractRefusalError';
+          +  }
+          +}
+           
+           @Injectable({ providedIn: 'root' })
+           export class PlanningService {
+             private readonly revision = signal(0);
+          +  private readonly scout = inject(ScoutService);
+          +  private readonly memory = inject(MemoryService);
+          +  private readonly world = inject(WorldModelService);
+             private readonly markovian = new Markovian({
+               chunkConfig: { maxChunks: 4 },
+               persistence: {
+          @@ -17,6 +33,7 @@ export class PlanningService {
+             });
+           
+             readonly lastPlan = signal<MarkovianRun | null>(null);
+          +  readonly lastAlternatives = signal<readonly MarkovianRun[]>([]);
+           
+             readonly runs = computed<readonly MarkovianRun[]>(() => {
+               this.revision();
+          @@ -40,6 +57,115 @@ export class PlanningService {
+               this.revision.update((value) => value + 1);
+               return run;
+             }
+          +
+          +  async planFromContract(
+          +    decision: Decision,
+          +    context: PlanningContext,
+          +    goal = decision.prompt,
+          +  ): Promise<MarkovianRun> {
+          +    this.assertContract(decision);
+          +    const mode = decision.intent.primary.id === 'task.research' ? 'RESEARCH' : 'ARCHITECT';
+          +
+          +    const run = await this.markovian.run({
+          +      goal,
+          +      mode,
+          +      reflect: false,
+          +      memoryContext: context.memory.text,
+          +      chunkConfig: { maxChunks: context.contextPlan.maxChunks },
+          +      stepFn: ({ goal: requestedGoal, carryover, step }) => ({
+          +        content:
+          +          step === 0
+          +            ? buildGroundedPlan(requestedGoal, context, mode)
+          +            : buildPlanContinuation(requestedGoal, carryover, mode),
+          +      }),
+          +    });
+          +
+          +    this.lastPlan.set(run);
+          +    this.revision.update((value) => value + 1);
+          +
+          +    if (run.status === 'completed') {
+          +      this.memory.recordPlanCompletion(run, goal);
+          +    }
+          +
+          +    return run;
+          +  }
+          +
+          +  async planAlternatives(
+          +    decision: Decision,
+          +    context: PlanningContext,
+          +    count = 3,
+          +    goal = decision.prompt,
+          +  ): Promise<MarkovianRun[]> {
+          +    this.assertContract(decision);
+          +    const seeds = [
+          +      'Prioritize the smallest safe next step.',
+          +      'Prioritize the highest-leverage dependency first.',
+          +      'Prioritize a reversible experiment that reduces uncertainty.',
+          +    ].slice(0, Math.max(1, count));
+          +
+          +    const runs = await Promise.all(
+          +      seeds.map((seed, index) =>
+          +        this.markovian.run({
+          +          goal,
+          +          mode: 'ARCHITECT',
+          +          reflect: false,
+          +          memoryContext: context.memory.text,
+          +          chunkConfig: {
+          +            maxChunks: Math.min(12, context.contextPlan.maxChunks + index),
+          +          },
+          +          stepFn: ({ goal: requestedGoal, carryover, step }) => ({
+          +            content:
+          +              step === 0
+          +                ? buildGroundedPlan(requestedGoal, context, 'ARCHITECT', seed)
+          +                : buildPlanContinuation(requestedGoal, carryover, 'ARCHITECT', seed),
+          +          }),
+          +        }),
+          +      ),
+          +    );
+          +
+          +    for (const run of runs) {
+          +      this.world.upsertPlanDraft({
+          +        id: run.id,
+          +        goal,
+          +        runId: run.id,
+          +        selected: false,
+          +        output: run.output,
+          +      });
+          +    }
+          +
+          +    this.lastAlternatives.set(runs);
+          +    this.revision.update((value) => value + 1);
+          +    return runs;
+          +  }
+          +
+          +  selectAlternative(index: number): MarkovianRun | undefined {
+          +    const run = this.lastAlternatives()[index];
+          +    if (!run) {
+          +      return undefined;
+          +    }
+          +
+          +    this.lastPlan.set(run);
+          +    this.world.selectPlanDraft(run.id);
+          +    this.memory.recordPlanCompletion(run, run.prompt);
+          +    this.revision.update((value) => value + 1);
+          +    return run;
+          +  }
+          +
+          +  private assertContract(decision: Decision): void {
+          +    const primary = decision.intent.primary.id;
+          +    if (!ALLOWED_PLAN_INTENTS.has(primary)) {
+          +      throw new ContractRefusalError(`Intent ${primary} cannot start a Markovian run.`);
+          +    }
+          +    if (!decision.executionContract.scope.capabilities.includes('markovian.chain')) {
+          +      throw new ContractRefusalError('Contract does not grant the markovian.chain capability.');
+          +    }
+          +    if (decision.risk.level === 'block') {
+          +      throw new ContractRefusalError('Contract risk is blocked.');
+          +    }
+          +    if (!this.scout.verifyContract(decision.executionContract)) {
+          +      throw new ContractRefusalError('Contract signature is invalid or expired.');
+          +    }
+          +  }
+           }
+           
+           function buildPlan(goal: string): string {
+          @@ -62,3 +188,95 @@ function buildPlan(goal: string): string {
+               '[DONE]',
+             ].join('\n');
+           }
+          +
+          +function buildGroundedPlan(
+          +  goal: string,
+          +  context: PlanningContext,
+          +  mode: 'ARCHITECT' | 'RESEARCH',
+          +  seed?: string,
+          +): string {
+          +  const activeTasks = extractTaskNames(context.world.text);
+          +  const taskLine =
+          +    activeTasks.length > 0
+          +      ? `Current tasks: ${activeTasks.slice(0, 3).join(', ')}.`
+          +      : 'Current tasks: none yet.';
+          +  const memoryLine =
+          +    context.memory.count > 0
+          +      ? `Remembered context: ${context.memory.count} relevant item(s).`
+          +      : 'Remembered context: none relevant.';
+          +  const memoryNotes = context.memory.text
+          +    .split('\n')
+          +    .filter((line) => line.startsWith('- '))
+          +    .slice(0, 3)
+          +    .map((line) => line.slice(2).trim());
+          +  const memoryDetail =
+          +    memoryNotes.length > 0 ? `Memory notes: ${memoryNotes.join('; ')}.` : 'Memory notes: none.';
+          +  const worldLine = `World state: ${context.world.entityCount} visible entity(s).`;
+          +  const subjectGoal = cleanGoal(goal);
+          +  const subject =
+          +    mode === 'RESEARCH' ? `Research plan for ${subjectGoal}` : `Plan for ${subjectGoal}`;
+          +
+          +  return [
+          +    subject,
+          +    '',
+          +    `1. Ground the goal in reality. ${memoryLine} ${memoryDetail} ${worldLine} ${taskLine}`,
+          +    `2. Define the finish line. Write one sentence that says what "done" means for ${subjectGoal}.`,
+          +    `3. Sequence the work. List dependencies, unknowns, and the smallest safe next step.`,
+          +    `4. Choose the first action. ${seed ?? 'Prefer the action that removes the most uncertainty.'}`,
+          +    '5. Put the first action on the task list and schedule the next review.',
+          +    '',
+          +    '[STATE_CHECKPOINT]',
+          +    'COMPLETED: context gathered; goal grounded in memory and world state.',
+          +    'REMAINING: define the finish line; sequence dependencies; choose the first action.',
+          +    `DECISIONS: ${seed ?? 'prefer the action that removes the most uncertainty'}.`,
+          +    `CONTEXT: memory=${context.memory.ids.join(',') || 'none'}; world=${
+          +      context.world.entityIds.join(',') || 'none'
+          +    }.`,
+          +    `goal=${goal}`,
+          +    `memory=${context.memory.count}`,
+          +    `world=${context.world.entityCount}`,
+          +    `seed=${seed ?? 'default'}`,
+          +  ].join('\n');
+          +}
+          +
+          +function buildPlanContinuation(
+          +  goal: string,
+          +  carryover: string,
+          +  mode: 'ARCHITECT' | 'RESEARCH',
+          +  seed?: string,
+          +): string {
+          +  const review = mode === 'RESEARCH' ? 'source notes and confidence' : 'the finish line';
+          +  const checkpoint = (carryover || 'no checkpoint text')
+          +    .split('\n')
+          +    .filter(
+          +      (line) =>
+          +        !line.startsWith('CONTEXT:') &&
+          +        !line.startsWith('memory=') &&
+          +        !line.includes('Remembered context') &&
+          +        !line.includes('Memory notes:'),
+          +    )
+          +    .join('\n');
+          +  return [
+          +    `Next actions for ${cleanGoal(goal)}`,
+          +    '',
+          +    `1. Review ${review} from the checkpoint: ${checkpoint}.`,
+          +    `2. Turn the first action into a concrete task with a clear done condition.`,
+          +    `3. Schedule a review and record what changed.`,
+          +    `4. If ${seed ? 'the chosen option' : 'the plan'} is blocked, fall back to the smallest reversible step.`,
+          +    '',
+          +    '[TASK_COMPLETE]',
+          +  ].join('\n');
+          +}
+          +
+          +function cleanGoal(goal: string): string {
+          +  return (
+          +    goal
+          +      .replace(/^\s*(?:plan|research|investigate|look into)\b\s*(?:for\s+)?/i, '')
+          +      .replace(/\s+/g, ' ')
+          +      .trim() || goal
+          +  );
+          +}
+          +
+          +function extractTaskNames(worldText: string): string[] {
+          +  return [...worldText.matchAll(/- Task "([^"]+)"/g)].map((match) => match[1]);
+          +}
+    time: 10/24/2026, 12:47:21.276 AM UTC
+    response: "\n\n"
+    duration: 1.166s
+    duration_ms: 1166
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Good. Commit 7.
+    thinking_duration: 30ms
+    thinking_duration_ms: 30
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "feat(planning): gate Markovian runs on Scout contracts" -m "Add contract validation for plan/research/compare intents, grounded plan chunks, plan-completion memories, selectable alternatives, and World Model draft synchronization. All paths share the same contract gate and grounded-state builder."'
+          timeout: 120000
+        result: "6\t0\n[main 9882a39] feat(planning): gate Markovian runs on Scout contracts\n 2 files changed, 328 insertions(+), 2 deletions(-)\n"
+    time: 10/24/2026, 12:47:22.567 AM UTC
+    response: "\n\n"
+    duration: 1.936s
+    duration_ms: 1936
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Commit 8: project tasks. Need edit app.ts/html to remove TracePanel and ProviderPanel. We have backups. Use edit tool.
+
+      app.ts remove lines 4, 9 and imports array. Replace:
+      ```
+      import { MemoryPanel }...
+      import { ProviderPanel }...
+      import { TaskFilters }...
+      ...
+      import { TracePanel }...
+      import { WorldPanel }...
+      ```
+      with no provider/trace. And imports array multiline to one-line. Use edit.
+    thinking_duration: 451ms
+    thinking_duration_ms: 451
+    tool_calls:
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.ts
+          oldString: |-
+            import { MemoryPanel } from './components/memory-panel/memory-panel';
+            import { ProviderPanel } from './components/provider-panel/provider-panel';
+            import { TaskFilters } from './components/task-filters/task-filters';
+            import { TaskInput } from './components/task-input/task-input';
+            import type { TaskAddedEvent } from './components/task-input/task-input';
+            import { TaskItem } from './components/task-item/task-item';
+            import { TracePanel } from './components/trace-panel/trace-panel';
+            import { WorldPanel } from './components/world-panel/world-panel';
+          newString: |-
+            import { MemoryPanel } from './components/memory-panel/memory-panel';
+            import { TaskFilters } from './components/task-filters/task-filters';
+            import { TaskInput } from './components/task-input/task-input';
+            import type { TaskAddedEvent } from './components/task-input/task-input';
+            import { TaskItem } from './components/task-item/task-item';
+            import { WorldPanel } from './components/world-panel/world-panel';
+        result: Edit applied successfully.
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.ts
+          oldString: |2-
+              imports: [
+                TaskInput,
+                TaskFilters,
+                TaskItem,
+                AssistantPanel,
+                ProviderPanel,
+                MemoryPanel,
+                TracePanel,
+                WorldPanel,
+              ],
+          newString: '  imports: [TaskInput, TaskFilters, TaskItem, AssistantPanel, MemoryPanel, WorldPanel],'
+        result: Edit applied successfully.
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.html
+          oldString: |2-
+                  <app-assistant-panel />
+                  <app-provider-panel />
+                  <app-memory-panel />
+                  <app-trace-panel />
+                  <app-world-panel />
+          newString: |2-
+                  <app-assistant-panel />
+                  <app-memory-panel />
+                  <app-world-panel />
+        result: Edit applied successfully.
+    time: 10/24/2026, 12:47:24.582 AM UTC
+    response: "\n\n"
+    duration: 2.546s
+    duration_ms: 2546
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Now stage C8 files:
+      - src/app/app.ts
+      - src/app/app.html
+      - src/app/app.css
+      - src/app/services/task-store.ts/spec
+      - task-input ts/html/css
+      - task-filters ts/html/css
+      - task-item html/css (maybe ts? status shows task-item css/html only; no ts)
+      Check status for task-item. Stage all listed.
+    thinking_duration: 223ms
+    thinking_duration_ms: 223
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git add -- src/app/app.ts src/app/app.html src/app/app.css src/app/services/task-store.ts src/app/services/task-store.spec.ts src/app/components/task-input/task-input.ts src/app/components/task-input/task-input.html src/app/components/task-input/task-input.css src/app/components/task-filters/task-filters.ts src/app/components/task-filters/task-filters.html src/app/components/task-filters/task-filters.css src/app/components/task-item/task-item.html src/app/components/task-item/task-item.css && git diff --cached --stat
+        result: |2
+           src/app/app.css                                   |  27 ++++
+           src/app/app.html                                  |  19 ++-
+           src/app/app.ts                                    |  13 ++
+           src/app/components/task-filters/task-filters.css  |  32 +++++
+           src/app/components/task-filters/task-filters.html |  36 ++++--
+           src/app/components/task-filters/task-filters.ts   |   9 +-
+           src/app/components/task-input/task-input.css      |  18 +++
+           src/app/components/task-input/task-input.html     |   9 ++
+           src/app/components/task-input/task-input.ts       |  21 ++-
+           src/app/components/task-item/task-item.css        |  19 ++-
+           src/app/components/task-item/task-item.html       |  36 +++---
+           src/app/services/task-store.spec.ts               |  33 +++++
+           src/app/services/task-store.ts                    | 149 ++++++++++++++++++++--
+           13 files changed, 376 insertions(+), 45 deletions(-)
+    time: 10/24/2026, 12:47:27.248 AM UTC
+    response: "\n\n"
+    duration: 1.842s
+    duration_ms: 1842
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Check cached app.ts/html to ensure no provider/trace.
+    thinking_duration: 49ms
+    thinking_duration_ms: 49
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached -- src/app/app.ts src/app/app.html
+        result: |
+          diff --git a/src/app/app.html b/src/app/app.html
+          index db2aecf..774004e 100644
+          --- a/src/app/app.html
+          +++ b/src/app/app.html
+          @@ -12,16 +12,31 @@
+                   </p>
+                 </header>
+           
+          -      <app-task-input (taskAdded)="store.add($event)" />
+          +      <app-task-input [projects]="store.projects()" (taskAdded)="addTask($event)" />
+           
+          -      @if (store.counts().all > 0) {
+          +      @if (store.tasks().length > 0) {
+                   <app-task-filters
+                     [filter]="store.filter()"
+                     [counts]="store.counts()"
+          +          [projects]="store.projects()"
+          +          [projectFilter]="store.projectFilter()"
+                     (filterChange)="store.setFilter($event)"
+          +          (projectFilterChange)="store.setProjectFilter($event)"
+                   />
+                 }
+           
+          +      <form class="project-add" (submit)="$event.preventDefault(); addProject(projectName)">
+          +        <label class="sr-only" for="new-project">New project</label>
+          +        <input
+          +          #projectName
+          +          id="new-project"
+          +          type="text"
+          +          placeholder="New project"
+          +          autocomplete="off"
+          +        />
+          +        <button type="submit">Add project</button>
+          +      </form>
+          +
+                 @if (store.visibleTasks().length > 0) {
+                   <ul class="task-list" aria-label="Tasks">
+                     @for (task of store.visibleTasks(); track task.id) {
+          diff --git a/src/app/app.ts b/src/app/app.ts
+          index 2871934..47b8c2f 100644
+          --- a/src/app/app.ts
+          +++ b/src/app/app.ts
+          @@ -3,6 +3,7 @@ import { AssistantPanel } from './components/assistant-panel/assistant-panel';
+           import { MemoryPanel } from './components/memory-panel/memory-panel';
+           import { TaskFilters } from './components/task-filters/task-filters';
+           import { TaskInput } from './components/task-input/task-input';
+          +import type { TaskAddedEvent } from './components/task-input/task-input';
+           import { TaskItem } from './components/task-item/task-item';
+           import { WorldPanel } from './components/world-panel/world-panel';
+           import { TaskStore } from './services/task-store';
+          @@ -34,4 +35,16 @@ export class App {
+                   return { title: 'Your list is clear', hint: 'Add your first task above.' };
+               }
+             });
+          +
+          +  protected addTask(event: TaskAddedEvent): void {
+          +    this.store.add(event.title, event.projectId);
+          +  }
+          +
+          +  protected addProject(input: HTMLInputElement): void {
+          +    const project = this.store.addProject(input.value);
+          +    if (project) {
+          +      input.value = '';
+          +      this.store.setProjectFilter(project.id);
+          +    }
+          +  }
+           }
+    time: 10/24/2026, 12:47:29.231 AM UTC
+    response: "\n\n"
+    duration: 1.236s
+    duration_ms: 1236
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Good. Check task-store diff maybe huge but okay. Need ensure tests pass with staged tree? Working tree currently lacks trace/provider; tests use app.spec which still expects trace/provider and will fail if run now. We don't run tests per commit. Commit 8 tree has app.spec baseline (no trace/provider assertions), so would pass. Good.
+
+      But `task-store.ts` may reference `ProjectFilter` etc. Fine.
+
+      Commit 8.
+    thinking_duration: 380ms
+    thinking_duration_ms: 380
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app diff --cached --check && git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "feat(tasks): add project-scoped task lists" -m "Add project records, project assignment on task creation, project filtering, and unassignment when a project is removed. The app shell gains the project input and filter wiring while keeping TaskStore as the single task mutation point."'
+          timeout: 120000
+        result: "7\t0\n[main 4c9c674] feat(tasks): add project-scoped task lists\n 13 files changed, 378 insertions(+), 47 deletions(-)\n rewrite src/app/components/task-filters/task-filters.html (97%)\n"
+    time: 10/24/2026, 12:47:30.558 AM UTC
+    response: "\n\n\n\n"
+    duration: 2.209s
+    duration_ms: 2209
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Why 378 vs stat 376? Maybe line endings? Fine.
+
+      Restore app.ts/html from backups. Use cp.
+    thinking_duration: 105ms
+    thinking_duration_ms: 105
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && cp scratch/batch2-backup/app.ts src/app/app.ts && cp scratch/batch2-backup/app.html src/app/app.html && git status --short src/app/app.ts src/app/app.html
+        result: |2
+           M src/app/app.html
+           M src/app/app.ts
+    time: 10/24/2026, 12:47:32.844 AM UTC
+    response: "\n\n"
+    duration: 1.439s
+    duration_ms: 1439
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Now commit 9 assistant service/spec. Stage.
+    thinking_duration: 31ms
+    thinking_duration_ms: 31
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git add -- src/app/services/assistant.service.ts src/app/services/assistant.service.spec.ts && git diff --cached --stat && git diff --cached --check
+        result: |2
+           src/app/services/assistant.service.spec.ts |  96 ++++++++++++++++++++-
+           src/app/services/assistant.service.ts      | 133 ++++++++++++++++++++++++-----
+           2 files changed, 209 insertions(+), 20 deletions(-)
+    time: 10/24/2026, 12:47:34.374 AM UTC
+    response: "\n\n"
+    duration: 1.047s
+    duration_ms: 1047
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Inspect assistant diff.
+    thinking_duration: 9ms
+    thinking_duration_ms: 9
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached -- src/app/services/assistant.service.ts
+        result: |
+          diff --git a/src/app/services/assistant.service.ts b/src/app/services/assistant.service.ts
+          index 3deb8e4..a9ca01f 100644
+          --- a/src/app/services/assistant.service.ts
+          +++ b/src/app/services/assistant.service.ts
+          @@ -1,9 +1,11 @@
+           import { inject, Injectable, signal } from '@angular/core';
+           import type { Decision } from '../engines/scout';
+           import type { Task } from '../models/task.model';
+          +import { AssistantPipelineService } from './assistant-pipeline.service';
+          +import type { AssistantTrace, PipelineDecision } from './assistant-pipeline.service';
+           import { MemoryService } from './memory.service';
+          -import { PlanningService } from './planning.service';
+          -import { ScoutService } from './scout.service';
+          +import { readJson, writeJson } from './persistence';
+          +import { ContractRefusalError, PlanningService } from './planning.service';
+           import { TaskStore } from './task-store';
+           
+           export interface AssistantMessage {
+          @@ -14,19 +16,22 @@ export interface AssistantMessage {
+             tone?: 'normal' | 'success' | 'error';
+           }
+           
+          +const TRACE_KEY = 'angular-todo-app.trace.v1';
+          +
+           export interface PendingAction {
+          -  decision: Decision;
+          +  pipeline: PipelineDecision;
+             label: string;
+           }
+           
+           @Injectable({ providedIn: 'root' })
+           export class AssistantService {
+          -  private readonly scout = inject(ScoutService);
+          +  private readonly pipeline = inject(AssistantPipelineService);
+             private readonly tasks = inject(TaskStore);
+             private readonly memory = inject(MemoryService);
+             private readonly planning = inject(PlanningService);
+           
+             readonly lastPlan = this.planning.lastPlan;
+          +  readonly lastTrace = signal<AssistantTrace | null>(readJson<AssistantTrace>(TRACE_KEY) ?? null);
+             readonly messages = signal<AssistantMessage[]>([]);
+             readonly busy = signal(false);
+             readonly pending = signal<PendingAction | null>(null);
+          @@ -40,6 +45,23 @@ export class AssistantService {
+           
+               this.push('user', text);
+           
+          +    const choice = text.match(/^(?:use\s+)?(?:option\s+)?([1-9])$/i);
+          +    if (!this.pending() && choice && this.planning.lastAlternatives().length > 0) {
+          +      this.busy.set(true);
+          +      try {
+          +        const run = this.planning.selectAlternative(Number(choice[1]) - 1);
+          +        this.push(
+          +          'assistant',
+          +          run ? run.output : 'That option does not exist.',
+          +          run ? `Markovian ${run.id} · selected option ${choice[1]}` : undefined,
+          +          run ? 'success' : 'error',
+          +        );
+          +      } finally {
+          +        this.busy.set(false);
+          +      }
+          +      return;
+          +    }
+          +
+               if (this.pending()) {
+                 if (/^(confirm|yes|do it|approve)\b/i.test(text)) {
+                   await this.confirm();
+          @@ -57,10 +79,12 @@ export class AssistantService {
+               this.busy.set(true);
+           
+               try {
+          -      const decision = await this.scout.decide(text);
+          +      const pipeline = await this.pipeline.decide(text);
+          +      const { decision } = pipeline;
+          +      this.setTrace(pipeline.trace);
+           
+                 if (decision.clarification) {
+          -        this.push('assistant', decision.clarification.question, this.meta(decision));
+          +        this.push('assistant', decision.clarification.question, this.meta(pipeline));
+                   return;
+                 }
+           
+          @@ -68,24 +92,32 @@ export class AssistantService {
+                   this.push(
+                     'assistant',
+                     `I cannot run that request: ${decision.risk.reason ?? 'it was blocked by policy'}.`,
+          -          this.meta(decision),
+          +          this.meta(pipeline),
+                     'error',
+                   );
+                   return;
+                 }
+           
+                 if (decision.risk.level === 'high') {
+          -        this.pending.set({ decision, label: this.describe(decision) });
+          +        this.pending.set({ pipeline, label: this.describe(decision) });
+                   this.push(
+                     'assistant',
+                     `This is a high-risk action: ${this.describe(decision)}. Confirm to proceed.`,
+          -          this.meta(decision),
+          +          this.meta(pipeline),
+                   );
+                   return;
+                 }
+           
+          -      await this.execute(decision);
+          +      await this.execute(pipeline);
+          +      this.finishTrace();
+               } catch (error) {
+          +      if (error instanceof ContractRefusalError) {
+          +        this.lastTrace.update((trace) =>
+          +          trace ? { ...trace, route: 'refused', stages: [...trace.stages, 'refused'] } : trace,
+          +        );
+          +        this.push('assistant', `I cannot run that plan: ${error.message}`, undefined, 'error');
+          +        return;
+          +      }
+                 this.push(
+                   'assistant',
+                   `Something went wrong: ${(error as Error).message}`,
+          @@ -108,7 +140,8 @@ export class AssistantService {
+               this.busy.set(true);
+           
+               try {
+          -      await this.execute(pending.decision);
+          +      await this.execute(pending.pipeline);
+          +      this.finishTrace();
+               } finally {
+                 this.busy.set(false);
+               }
+          @@ -119,10 +152,11 @@ export class AssistantService {
+               this.push('assistant', 'Cancelled. Nothing was changed.');
+             }
+           
+          -  private async execute(decision: Decision): Promise<void> {
+          +  private async execute(pipeline: PipelineDecision): Promise<void> {
+          +    const { decision } = pipeline;
+               const id = decision.intent.primary.id;
+               const params = decision.intent.primary.parameters;
+          -    const meta = this.meta(decision);
+          +    const meta = this.meta(pipeline);
+           
+               switch (id) {
+                 case 'task.add': {
+          @@ -231,7 +265,19 @@ export class AssistantService {
+           
+                 case 'task.plan': {
+                   const goal = this.stringParam(params['goal']) ?? decision.prompt;
+          -        const run = await this.planning.plan(goal);
+          +        const run = await this.planning.planFromContract(decision, pipeline, goal);
+          +        this.push(
+          +          'assistant',
+          +          run.output,
+          +          `${meta} · Markovian ${run.id} · ${run.efficiencyPercent}% efficient`,
+          +          'success',
+          +        );
+          +        return;
+          +      }
+          +
+          +      case 'task.research': {
+          +        const topic = this.stringParam(params['topic']) ?? decision.prompt;
+          +        const run = await this.planning.planFromContract(decision, pipeline, topic);
+                   this.push(
+                     'assistant',
+                     run.output,
+          @@ -241,13 +287,32 @@ export class AssistantService {
+                   return;
+                 }
+           
+          +      case 'task.compare': {
+          +        const goal = this.stringParam(params['goal']) ?? decision.prompt;
+          +        const runs = await this.planning.planAlternatives(decision, pipeline, 3, goal);
+          +        const lines = runs.map((run, index) => {
+          +          const first = run.output.split('\n').find((line) => line.trim().length > 0) ?? 'Plan';
+          +          return `${index + 1}. ${first}`;
+          +        });
+          +        this.push(
+          +          'assistant',
+          +          ['Here are three plan options:', ...lines, '', 'Ask me to use option 1, 2, or 3.'].join(
+          +            '\n',
+          +          ),
+          +          `${meta} · ${runs.length} alternatives`,
+          +          'success',
+          +        );
+          +        return;
+          +      }
+          +
+                 case 'memory.remember': {
+                   const content = this.stringParam(params['content']);
+                   if (!content) {
+                     this.push('assistant', 'What should I remember?', meta);
+                     return;
+                   }
+          -        this.memory.remember(content);
+          +        const project = this.tasks.projectFilter();
+          +        this.memory.remember(content, project === 'all' ? undefined : { project });
+                   this.push('assistant', `Remembered: ${content}`, meta, 'success');
+                   return;
+                 }
+          @@ -292,12 +357,39 @@ export class AssistantService {
+                   return;
+                 }
+           
+          -      default:
+          +      default: {
+          +        if (pipeline.contextPlan.sources.includes('memory') && pipeline.memory.count > 0) {
+          +          const lines = pipeline.memory.text.split('\n').filter((line) => line.startsWith('- '));
+          +          this.push('assistant', ['From memory:', ...lines].join('\n'), meta);
+          +          return;
+          +        }
+          +
+                   this.push(
+                     'assistant',
+          -          'I can add, complete, reopen, rename, delete, filter, and summarize tasks; plan a goal; and remember or recall notes.',
+          +          'I can add, complete, reopen, rename, delete, filter, and summarize tasks; plan a goal; research a topic; compare plans; and remember or recall notes.',
+                     meta,
+                   );
+          +      }
+          +    }
+          +  }
+          +
+          +  private finishTrace(): void {
+          +    const trace = this.lastTrace();
+          +    if (!trace || trace.stages.includes('execution')) {
+          +      return;
+          +    }
+          +
+          +    this.setTrace({
+          +      ...trace,
+          +      stages: [...trace.stages, 'execution', 'memory-write'],
+          +      durationMs: Date.now() - trace.startedAt,
+          +    });
+          +  }
+          +
+          +  private setTrace(trace: AssistantTrace | null): void {
+          +    this.lastTrace.set(trace);
+          +    if (trace) {
+          +      writeJson(TRACE_KEY, trace);
+               }
+             }
+           
+          @@ -333,10 +425,13 @@ export class AssistantService {
+               return id.replace('.', ' ');
+             }
+           
+          -  private meta(decision: Decision): string {
+          +  private meta(pipeline: PipelineDecision): string {
+          +    const { decision, trace } = pipeline;
+               return `Scout → ${decision.intent.primary.id} · ${Math.round(
+                 decision.intent.primary.confidence * 100,
+          -    )}% · ${decision.risk.level} risk`;
+          +    )}% · ${decision.risk.level} risk · ${trace.route} · ${trace.memoryIds.length} memory · ${
+          +      trace.worldEntityIds.length
+          +    } world`;
+             }
+           
+             private stringParam(value: unknown): string | undefined {
+    time: 10/24/2026, 12:47:35.503 AM UTC
+    response: "\n\n"
+    duration: 953ms
+    duration_ms: 953
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Potential issue: `finishTrace` adds 'execution','memory-write' for all actions including memory forget? Fine. Contract refusal trace route refused but not persisted? It updates signal only, not writeJson. Maybe acceptable. No concern.
+
+      Commit 9.
+    thinking_duration: 236ms
+    thinking_duration_ms: 236
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "feat(assistant): route requests through the engine pipeline" -m "Replace direct Scout calls with the shared pipeline, persist the last trace, render contract refusals safely, add research and alternatives routes, and scope remembered memories to the active project."'
+          timeout: 120000
+        result: "8\t0\n[main ca1f980] feat(assistant): route requests through the engine pipeline\n 2 files changed, 209 insertions(+), 20 deletions(-)\n"
+    time: 10/24/2026, 12:47:36.541 AM UTC
+    response: "\n\n\n\n"
+    duration: 1.860s
+    duration_ms: 1860
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Commit 10: trace UI. Need edit app.ts/html/spec to remove ProviderPanel only, keep TracePanel. We restored originals with both. Use edit.
+
+      app.ts remove ProviderPanel import and array line. Keep multiline imports array with TracePanel. Could keep multiline. Prettier may keep multiline due to length? With ProviderPanel removed, array:
+      ```
+        imports: [
+          TaskInput,
+          TaskFilters,
+          TaskItem,
+          AssistantPanel,
+          MemoryPanel,
+          TracePanel,
+          WorldPanel,
+        ],
+      ```
+      Prettier might collapse? printWidth 100; one-line length `imports: [TaskInput, TaskFilters, TaskItem, AssistantPanel, MemoryPanel, TracePanel, WorldPanel],` = 103? Let's count ~104, so multiline is fine. Keep.
+
+      app.html remove provider line only.
+      app.spec remove provider assertion only.
+
+      Use edit.
+    thinking_duration: 590ms
+    thinking_duration_ms: 590
+    tool_calls:
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.ts
+          oldString: |-
+            import { MemoryPanel } from './components/memory-panel/memory-panel';
+            import { ProviderPanel } from './components/provider-panel/provider-panel';
+            import { TaskFilters } from './components/task-filters/task-filters';
+          newString: |-
+            import { MemoryPanel } from './components/memory-panel/memory-panel';
+            import { TaskFilters } from './components/task-filters/task-filters';
+        result: Edit applied successfully.
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.ts
+          oldString: |2-
+                TaskItem,
+                AssistantPanel,
+                ProviderPanel,
+                MemoryPanel,
+          newString: |2-
+                TaskItem,
+                AssistantPanel,
+                MemoryPanel,
+        result: Edit applied successfully.
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.html
+          oldString: |2-
+                  <app-assistant-panel />
+                  <app-provider-panel />
+                  <app-memory-panel />
+          newString: |2-
+                  <app-assistant-panel />
+                  <app-memory-panel />
+        result: Edit applied successfully.
+      - tool: edit
+        args:
+          filePath: /home/ext_root/lab-data/angular-todo-app/src/app/app.spec.ts
+          oldString: |2-
+                expect(compiled.querySelector('app-assistant-panel')).toBeTruthy();
+                expect(compiled.querySelector('app-provider-panel')).toBeTruthy();
+                expect(compiled.querySelector('app-memory-panel')).toBeTruthy();
+          newString: |2-
+                expect(compiled.querySelector('app-assistant-panel')).toBeTruthy();
+                expect(compiled.querySelector('app-memory-panel')).toBeTruthy();
+        result: Edit applied successfully.
+    time: 10/24/2026, 12:47:38.487 AM UTC
+    response: "\n\n\n\n"
+    duration: 2.491s
+    duration_ms: 2491
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Stage C10 files:
+      - src/app/components/trace-panel/ (all 4)
+      - assistant-panel html/spec
+      - memory-panel css/html
+      - app.ts/html/spec
+      Potential app.ts currently has project + trace, no provider. Good.
+      Stage.
+    thinking_duration: 146ms
+    thinking_duration_ms: 146
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git add -- src/app/components/trace-panel src/app/components/assistant-panel/assistant-panel.html src/app/components/assistant-panel/assistant-panel.spec.ts src/app/components/memory-panel/memory-panel.css src/app/components/memory-panel/memory-panel.html src/app/app.ts src/app/app.html src/app/app.spec.ts && git diff --cached --stat
+        result: |2
+           src/app/app.html                                   |   1 +
+           src/app/app.spec.ts                                |   1 +
+           src/app/app.ts                                     |  11 +-
+           .../assistant-panel/assistant-panel.html           |   5 +-
+           .../assistant-panel/assistant-panel.spec.ts        |  23 ++++
+           src/app/components/memory-panel/memory-panel.css   |  10 ++
+           src/app/components/memory-panel/memory-panel.html  |  11 +-
+           src/app/components/trace-panel/trace-panel.css     | 119 +++++++++++++++++++++
+           src/app/components/trace-panel/trace-panel.html    |  83 ++++++++++++++
+           src/app/components/trace-panel/trace-panel.spec.ts |  33 ++++++
+           src/app/components/trace-panel/trace-panel.ts      |  20 ++++
+           11 files changed, 313 insertions(+), 4 deletions(-)
+    time: 10/24/2026, 12:47:41.076 AM UTC
+    response: "\n\n"
+    duration: 1.697s
+    duration_ms: 1697
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Check cached app.ts/html/spec only trace diff, no provider.
+    thinking_duration: 35ms
+    thinking_duration_ms: 35
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached -- src/app/app.ts src/app/app.html src/app/app.spec.ts
+        result: |
+          diff --git a/src/app/app.html b/src/app/app.html
+          index 774004e..2621215 100644
+          --- a/src/app/app.html
+          +++ b/src/app/app.html
+          @@ -67,6 +67,7 @@
+               <aside class="rail" aria-label="Engine activity">
+                 <app-assistant-panel />
+                 <app-memory-panel />
+          +      <app-trace-panel />
+                 <app-world-panel />
+               </aside>
+             </div>
+          diff --git a/src/app/app.spec.ts b/src/app/app.spec.ts
+          index 712edec..5564857 100644
+          --- a/src/app/app.spec.ts
+          +++ b/src/app/app.spec.ts
+          @@ -25,6 +25,7 @@ describe('App', () => {
+           
+               expect(compiled.querySelector('app-assistant-panel')).toBeTruthy();
+               expect(compiled.querySelector('app-memory-panel')).toBeTruthy();
+          +    expect(compiled.querySelector('app-trace-panel')).toBeTruthy();
+               expect(compiled.querySelector('app-world-panel')).toBeTruthy();
+             });
+           
+          diff --git a/src/app/app.ts b/src/app/app.ts
+          index 47b8c2f..2b85d7f 100644
+          --- a/src/app/app.ts
+          +++ b/src/app/app.ts
+          @@ -5,13 +5,22 @@ import { TaskFilters } from './components/task-filters/task-filters';
+           import { TaskInput } from './components/task-input/task-input';
+           import type { TaskAddedEvent } from './components/task-input/task-input';
+           import { TaskItem } from './components/task-item/task-item';
+          +import { TracePanel } from './components/trace-panel/trace-panel';
+           import { WorldPanel } from './components/world-panel/world-panel';
+           import { TaskStore } from './services/task-store';
+           
+           @Component({
+             selector: 'app-root',
+             changeDetection: ChangeDetectionStrategy.OnPush,
+          -  imports: [TaskInput, TaskFilters, TaskItem, AssistantPanel, MemoryPanel, WorldPanel],
+          +  imports: [
+          +    TaskInput,
+          +    TaskFilters,
+          +    TaskItem,
+          +    AssistantPanel,
+          +    MemoryPanel,
+          +    TracePanel,
+          +    WorldPanel,
+          +  ],
+             templateUrl: './app.html',
+             styleUrl: './app.css',
+           })
+    time: 10/24/2026, 12:47:42.872 AM UTC
+    response: "\n\n"
+    duration: 1.072s
+    duration_ms: 1072
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Good. Commit 10.
+    thinking_duration: 19ms
+    thinking_duration_ms: 19
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app diff --cached --check && git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "feat(ui): add pipeline trace and memory provenance" -m "Add the Trace panel, persist and display the last pipeline trace, show routing metadata in the assistant panel, and label memory records with provenance, layer, confidence, and World Model links."'
+          timeout: 120000
+        result: "9\t0\n[main 57f1c50] feat(ui): add pipeline trace and memory provenance\n 11 files changed, 313 insertions(+), 4 deletions(-)\n create mode 100644 src/app/components/assistant-panel/assistant-panel.spec.ts\n create mode 100644 src/app/components/trace-panel/trace-panel.css\n create mode 100644 src/app/components/trace-panel/trace-panel.html\n create mode 100644 src/app/components/trace-panel/trace-panel.spec.ts\n create mode 100644 src/app/components/trace-panel/trace-panel.ts\n"
+    time: 10/24/2026, 12:47:44.034 AM UTC
+    response: "\n\n"
+    duration: 1.627s
+    duration_ms: 1627
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Restore app.ts/html/spec from backups (with ProviderPanel).
+    thinking_duration: 44ms
+    thinking_duration_ms: 44
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && cp scratch/batch2-backup/app.ts src/app/app.ts && cp scratch/batch2-backup/app.html src/app/app.html && cp scratch/batch2-backup/app.spec.ts src/app/app.spec.ts && git status --short src/app/app.ts src/app/app.html src/app/app.spec.ts
+        result: |2
+           M src/app/app.html
+           M src/app/app.spec.ts
+           M src/app/app.ts
+    time: 10/24/2026, 12:47:45.784 AM UTC
+    response: "\n\n"
+    duration: 1.316s
+    duration_ms: 1316
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: 'Now batch 2 done. Run tests/build. Working tree includes ProviderPanel; tests app.spec expects provider panel, app includes it, so pass. But `ProviderPanel` may have its own tests? Not staged but present; test builder includes all spec files in src, including provider specs! `meterless-url.spec.ts` and `meterless-provider.service.spec.ts` will be picked up, increasing test count and maybe failing. Earlier batch 1 test run was before provider files appeared. Now tests may include 2 new spec files. Let''s see. This is important: user''s concurrent changes affect test count. We should run and see.'
+    thinking_duration: 490ms
+    thinking_duration_ms: 490
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && CI=true npm test -- --watch=false
+          timeout: 180000
+        result: "\n> angular-todo-app@0.0.0 test\n> ng test --watch=false\n\n❯ Building...\n✔ Building...\nInitial chunk files                                    | Names                                               |  Raw size\nspec-app-app.js                                        | spec-app-app                                        |  79.07 kB | \nchunk-3Z7NUIEP.js                                      | -                                                   |  45.19 kB | \nchunk-PV4S5CEZ.js                                      | -                                                   |  38.21 kB | \nchunk-TPX5DZWD.js                                      | -                                                   |  34.92 kB | \nchunk-2I5AWLMX.js                                      | -                                                   |  27.94 kB | \nchunk-Q3P4X4ZK.js                                      | -                                                   |  23.46 kB | \nchunk-ABHKTR5A.js                                      | -                                                   |  16.06 kB | \nchunk-25TFXSTP.js                                      | -                                                   |  15.89 kB | \nchunk-4H42BMRQ.js                                      | -                                                   |  13.58 kB | \nchunk-GSKP7XKE.js                                      | -                                                   |  11.15 kB | \nchunk-GMD5AYHH.js                                      | -                                                   |   9.81 kB | \nspec-app-services-assistant.service.js                 | spec-app-services-assistant.service                 |   9.33 kB | \nchunk-Z2S4E2A3.js                                      | -                                                   |   8.33 kB | \nspec-app-providers-meterless-provider.service.js       | spec-app-providers-meterless-provider.service       |   7.14 kB | \nspec-app-services-planning.service.js                  | spec-app-services-planning.service                  |   5.52 kB | \nchunk-JBWBLPNK.js                                      | -                                                   |   5.24 kB | \nchunk-JARNQN2X.js                                      | -                                                   |   4.39 kB | \nspec-app-services-task-store.js                        | spec-app-services-task-store                        |   4.21 kB | \nspec-app-services-memory.service.js                    | spec-app-services-memory.service                    |   4.08 kB | \nspec-app-services-world-model.service.js               | spec-app-services-world-model.service               |   3.16 kB | \nspec-app-components-provider-panel-provider-panel.js   | spec-app-components-provider-panel-provider-panel   |   3.02 kB | \nchunk-6EOVOVZP.js                                      | -                                                   |   2.91 kB | \nspec-app-services-engine-sync.service.js               | spec-app-services-engine-sync.service               |   2.73 kB | \nspec-app-services-scout.service.js                     | spec-app-services-scout.service                     |   2.70 kB | \ninit-testbed.js                                        | init-testbed                                        |   2.27 kB | \nspec-app-providers-meterless-url.js                    | spec-app-providers-meterless-url                    |   2.18 kB | \nspec-app-services-context-plan.service.js              | spec-app-services-context-plan.service              |   1.91 kB | \nspec-app-services-assistant-pipeline.service.js        | spec-app-services-assistant-pipeline.service        |   1.87 kB | \nspec-app-components-trace-panel-trace-panel.js         | spec-app-components-trace-panel-trace-panel         |   1.54 kB | \nchunk-7KUOU6FS.js                                      | -                                                   |   1.34 kB | \nspec-app-components-assistant-panel-assistant-panel.js | spec-app-components-assistant-panel-assistant-panel |   1.26 kB | \nstyles.css                                             | styles                                              |   1.07 kB | \nvitest-mock-patch.js                                   | vitest-mock-patch                                   | 988 bytes | \nchunk-3NKMHWL6.js                                      | -                                                   | 457 bytes | \ninit-compiler.js                                       | init-compiler                                       | 166 bytes | \n\n                                                       | Initial total                                       | 393.12 kB\n\nApplication bundle generation complete. [3.655 seconds] - 2026-10-24T00:47:52.931Z\n\n\n\e[1m\e[30m\e[46m RUN \e[49m\e[39m\e[22m \e[36mv5.0.5 \e[39m\e[90m/home/ext_root/lab-data/angular-todo-app\e[39m\n\n\n\e[2m Test Files \e[22m \e[1m\e[32m15 passed\e[39m\e[22m\e[90m (15)\e[39m\n\e[2m      Tests \e[22m \e[1m\e[32m100 passed\e[39m\e[22m\e[90m (100)\e[39m\n\e[2m   Start at \e[22m 00:47:53\n\e[2m   Duration \e[22m 3.31s\e[2m (environment 78%, tests 9%, setup 8%, transform 4%, import 1%)\e[22m\n\n"
+    time: 10/24/2026, 12:47:47.182 AM UTC
+    response: "\n\n"
+    duration: 9.443s
+    duration_ms: 9443
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Now 100 tests/15 files due concurrent provider changes. Our docs say 74/12 for our committed scope, but working tree tests now 100. User asked test docs; should we document 100? The provider changes are not ours and not committed. Docs committed later (batch 3) should reflect committed code at that point? If docs commit 12 lands after code commits 1-10 but before provider commit (unknown), docs saying 74/12 matches our commits. But working tree has provider tests, and docs "current implementation" could be seen stale. Since provider work is concurrent/uncommitted, we should keep docs at 74/12 for our scope and note provider changes excluded. But the user may expect docs to include all tests present. Hmm.
+
+      The user said "i also need test docs too: refer docs" likely wants test docs updated for our combined mechanisms, not provider. 74/12 is correct for our committed feature set. We can mention provider tests are outside scope. However if they later commit provider, docs need update. Fine.
+
+      But tests now 100/100, so verification stronger. Build should pass with provider. Run build.
+    thinking_duration: 1.265s
+    thinking_duration_ms: 1265
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && npm run build
+          timeout: 180000
+        result: |+
+
+          > angular-todo-app@0.0.0 build
+          > ng build
+
+          ❯ Building...
+          ✔ Building...
+          Initial chunk files | Names         |  Raw size | Estimated transfer size
+          main-73TT6BXB.js    | main          | 276.62 kB |                76.23 kB
+          styles-N63C6YOP.css | styles        | 778 bytes |               778 bytes
+
+                              | Initial total | 277.39 kB |                77.01 kB
+
+          Application bundle generation complete. [3.708 seconds] - 2026-10-24T00:48:04.631Z
+
+          Output location: /home/ext_root/lab-data/angular-todo-app/dist/angular-todo-app
+
+    time: 10/24/2026, 12:47:56.714 AM UTC
+    response: "\n\n"
+    duration: 8.213s
+    duration_ms: 8213
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Batch 2 done. Need verify commits 6-10 stats, no provider lines. Check log and `git show` app.ts at HEAD.
+    thinking_duration: 232ms
+    thinking_duration_ms: 232
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git log --oneline -6 && git show HEAD:src/app/app.ts | grep -n "ProviderPanel\|TracePanel" && git show HEAD:src/app/app.html | grep -n "provider\|trace"
+        result: |
+          57f1c50 feat(ui): add pipeline trace and memory provenance
+          ca1f980 feat(assistant): route requests through the engine pipeline
+          4c9c674 feat(tasks): add project-scoped task lists
+          9882a39 feat(planning): gate Markovian runs on Scout contracts
+          19f3dba feat(assistant): add the engine context pipeline
+          9414f87 feat(markovian): allow per-run chunk configuration
+          8:import { TracePanel } from './components/trace-panel/trace-panel';
+          21:    TracePanel,
+          70:      <app-trace-panel />
+    time: 10/24/2026, 12:48:05.007 AM UTC
+    response: "\n\n"
+    duration: 1.933s
+    duration_ms: 1933
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Good. No provider in HEAD. Check commit 8 tree app.ts no trace.
+    thinking_duration: 81ms
+    thinking_duration_ms: 81
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git show 4c9c674:src/app/app.ts | grep -n "ProviderPanel\|TracePanel" || true; git show 4c9c674:src/app/app.html | grep -n "provider\|trace" || true
+        result: (no output)
+    time: 10/24/2026, 12:48:07.036 AM UTC
+    response: "\n\n"
+    duration: 1.282s
+    duration_ms: 1282
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Great.
+
+      Now batch 3: commits 11 lint config and 12 docs. Need present preview and ask `start batch 3`. But maybe user expects continue? Rules separate authorization. We should stop. But before final, maybe update docs test count? We need decide 74 vs 100. The docs commit is batch 3; if user starts batch 3, docs will be committed saying 74/12 while working tree has 100/15 due provider. Is that misleading? The docs are for our feature set; but "current implementation" includes provider if untracked. Since provider is not part of our commit, at commit 12 the tracked repo (excluding provider) has 74/12. Good. If provider gets committed later, docs need update then. Mention in batch 3 preview that docs reflect the 74-test scope and exclude provider. That's transparent.
+
+      But wait, docs guide "Full automated test inventory" says 74; after provider commit it'll be stale. Fine for now.
+
+      Need maybe check docs Prettier and markdownlint. Prettier passes. Markdownlint MD013 pre-existing. We can decide whether to fix before commit 12. Since we're not executing batch 3 yet, maybe fix docs MD013 now? The user asked test docs; a clean lint would be nice. But 40 long lines. We could add a scoped config? Not. We can wrap long prose lines manually using a script? Script prohibition? We're not executing commits yet but docs editing is fine. However not necessary; docs were never MD013-clean. But final verification might claim markdownlint fails. Better to be honest. Maybe the repo's `.markdownlint-cli2.jsonc` is only for planning artifacts; docs pre-existing long lines. We can leave.
+
+      Need check batch 2 commit tree tests? We ran tests with working tree including provider and docs; 100 pass. Build pass. Good.
+
+      Need update preview artifact to note provider test count? Not necessary.
+
+      Need batch 3 preview:
+      - Commit 11: `.markdownlint-cli2.jsonc` (untracked). Is it ours? Yes. Stage. Message.
+      - Commit 12: docs files. Message.
+      - Execution: fetch, diff, commit.
+      - Ask `start batch 3`.
+
+      Also mention batch 2 SHAs and verification (100/100 incl. concurrent provider specs; 74/74 for our scope? Actually 100 includes provider tests; our 74 still pass. Say "100/100 tests pass including the concurrent provider specs; our 74-test scope remains green.").
+
+      Need maybe mention ProviderPanel files remain untracked and excluded. Good.
+
+      Before final, check `git status` to ensure no unexpected staging left. `git diff --cached` should be empty.
+    thinking_duration: 2.259s
+    thinking_duration_ms: 2259
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached --stat && git status --short | tail -20
+        result: |2
+           M README.md
+           M docs/meterless-fit.md
+           M docs/testing/README.md
+           M docs/testing/meterless-engines-testing-guide.md
+           M src/app/app.html
+           M src/app/app.spec.ts
+           M src/app/app.ts
+          ?? .markdownlint-cli2.jsonc
+          ?? docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md
+          ?? docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md
+          ?? src/app/components/provider-panel/
+          ?? src/app/providers/
+    time: 10/24/2026, 12:48:08.429 AM UTC
+    response: "\n\n"
+    duration: 3.227s
+    duration_ms: 3227
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Whoa `M README.md` appeared! We didn't modify README.md. Another concurrent change? Check diff.
+    thinking_duration: 93ms
+    thinking_duration_ms: 93
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff -- README.md
+        result: |
+          diff --git a/README.md b/README.md
+          index 02569a9..9b788bd 100644
+          --- a/README.md
+          +++ b/README.md
+          @@ -18,6 +18,7 @@ The app also ships browser-safe ports of the four Meterless engines: **Scout Int
+           - H-MEM preference memory with retrieval, persistence, and a trust ledger
+           - World Model event log with task entities and an activity panel
+           - Markovian plan generation with per-run chunk configuration and efficiency stats
+          +- Meterless Runtime provider panel: token auth, Auto Detect, routing-mode models, and plain-text chat
+           
+           ## Run it
+           
+          @@ -48,6 +49,8 @@ src/app/
+             services/world-model.service.ts       World Model facade and task sync
+             services/planning.service.ts          Markovian facade and persistence
+             services/assistant.service.ts         Natural-language action executor
+          +  providers/meterless-url.ts            URL and connect-link normalization
+          +  providers/meterless-provider.service.ts  Runtime auth, status, models, Auto Detect, chat
+             services/persistence.ts               Shared localStorage JSON helpers
+             engines/scout/                        Browser-safe Scout port
+             engines/hmem/                         Browser-safe H-MEM port
+          @@ -59,6 +62,7 @@ src/app/
+             components/task-filters/              All / Active / Completed control
+             components/task-item/                 One task row with edit and delete
+             components/assistant-panel/           Chat, confirmations, plan output
+          +  components/provider-panel/            Meterless Runtime connection and chat check
+             components/memory-panel/              Remembered preferences
+             components/world-panel/               Event and audit activity
+             app.ts / app.html / app.css           Page shell and empty state
+          @@ -78,6 +82,18 @@ user input
+             -> World Model         append events
+           ```
+           
+          +## Meterless Runtime provider
+          +
+          +The Runtime panel connects to the OpenAI-compatible Meterless Runtime. The default is
+          +`http://127.0.0.1:8088/v1`; pasted `/v1`, `/v1/models`, `/v1/chat/completions`, `/healthz`, and
+          +`/connect#k=…` links are normalized to `<host>/v1`. Status comes from `GET /v1/models`: `401` or `403` means
+          +unauthorized and reveals the token field, while a `200` with `meterless/*` models means online.
+          +
+          +Paste the token, or import the runtime's `<stateDir>/proxy-token` file. The token is stored under
+          +`meterless_runtime_token`; the placeholder `rt-local` is rejected. Chat requests send
+          +`Authorization: Bearer <token>`, `meterless-app: angular-todo-app`, and `meterless-scope: user`, and use a
+          +180-second timeout.
+          +
+           ## Meterless engines
+           
+           See [docs/meterless-fit.md](docs/meterless-fit.md) for the implementation map, persistence keys, and deliberate limits. See [docs/testing/meterless-engines-testing-guide.md](docs/testing/meterless-engines-testing-guide.md) for detailed test cases and expected results.
+    time: 10/24/2026, 12:48:11.752 AM UTC
+    response: "\n\n"
+    duration: 1.616s
+    duration_ms: 1616
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      README changed by concurrent provider work. Not ours. Exclude. Our commit 12 docs should not include README. Good.
+
+      But note docs/meterless-fit.md may also have provider changes from concurrent work? We edited it; diff includes our changes only? Could include provider sections? Check `git diff docs/meterless-fit.md` for "provider" (we added none).
+    thinking_duration: 322ms
+    thinking_duration_ms: 322
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff -- docs/meterless-fit.md | grep -i "provider\|runtime" || true
+        result: |2
+           ## Runtime flow
+           - The generator can be replaced with a provider-backed `generator` or `stepFn` without changing the engine.
+    time: 10/24/2026, 12:48:13.454 AM UTC
+    response: "\n\n"
+    duration: 1.355s
+    duration_ms: 1355
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      No provider changes. Good.
+
+      `docs/testing` no provider. Good.
+
+      Need perhaps docs should mention 100 tests because README provider added? No, exclude.
+
+      Now batch 3 preview. But before, we should perhaps commit docs now? No, need authorization. Present.
+
+      Need include full batch 3 preview:
+      - Commit 11 config.
+      - Commit 12 docs.
+      - Note README/provider changes excluded.
+      - Ask `start batch 3`.
+
+      Also mention batch 2 SHAs: 19f3dba, 9882a39, 4c9c674, ca1f980, 57f1c50. Tests 100/100 incl provider; build pass.
+
+      Need mention docs currently 74/12 reflect our commits, not concurrent provider. That's important.
+
+      Let's craft concise.
+    thinking_duration: 708ms
+    thinking_duration_ms: 708
+    time: 10/24/2026, 12:48:14.925 AM UTC
+    response: |-
+      Batch 2 committed:
+
+      `19f3dba` `9882a39` `4c9c674` `ca1f980` `57f1c50`
+
+      Verification after batch 2: **100/100 tests pass** (including the concurrent provider specs), production build succeeds.
+
+      ### Batch 3 Preview (commits 11–12)
+
+      | # | Commit | Files |
+      |---|---|---|
+      | 11 | `chore(lint): add markdownlint configuration` | `.markdownlint-cli2.jsonc` |
+      | 12 | `docs(testing): document combined engine coverage` | `docs/testing/README.md`, `docs/testing/meterless-engines-testing-guide.md`, `docs/meterless-fit.md` |
+
+      Commit 12 documents the **74-test / 12-spec combined-mechanisms scope**. It does not claim the concurrent provider tests, which remain outside this task.
+
+      **Excluded concurrent changes:** `README.md`, `src/app/providers/`, `src/app/components/provider-panel/`, and the `ProviderPanel` lines in `app.ts`/`app.html`/`app.spec.ts` are left uncommitted.
+
+      Reply **`start batch 3`** to execute commits 11–12.
+    duration: 2.409s
+    duration_ms: 2409
+

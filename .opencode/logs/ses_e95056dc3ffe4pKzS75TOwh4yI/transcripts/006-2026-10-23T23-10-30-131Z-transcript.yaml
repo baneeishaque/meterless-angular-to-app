@@ -1,0 +1,134 @@
+user:
+  text: |-
+    now we want to implement https://meterless.ai/engines.html combined mechanisms - refer the combined prompts on the page to deeply understand them. Show me exactly where each of the combined would plug in, what each would improve for my users.
+
+    suggest me more user scenarios & enhancements. so, we can implement this combined methods too.
+
+    plan first according to /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md. follow the instructions in /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md strictly & deeply for planning process. give me the maximum detailed plan according to the ai-agent-planning-rules.
+assistant:
+  - response: "\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Finish and verify the Meterless engine integration in the Angular to-do app at `/home/ext_root/lab-data/angular-todo-app`.
+      - Deliver a maximum-detail testing guide, in an industry-standard docs folder/file structure, explaining how to test the natural-language assistant, Scout Intent, H-MEM, World Model, and Markovian.
+
+      ## Important Details
+      - User-fixed engine adoption order: **1 Scout Intent, 2 H-MEM, 3 World Model, 4 Markovian**.
+      - Normal task CRUD must remain direct: component → `TaskStore` → `localStorage`; engines only assist AI/ambiguous/tool-driven actions.
+      - App stack: Angular 22.2.x, standalone components, signals, `OnPush`, Vitest/jsdom, `localStorage`; app is not a git repo.
+      - `mise.toml` pins Node `26.10.0`; run Node commands via `mise x node@26.10.0 --` if the shell reports `mise ERROR No version is set for shim: node`.
+      - Spec repo: `/home/ext_root/lab-data/meterless-spec`.
+      - Browser ports remove `node:fs`/`node:path`, inject persistence adapters, and keep engine cores framework-free.
+      - Scout eval metrics currently pass: `intent_top1=1`, `intent_top3_recall=1`, `injection_precision=1`, `injection_recall=1`, `tool_precision=1`, `clarification_rate=0.0625`, `override_frequency=0` (corpus-limited, not measured).
+      - Conformance results: H-MEM **13/13**, World Model **8/8**, Markovian **8/8**.
+      - `WorldModelService.taskEntities()` now filters to `entity.state === 'active'`; Activity panel label is `active task entities`.
+      - Coverage is not configured. `npm test -- --watch=false --coverage` fails until `@vitest/coverage-v8` or `@vitest/coverage-istanbul` is installed; documented as optional.
+      - Verified focused commands:
+        - `CI=true npm test -- --watch=false --include=src/app/services/assistant.service.spec.ts`
+        - `CI=true npm test -- --watch=false --filter="blocks prompt injection"`
+      - Test inventory now expected: **37 tests across 7 spec files**.
+        - `app.spec.ts`: 4
+        - `task-store.spec.ts`: 9
+        - `assistant.service.spec.ts`: 16
+        - `memory.service.spec.ts`: 2
+        - `planning.service.spec.ts`: 1
+        - `world-model.service.spec.ts`: 2
+        - `scout.service.spec.ts`: 3
+      - Docs naming convention: lowercase kebab-case except industry-standard `README.md`.
+      - Apache-2.0 attribution added via `THIRD_PARTY_NOTICES.md` and `THIRD_PARTY_LICENSES/meterless-APACHE-2.0.txt`.
+      - Spec repo tracked files were restored after eval runs; `engines/scout-intent/node_modules/` remains untracked for local runner use.
+
+      ## Work State
+      ### Completed
+      - Ported all four engines into `src/app/engines/{scout,hmem,world-model,markovian,shared}`.
+      - Added browser-safe shared crypto: `src/app/engines/shared/crypto.ts`.
+      - Added Node-only Scout eval adapter: `eval/scout-entry.ts`.
+      - Added app services:
+        - `src/app/services/scout.service.ts`
+        - `src/app/services/memory.service.ts`
+        - `src/app/services/world-model.service.ts`
+        - `src/app/services/planning.service.ts`
+        - `src/app/services/assistant.service.ts`
+        - `src/app/services/persistence.ts`
+      - Added UI panels:
+        - `src/app/components/assistant-panel/`
+        - `src/app/components/memory-panel/`
+        - `src/app/components/world-panel/`
+      - Wired `TaskStore` to sync add/toggle/rename/delete with World Model; deletes append tombstones.
+      - Added assistant confirmation flow for high-risk actions, injection blocking, memory recall fallback, and Markovian plan messages.
+      - Rewrote `README.md` and `docs/meterless-fit.md` to reflect actual engine adoption.
+      - Added tests and passed each focused suite:
+        - assistant: 16 passed
+        - memory: 2 passed
+        - planning: 1 passed
+        - world-model: 2 passed
+        - scout: 3 passed
+      - Ran Scout eval successfully: 32 examples, all thresholds passed.
+      - Ran H-MEM conformance: 13/13.
+      - Ran World Model conformance: 8/8.
+      - Ran Markovian conformance: 8/8.
+      - Applied Prettier to app source, engines, services, components, and earlier docs.
+      - Created testing docs:
+        - `docs/README.md`
+        - `docs/testing/README.md`
+        - `docs/testing/meterless-engines-testing-guide.md`
+      - Main testing guide covers:
+        - test layers and prerequisites
+        - command reference
+        - natural-language assistant lifecycle and intent table
+        - manual cases `NL-01`…`NL-23`
+        - Scout cases `SC-01`…`SC-10`
+        - H-MEM cases `HM-01`…`HM-09`
+        - World Model cases `WM-01`…`WM-08`
+        - Markovian cases `MK-01`…`MK-08`
+        - cross-engine integration scenario
+        - conformance/eval commands
+        - CI guidance
+        - full 37-test inventory
+        - release checklist and glossary
+
+      ### Active
+      - Final verification of the newly written docs and latest test additions.
+      - Full `CI=true npm test -- --watch=false` has **not** been rerun after adding the last specs/tests; expected 37/37 but needs confirmation.
+      - `npm run build` has **not** been rerun after the `WorldModelService.taskEntities()` active-filter change.
+      - New docs have not been Prettier-formatted or link-checked.
+      - Root `README.md` still points primarily to `docs/meterless-fit.md`; it should also link `docs/testing/README.md` or the main testing guide.
+      - `docs/meterless-fit.md` should cross-link the new testing guide.
+
+      ### Blocked
+      - None currently.
+
+      ## Next Move
+      1. Run `npx prettier --write docs/README.md docs/testing/README.md docs/testing/meterless-engines-testing-guide.md README.md docs/meterless-fit.md` and fix any Markdown/link issues.
+      2. Add testing-guide links to root `README.md` and `docs/meterless-fit.md`.
+      3. Run `CI=true npm test -- --watch=false` and `npm run build`; update docs if counts or results differ.
+      4. Re-run conformance/eval only if engine source changed after the last passing runs.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: main maximum-detail testing guide just written.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/README.md`: testing index and fast verification summary.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/README.md`: documentation index and naming conventions.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/meterless-fit.md`: engine implementation map; needs testing-guide cross-link.
+      - `/home/ext_root/lab-data/angular-todo-app/README.md`: project overview; needs testing-guide link.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: assistant lifecycle and intent execution.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts`: Scout facade and contract verification.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts`: H-MEM facade and persistence.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts`: task entity sync, active filter, tombstones.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts`: Markovian facade and local plan generator.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: task mutation point and World Model sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/*.spec.ts`: 7 spec files, expected 37 tests.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/assistant-panel/`: chat, confirmation, plan display.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/`: memory list and delete controls.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/world-panel/`: Activity panel.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/`: Scout port and app registry.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/`: H-MEM port.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/`: World Model port.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/`: Markovian port.
+      - `/home/ext_root/lab-data/angular-todo-app/eval/scout-entry.ts`: Node-only Scout eval adapter.
+      - `/home/ext_root/lab-data/angular-todo-app/THIRD_PARTY_NOTICES.md`: Meterless attribution.
+      - `/home/ext_root/lab-data/angular-todo-app/THIRD_PARTY_LICENSES/meterless-APACHE-2.0.txt`: Apache-2.0 license text.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/runner/index.ts`: Scout eval runner.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`: H-MEM conformance.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts`: World Model conformance.
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts`: Markovian conformance.

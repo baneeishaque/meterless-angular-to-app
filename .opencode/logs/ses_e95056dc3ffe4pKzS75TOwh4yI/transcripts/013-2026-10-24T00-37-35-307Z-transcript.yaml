@@ -1,0 +1,168 @@
+user:
+  text: |-
+    also commit the files in proper structure.
+    only handle the changes by us. strictly & deeply follow /Users/dk/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md instructions & /Users/dk/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md instructions. give me complete arranged commits preview. you must add 'Execution Plan
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      ## Arranged Commits Preview
+
+      Full preview with commit bodies and mixed-file hunks: `scratch/commit-preview.md`
+
+      **Excluded:** the two local-only planning artifacts contain an agent session ID and absolute `/home/ext_root/...` paths, so they are not committed to the public repo. `scratch/`, `.opencode/`, and pre-existing user files are also excluded.
+
+      | # | Commit | Files | Batch |
+      |---|---|---|---|
+      | 1 | `feat(scout): add context plans and contextual intent scoring` | ContextPlan service/spec, Scout engine types/index/scoring/registry, Scout service/spec | 1 |
+      | 2 | `feat(memory): add plan recall, world facts, and project scopes` | H-MEM store/types, Memory service/spec | 1 |
+      | 3 | `feat(world-model): add project context and plan drafts` | Task model, World Model engine/service/spec | 1 |
+      | 4 | `feat(memory): mirror World Model facts into H-MEM` | Engine sync service/spec, app config | 1 |
+      | 5 | `feat(markovian): allow per-run chunk configuration` | Markovian types/index | 1 |
+      | 6 | `feat(assistant): add the engine context pipeline` | Assistant pipeline service/spec | 2 |
+      | 7 | `feat(planning): gate Markovian runs on Scout contracts` | Planning service/spec | 2 |
+      | 8 | `feat(tasks): add project-scoped task lists` | TaskStore/spec, task input/filters/item, app project wiring | 2 |
+      | 9 | `feat(assistant): route requests through the engine pipeline` | Assistant service/spec | 2 |
+      | 10 | `feat(ui): add pipeline trace and memory provenance` | Trace panel, assistant panel, memory panel, app trace wiring | 2 |
+      | 11 | `chore(lint): add markdownlint configuration` | `.markdownlint-cli2.jsonc` | 3 |
+
+      ### Mixed-Concern Staging
+
+      - **Commit 8 / `app.ts`**: temporarily synthesize the project-only state (remove `TracePanel` import and restore the original `imports:` line), stage `TaskAddedEvent`, `addTask`, and `addProject`, commit, then restore the `TracePanel` lines for commit 10.
+      - **Commit 8 / `app.html`**: stage only the project/task-input/filter/form hunk.
+      - **Commit 10 / `app.ts`**: stage the restored `TracePanel` import and `imports:` line.
+      - **Commit 10 / `app.html`**: stage only the `<app-trace-panel />` hunk.
+
+      ## Execution Plan
+
+      1. Recheck `git status`; confirm only planned files plus excluded artifacts are present.
+      2. Confirm `main` is not detached and matches `origin/main`; run `git fetch origin` before each commit.
+      3. Capture the mandatory apply-not-pop safety stash for tracked, staged, and untracked changes.
+      4. **Batch 1:** execute commits 1-5 serially. For each: stage only its files, run `git diff --cached`, run the pre-commit fetch/compare, then commit. After the batch, run tests and build.
+      5. **Batch 2:** execute commits 6-10 serially with the same gates, including the `app.ts`/`app.html` split above. After the batch, run tests and build.
+      6. **Batch 3:** execute commit 11 with the same gates.
+      7. After all commits, run tests, build, Prettier, markdownlint, H-MEM/World Model/Markovian conformance, and Scout evaluation.
+      8. Verify the preview against `git log`; confirm the safety-stash apply-back is a clean no-op, then request approval before dropping it.
+      9. Do not push. Do not commit excluded artifacts.
+
+      Reply with **`start batch 1`** to execute commits 1-5.
+  - agent: compaction
+    response: |-
+      ## Objective
+      - All approved Meterless combined mechanisms (Phases 1-8) are implemented and verified in `/home/ext_root/lab-data/angular-todo-app`.
+      - Current task: commit only this session's changes as atomic commits, following the mandated git atomic commit construction rules, with a complete arranged-commits preview including an `Execution Plan` section, then await batch authorization.
+
+      ## Important Details
+      - Mandatory rules to follow:
+        - `/home_ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md`
+        - `/home_ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`
+        - User's `/Users/dk/...` paths do not exist; Linux `/home_ext_root/...` equivalents are authoritative.
+      - Commit constraints: use `git -C <path>` exclusively; stage/commit only our changes; preview must include hunks for mixed-concern files; explicit user `start` authorization is required; batches of at most 5 commits; safety stash must be apply-not-pop; no push; no script execution during commit preparation unless explicitly authorized.
+      - Repo: `/home_ext_root/lab-data/angular-todo-app`; branch `main`; upstream `origin/main`; HEAD `fe9f290 chore(logs): archive opencode session logs`; remote `https://github.com/baneeishaque/meterless-angular-to-app.git` (public).
+      - Docs excluded from commits: `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_..._implementation-plan-combined-mechanisms_v1.md` and `..._task.md` contain session ID `e95056dc3ffe4pKzS75TOwh4yI` and `/home_ext_root/...` paths; public-repo rule forbids committing them. They remain untracked.
+      - Preview artifact written: `/home_ext_root/lab-data/angular-todo-app/scratch/commit-preview.md` (untracked; must not be committed).
+      - Planned 10 commits:
+        1. `feat(scout): add context plans and contextual intent scoring` — context-plan service/spec, Scout engine types/index/scoring/registry, Scout service/spec.
+        2. `feat(memory): add plan recall, world facts, and project scopes` — H-MEM store/types, Memory service/spec.
+        3. `feat(world-model): add project context and plan drafts` — Task model, World Model engine/service/spec.
+        4. `feat(memory): mirror World Model facts into H-MEM` — Engine sync service/spec, `app.config.ts`.
+        5. `feat(markovian): allow per-run chunk configuration` — Markovian types/index.
+        6. `feat(planning): gate Markovian runs on Scout contracts` — Planning service/spec.
+        7. `feat(tasks): add project-scoped task lists` — TaskStore/spec, task input/filters/item, partial `app.ts`/`app.html`, `app.css`.
+        8. `feat(assistant): route requests through the engine pipeline` — assistant pipeline/service/spec.
+        9. `feat(ui): add pipeline trace and memory provenance` — trace panel, assistant panel, memory panel, partial `app.ts`/`app.html`, `app.spec.ts`.
+        10. `chore(lint): add markdownlint configuration` — `.markdownlint-cli2.jsonc`.
+      - Batch split: Batch 1 = commits 1-5; Batch 2 = commits 6-10. Request `start batch 1`.
+      - Mixed-concern staging: `app.ts` and `app.html` split between commits 7 and 9. Plan: temporarily synthesize project-only `app.ts` (remove `TracePanel` import + restore imports array without it), stage/commit 7, restore TracePanel lines for commit 9; stage project hunk of `app.html` in 7 and trace hunk in 9.
+      - `Execution Plan` section requirements: re-check status, fetch/compare before each commit, apply-not-pop safety stash, per-commit staged-diff atomic verification, tests/build after each batch, full verification after final commit, `git-commit-preview-verify`, request approval before dropping stash, no push.
+      - Verification commands:
+        - `CI=true npm test -- --watch=false` (74/74 tests, 12 spec files)
+        - `npm run build`
+        - `npx prettier --check "src/app/**/*.{ts,html,css}" "docs/**/*.md" "README.md" "THIRD_PARTY_NOTICES.md"`
+        - `markdownlint-cli2 --config .markdownlint-cli2.jsonc <plan.md> <task.md>`
+      - Conformance/eval commands:
+        - H-MEM: `HMEM_IMPL=.../src/app/engines/hmem/index.ts npx tsx /home_ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts` — 13/13 pass.
+        - World Model: `WORLD_MODEL_IMPL=.../src/app/engines/world-model/index.ts ...` — 8/8 pass.
+        - Markovian: `MARKOVIAN_IMPL=.../src/app/engines/markovian/index.ts ...` — 8/8 pass.
+        - Scout eval: `SCOUT_IMPL=.../eval/scout-entry.ts npx tsx .../scout-intent/evals/runner/index.ts all` — all thresholds pass.
+      - Playwright available via mise: `mise x node@26.10.0 -- node -` with require path `/home_ext_root/.local/share/mise/installs/npm-playwright/1.64.1/node_modules/playwright`; Chromium at `/home_ext_root/.cache/ms-playwright/chromium-1248`.
+      - Browser smoke passed against static build served with `python3 -m http.server 4200 --directory dist/angular-todo-app/browser`: task add, World Model update, memory recall, "The usual", two grounded plans, trace stages, delete/archive, refresh persistence, zero console/page/network errors. Server killed afterward.
+      - Direct CRUD invariant remains: task UI → `TaskStore` → `localStorage`; `TaskStore` → `WorldModelService`; engines assist only AI/ambiguous/long-horizon actions. No backend/network/auth.
+      - Key runtime decisions: Markovian `RunOptions.chunkConfig` per-run override; research uses `maxChunks: 6`; contextual scorer returns `1` for plan to avoid score dilution; "The usual" resolves via default memory fallback emitting `From memory:`; trace persists under `TRACE_KEY = 'angular-todo-app.trace.v1'`; contract refusals render safe message `I cannot run that plan: ...` with route `refused`.
+      - Plan drafts: `WorldModelService.planDrafts`, `upsertPlanDraft`, `selectPlanDraft`; `PlanningService` syncs alternatives and selected plan.
+      - Project memory: `ContextPlan.projectId`; `MemoryService.recallForPlan(query, topN, {projectId})` filters project-tagged + global memories; assistant `memory.remember` tags active project filter.
+      - Task artifact updated with all phases `[x]`, verification section, 74 tests, Playwright pass.
+
+      ## Work State
+      ### Completed
+      - All Phases 1-8 implemented: context plan, memory-aware Scout, World Model grounding, contract-gated Markovian runs, World→H-MEM sync, pipeline trace/audit UI, plan alternatives with World Model drafts, research intent, project-scoped tasks/memory.
+      - Final test suite: 74/74 tests across 12 spec files pass; production build passes; Prettier and markdownlint pass; all conformance suites and Scout eval pass.
+      - Playwright headless Chromium end-to-end smoke test passed.
+      - Task artifact updated and linted.
+      - Atomic commit analysis complete: 10 commits defined, mixed-concern hunks identified, excluded docs rationale established, full preview written to `scratch/commit-preview.md`.
+
+      ### Active
+      - Arranged-commits preview has been written to `scratch/commit-preview.md` but not yet presented in chat.
+      - Awaiting user authorization `start batch 1` before any staging/commit execution.
+
+      ### Blocked
+      - None.
+
+      ## Next Move
+      1. Present the complete arranged commits preview in chat: master table for all 10 commits, per-commit files/messages, mixed-concern `app.ts`/`app.html` hunks for commits 7 and 9, excluded docs note, and the required `Execution Plan` section; request `start batch 1`.
+      2. After authorization, execute Batch 1 (commits 1-5) one at a time with staged-diff verification, fetch/compare gates, safety stash apply-not-pop, then run tests/build; then present Batch 2 for separate authorization.
+
+      ## Relevant Files
+      - `/home_ext_root/lab-data/angular-todo-app/scratch/commit-preview.md`: complete arranged commits preview artifact.
+      - `/home_ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md`: mandatory commit protocol.
+      - `/home_ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`: mandatory skill instructions.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`: approved plan/acceptance criteria; excluded from commits.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`: completed task checklist/verification; excluded from commits.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/context-plan.service.ts` + spec: context-plan rules/types.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/assistant-pipeline.service.ts` + spec: pipeline and trace assembly.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts` + spec: routing, trace persistence, alternatives, memory fallback, contract refusal.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts` + spec: contract gate, grounded plans, alternatives, plan drafts.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts` + spec: recall/fallback, world facts, plan completion, project scopes.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts` + spec: projects, plan drafts, prompt context, subscriptions.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/engine-sync.service.ts` + spec: World→H-MEM projection.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts` + spec: project persistence/filtering.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts` + spec: contextual scoring, `planContext`.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/engines/scout/app-registry.ts`, `types.ts`, `scoring.ts`, `index.ts`: new intents and contextual scorer plumbing.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/engines/hmem/memoryStore.ts`, `types.ts`: `updateContent`, `world_model` origin.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts`: `relateSync`/`relateNow`.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/engines/markovian/types.ts`, `index.ts`: per-run `chunkConfig`.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/models/task.model.ts`: `Task`/`Project`/filters.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/app.config.ts`: `EngineSyncService` initializer.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/app.ts`, `app.html`, `app.css`, `app.spec.ts`: mixed project/trace shell wiring.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/components/trace-panel/`: trace UI/spec.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/components/assistant-panel/assistant-panel.html`, `assistant-panel.spec.ts`: meta line and routing display.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/memory-panel.html`, `memory-panel.css`: provenance/layer/confidence/world link.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/components/task-input/`, `task-filters/`, `task-item/`: project UI.
+      - `/home_ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc`: markdownlint config.
+      - `/home_ext_root/lab-data/meterless-spec`: conformance/eval harnesses.

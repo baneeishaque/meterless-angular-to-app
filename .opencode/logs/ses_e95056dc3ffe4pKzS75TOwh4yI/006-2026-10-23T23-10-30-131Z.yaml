@@ -1,0 +1,305 @@
+---
+user:
+  text: |-
+    now we want to implement https://meterless.ai/engines.html combined mechanisms - refer the combined prompts on the page to deeply understand them. Show me exactly where each of the combined would plug in, what each would improve for my users.
+
+    suggest me more user scenarios & enhancements. so, we can implement this combined methods too.
+
+    plan first according to /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md. follow the instructions in /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md strictly & deeply for planning process. give me the maximum detailed plan according to the ai-agent-planning-rules.
+  time: 10/23/2026, 11:09:58.404 PM UTC
+assistant:
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: We need respond to new task. Need inspect URL https://meterless.ai/engines.html combined mechanisms and "combined prompts on the page". Need read planning rules at path /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md. But our environment working dir /home/ext_root/lab-data/ai-suite, and user path /Users/dk/... likely macOS path not present. Need locate actual file. We must read planning rules strictly. Need fetch web page. Need understand "combined mechanisms" likely page has "Combined engines" prompts/recipes. Need inspect. We can use webfetch. Need read local planning rules. First check file paths. Use glob/grep. Also maybe ai-agent-rules is submodule. Let's locate.
+    thinking_duration: 772ms
+    thinking_duration_ms: 772
+    tool_calls:
+      - tool: bash
+        args:
+          command: ls /home/ext_root/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md 2>/dev/null; ls /Users/dk/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md 2>/dev/null; pwd
+        result: |
+          /home/ext_root/lab-data/ai-suite/ai-agent-rules/ai-agent-planning-rules.md
+          /home/ext_root/lab-data/ai-suite
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/ai-suite && find . -name 'ai-agent-planning-rules.md' -maxdepth 4 2>/dev/null
+        result: |
+          ./ai-agent-rules/ai-agent-planning-rules.md
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git status --short 2>/dev/null || true; ls docs/testing
+        result: |
+          README.md
+          meterless-engines-testing-guide.md
+    time: 10/23/2026, 11:09:58.522 PM UTC
+    response: "\n\n"
+    duration: 9.670s
+    duration_ms: 9670
+  - agent: compaction
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      We need produce structured summary combining prior summary and conversation. Need reflect latest state: engines implemented, tests, docs. User's latest request: create maximum detailed testing documentation in correct folder structure. Assistant created docs/README.md, docs/testing/README.md, docs/testing/meterless-engines-testing-guide.md, plus added tests (now 37 tests across 7 spec files). Need mention main guide is written but not yet formatted/verified? The conversation ends right after write of main guide. We need note active: run prettier on new docs, run full test suite/build, verify counts 37, update links/README maybe. The guide may need markdown formatting and final verification. Also docs main guide references `--include` etc verified. Need capture exact results:
+      - Scout eval 32 examples, metrics all 1 except clarification_rate 0.0625, override_frequency 0.0; report.
+      - H-MEM conformance 13/13
+      - World Model 8/8
+      - Markovian 8/8
+      - Build clean, initial bundle ~231.59 kB / 232 kB
+      - Tests 37 across 7 spec files after adding scout/memory/planning/world specs and assistant tests. But full suite not rerun after adding all? We ran individual specs; last full run was 20 tests before additions. We need be precise: Individual specs passed: assistant 16, memory 2, planning 1, world 2, scout 3; app 4 and task-store 9 previously passed. Total expected 37, but full `CI=true npm test -- --watch=false` has NOT been rerun after latest test additions and WorldModelService active filter change. Need mark active: rerun full suite to verify 37, build after change, prettier docs. Also build after WorldModelService change? Not rerun. Need run build. Docs written but not prettier-checked. README docs links? Root README currently links `docs/meterless-fit.md` and maybe not testing guide. We added docs/README and docs/testing README, but root README still only says "Engine conformance and Scout eval commands are documented in [docs/meterless-fit.md]" and maybe no link to testing guide. Need update root README to link testing docs. Also `docs/meterless-fit.md` maybe not link testing guide. We should note.
+
+      Need include important constraints:
+      - Adoption order Scout, H-MEM, World Model, Markovian.
+      - App not git; target app path.
+      - Node via mise.
+      - Spec repo path.
+      - Browser-safe ports no node: imports; persistence adapters; sync methods.
+      - Apache attribution added.
+      - Ordinary CRUD direct.
+      - Engine ports details maybe brief but sufficient.
+      - Test commands and conformance env vars.
+      - Current docs folder structure.
+      - Industry-standard lowercase kebab-case, README.md.
+      - Coverage not configured; `@vitest/coverage-v8` needed.
+      - `--include` and `--filter` verified.
+      - Test spec counts.
+      - Specific engine implementation details:
+        - Scout app registry, policy packs, contracts.
+        - H-MEM HMEMRuntimeOptions rename, persistence, snapshot/restore order.
+        - World Model persistence and sync/tombstone; types.
+        - Markovian HistoryPersistence; deterministic plan.
+        - Services: ScoutService, MemoryService, PlanningService, WorldModelService, AssistantService.
+        - UI panels.
+        - localStorage keys.
+      - Fixed TS errors: crypto Uint8Array typing; `attrs?.['name']`; `import("./types")`.
+      - Prettier formatted engines etc.
+      - Restored spec repo tracked changes; node_modules untracked remains. Important? Could mention spec repo tracked changes restored, node_modules remains untracked (needed for eval). Maybe not essential but context.
+
+      Need update objective: current objective is documenting/testing, not implementing? The overall user objective initially implement engines, then latest request asks detailed testing documentation. Objective should capture both: implement engines and now produce maximum-detail testing docs explaining how to test each feature. Maybe:
+      "Finish and verify the Meterless engine integration in the Angular to-do app, and deliver a maximum-detail testing guide in an industry-standard docs structure explaining how to test the assistant, Scout, H-MEM, World Model, and Markovian."
+      Good.
+
+      Important Details:
+      - User requested maximum detail and correct folder/file names. We chose docs/testing/README.md and docs/testing/meterless-engines-testing-guide.md, plus docs/README.md.
+      - Tests added and counts.
+      - Conformance results.
+      - Commands exact.
+      - Note root README and meterless-fit links need updating? Active.
+      - Note full suite not rerun after latest additions.
+      - Note build not rerun after WorldModelService active filter.
+      - Note main guide not prettier-formatted; docs may have long lines, prettier may adjust.
+      - Note `docs/testing/README.md` claims 37 tests and 7 spec files, must verify.
+      - Note main guide's exact references to `src/app/services/...`.
+      - Note docs link from root README absent.
+
+      Work State Completed:
+      - All four engines ported and conformance/eval passed.
+      - Integration services/components.
+      - Tests added: 7 spec files, expected 37.
+      - Docs created.
+      - Build and tests previously passed at 20 before latest additions; individual new specs passed.
+      - Attribution files.
+      - README/meterless-fit rewritten earlier.
+      - Prettier applied to source.
+      - Restored spec repo tracked files.
+
+      Active:
+      - Final verification of docs and test suite: run prettier on docs, full tests, build.
+      - Update root README links and docs/meterless-fit cross-links to testing guide.
+      - Check markdown links and content accuracy.
+      - Maybe run full suite to confirm 37, build, conformance? Conformance already passed after prettier; no engine changes since? WorldModelService change doesn't affect conformance. Could rerun if desired.
+
+      Blocked:
+      - None, or coverage not configured if needed. Maybe no blockers.
+
+      Next Move:
+      1. `npx prettier --write docs/README.md docs/testing/README.md docs/testing/meterless-engines-testing-guide.md README.md docs/meterless-fit.md` then check links.
+      2. Run `CI=true npm test -- --watch=false` and `npm run build`; update doc counts if needed. Also maybe run full suite after latest tests.
+      3. Add testing guide link to root README / meterless-fit. Then final response to user summarizing where doc is.
+
+      Relevant Files:
+      - docs/testing/meterless-engines-testing-guide.md (main doc, just written)
+      - docs/testing/README.md
+      - docs/README.md
+      - README.md
+      - docs/meterless-fit.md
+      - src/app/services/*.spec.ts
+      - services and components.
+      - engine paths.
+      - spec repo conformance runners.
+      - THIRD_PARTY_NOTICES and license.
+      - eval/scout-entry.ts.
+      Need include exact paths.
+
+      Let's ensure summary doesn't exceed? It can be detailed. Use terse bullets. Need exact Markdown structure. No extra preamble. We'll write.
+
+      Need mention test counts:
+      - app.spec 4
+      - task-store.spec 9
+      - assistant.service.spec 16
+      - memory.service.spec 2
+      - planning.service.spec 1
+      - world-model.service.spec 2
+      - scout.service.spec 3
+      Total 37. Last individual spec runs all passed. Full suite last full run 20 passed before later additions. So active verify 37.
+
+      Need mention `WorldModelService.taskEntities` now filters `state === 'active'`; panel label "active task entities". This change not yet build/tested full suite but individual world spec passed? We changed active filter then added test and ran assistant spec (16) passed; world-model service spec was added after and passed 2. Build not rerun after active filter. So note build verification needed.
+
+      Need mention docs main guide created with sections 1-17 and manual test IDs NL/SC/HM/WM/MK. Could mention.
+
+      Need mention `docs/testing/README.md` says 37 tests and 7 spec files. Good.
+
+      Need mention coverage: `npm test -- --watch=false --coverage` fails until `@vitest/coverage-v8` installed; documented as optional. This is a known fact.
+
+      Need mention commands:
+      - `CI=true npm test -- --watch=false`
+      - `CI=true npm test -- --watch=false --include=...`
+      - `CI=true npm test -- --watch=false --filter="..."`
+      - `npm run build`
+      - Scout eval: `SCOUT_IMPL=... mise x node@26.10.0 -- npm run evals` from spec scout-intent; also `npx tsx evals/runner/index.ts all`.
+      - H-MEM etc with `HMEM_IMPL`, `WORLD_MODEL_IMPL`, `MARKOVIAN_IMPL` and spec runner path, run from app workdir due Node shim.
+      - Conformance run from app workdir to avoid mise error. Maybe mention if run from spec root with no node pin, use `mise x node@26.10.0 --`.
+
+      Need mention no node imports remain in src/app. Good.
+
+      Need mention docs file naming conventions: lowercase kebab-case except README.md.
+
+      Need mention root README currently links testing? It says engine conformance commands documented in docs/meterless-fit.md; no testing link. Update needed.
+
+      Need mention docs/meterless-fit.md is implementation map, not testing guide. Good.
+
+      Need mention user wants "maximum detailed doc" singular but we created index + guide. That's okay. In summary objective say main guide.
+
+      Let's produce.
+    thinking_duration: 10.373s
+    thinking_duration_ms: 10373
+    time: 10/23/2026, 11:10:08.273 PM UTC
+    response: |-
+      ## Objective
+      - Finish and verify the Meterless engine integration in the Angular to-do app at `/home/ext_root/lab-data/angular-todo-app`.
+      - Deliver a maximum-detail testing guide, in an industry-standard docs folder/file structure, explaining how to test the natural-language assistant, Scout Intent, H-MEM, World Model, and Markovian.
+
+      ## Important Details
+      - User-fixed engine adoption order: **1 Scout Intent, 2 H-MEM, 3 World Model, 4 Markovian**.
+      - Normal task CRUD must remain direct: component → `TaskStore` → `localStorage`; engines only assist AI/ambiguous/tool-driven actions.
+      - App stack: Angular 22.2.x, standalone components, signals, `OnPush`, Vitest/jsdom, `localStorage`; app is not a git repo.
+      - `mise.toml` pins Node `26.10.0`; run Node commands via `mise x node@26.10.0 --` if the shell reports `mise ERROR No version is set for shim: node`.
+      - Spec repo: `/home/ext_root/lab-data/meterless-spec`.
+      - Browser ports remove `node:fs`/`node:path`, inject persistence adapters, and keep engine cores framework-free.
+      - Scout eval metrics currently pass: `intent_top1=1`, `intent_top3_recall=1`, `injection_precision=1`, `injection_recall=1`, `tool_precision=1`, `clarification_rate=0.0625`, `override_frequency=0` (corpus-limited, not measured).
+      - Conformance results: H-MEM **13/13**, World Model **8/8**, Markovian **8/8**.
+      - `WorldModelService.taskEntities()` now filters to `entity.state === 'active'`; Activity panel label is `active task entities`.
+      - Coverage is not configured. `npm test -- --watch=false --coverage` fails until `@vitest/coverage-v8` or `@vitest/coverage-istanbul` is installed; documented as optional.
+      - Verified focused commands:
+        - `CI=true npm test -- --watch=false --include=src/app/services/assistant.service.spec.ts`
+        - `CI=true npm test -- --watch=false --filter="blocks prompt injection"`
+      - Test inventory now expected: **37 tests across 7 spec files**.
+        - `app.spec.ts`: 4
+        - `task-store.spec.ts`: 9
+        - `assistant.service.spec.ts`: 16
+        - `memory.service.spec.ts`: 2
+        - `planning.service.spec.ts`: 1
+        - `world-model.service.spec.ts`: 2
+        - `scout.service.spec.ts`: 3
+      - Docs naming convention: lowercase kebab-case except industry-standard `README.md`.
+      - Apache-2.0 attribution added via `THIRD_PARTY_NOTICES.md` and `THIRD_PARTY_LICENSES/meterless-APACHE-2.0.txt`.
+      - Spec repo tracked files were restored after eval runs; `engines/scout-intent/node_modules/` remains untracked for local runner use.
+
+      ## Work State
+      ### Completed
+      - Ported all four engines into `src/app/engines/{scout,hmem,world-model,markovian,shared}`.
+      - Added browser-safe shared crypto: `src/app/engines/shared/crypto.ts`.
+      - Added Node-only Scout eval adapter: `eval/scout-entry.ts`.
+      - Added app services:
+        - `src/app/services/scout.service.ts`
+        - `src/app/services/memory.service.ts`
+        - `src/app/services/world-model.service.ts`
+        - `src/app/services/planning.service.ts`
+        - `src/app/services/assistant.service.ts`
+        - `src/app/services/persistence.ts`
+      - Added UI panels:
+        - `src/app/components/assistant-panel/`
+        - `src/app/components/memory-panel/`
+        - `src/app/components/world-panel/`
+      - Wired `TaskStore` to sync add/toggle/rename/delete with World Model; deletes append tombstones.
+      - Added assistant confirmation flow for high-risk actions, injection blocking, memory recall fallback, and Markovian plan messages.
+      - Rewrote `README.md` and `docs/meterless-fit.md` to reflect actual engine adoption.
+      - Added tests and passed each focused suite:
+        - assistant: 16 passed
+        - memory: 2 passed
+        - planning: 1 passed
+        - world-model: 2 passed
+        - scout: 3 passed
+      - Ran Scout eval successfully: 32 examples, all thresholds passed.
+      - Ran H-MEM conformance: 13/13.
+      - Ran World Model conformance: 8/8.
+      - Ran Markovian conformance: 8/8.
+      - Applied Prettier to app source, engines, services, components, and earlier docs.
+      - Created testing docs:
+        - `docs/README.md`
+        - `docs/testing/README.md`
+        - `docs/testing/meterless-engines-testing-guide.md`
+      - Main testing guide covers:
+        - test layers and prerequisites
+        - command reference
+        - natural-language assistant lifecycle and intent table
+        - manual cases `NL-01`…`NL-23`
+        - Scout cases `SC-01`…`SC-10`
+        - H-MEM cases `HM-01`…`HM-09`
+        - World Model cases `WM-01`…`WM-08`
+        - Markovian cases `MK-01`…`MK-08`
+        - cross-engine integration scenario
+        - conformance/eval commands
+        - CI guidance
+        - full 37-test inventory
+        - release checklist and glossary
+
+      ### Active
+      - Final verification of the newly written docs and latest test additions.
+      - Full `CI=true npm test -- --watch=false` has **not** been rerun after adding the last specs/tests; expected 37/37 but needs confirmation.
+      - `npm run build` has **not** been rerun after the `WorldModelService.taskEntities()` active-filter change.
+      - New docs have not been Prettier-formatted or link-checked.
+      - Root `README.md` still points primarily to `docs/meterless-fit.md`; it should also link `docs/testing/README.md` or the main testing guide.
+      - `docs/meterless-fit.md` should cross-link the new testing guide.
+
+      ### Blocked
+      - None currently.
+
+      ## Next Move
+      1. Run `npx prettier --write docs/README.md docs/testing/README.md docs/testing/meterless-engines-testing-guide.md README.md docs/meterless-fit.md` and fix any Markdown/link issues.
+      2. Add testing-guide links to root `README.md` and `docs/meterless-fit.md`.
+      3. Run `CI=true npm test -- --watch=false` and `npm run build`; update docs if counts or results differ.
+      4. Re-run conformance/eval only if engine source changed after the last passing runs.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: main maximum-detail testing guide just written.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/testing/README.md`: testing index and fast verification summary.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/README.md`: documentation index and naming conventions.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/meterless-fit.md`: engine implementation map; needs testing-guide cross-link.
+      - `/home/ext_root/lab-data/angular-todo-app/README.md`: project overview; needs testing-guide link.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: assistant lifecycle and intent execution.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts`: Scout facade and contract verification.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts`: H-MEM facade and persistence.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts`: task entity sync, active filter, tombstones.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts`: Markovian facade and local plan generator.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: task mutation point and World Model sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/*.spec.ts`: 7 spec files, expected 37 tests.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/assistant-panel/`: chat, confirmation, plan display.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/`: memory list and delete controls.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/world-panel/`: Activity panel.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/`: Scout port and app registry.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/`: H-MEM port.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/`: World Model port.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/`: Markovian port.
+      - `/home/ext_root/lab-data/angular-todo-app/eval/scout-entry.ts`: Node-only Scout eval adapter.
+      - `/home/ext_root/lab-data/angular-todo-app/THIRD_PARTY_NOTICES.md`: Meterless attribution.
+      - `/home/ext_root/lab-data/angular-todo-app/THIRD_PARTY_LICENSES/meterless-APACHE-2.0.txt`: Apache-2.0 license text.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/runner/index.ts`: Scout eval runner.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`: H-MEM conformance.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts`: World Model conformance.
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts`: Markovian conformance.
+    duration: 21.842s
+    duration_ms: 21842
+

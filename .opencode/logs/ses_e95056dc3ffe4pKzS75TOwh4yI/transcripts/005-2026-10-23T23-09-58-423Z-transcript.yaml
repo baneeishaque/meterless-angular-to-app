@@ -1,0 +1,68 @@
+user:
+  text: |-
+    Natural-language assistant: add, complete, rename, delete, filter, and summarize tasks
+    Scout Intent routing with prompt-injection blocking and confirmation for destructive actions
+    H-MEM preference memory with retrieval, persistence, and a trust ledger
+    World Model event log with task entities and an activity panel
+    Markovian plan generation with per-run chunk configuration and efficiency stats
+
+    how i test these?
+
+    explain each item with maximum details
+    document in maximum details.
+    create a structured maximum detailed doc & place in the correct folder structure folder with correct industry std file names & folder names.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Created the full testing documentation set:
+
+      - `docs/testing/meterless-engines-testing-guide.md` — maximum-detail guide covering all five feature areas: architecture, request flow, manual test cases (`NL-*`, `SC-*`, `HM-*`, `WM-*`, `MK-*`), automated test inventory, conformance commands, expected outputs, troubleshooting, CI, and release checklist.
+      - `docs/testing/README.md` — testing entry point and quick commands.
+      - `docs/README.md` — documentation index.
+      - Updated `README.md` and `docs/meterless-fit.md` with links.
+
+      Quick verification:
+
+      ```bash
+      CI=true npm test -- --watch=false   # 37/37 tests pass
+      npm run build                       # clean AOT build
+      npm start                           # manual browser testing
+      ```
+
+      Focused examples:
+
+      ```bash
+      CI=true npm test -- --watch=false --include=src/app/services/assistant.service.spec.ts
+      CI=true npm test -- --watch=false --filter="blocks prompt injection"
+      ```
+
+      I also expanded automated coverage with new specs for `MemoryService`, `PlanningService`, `WorldModelService`, and `ScoutService`, plus additional assistant tests for rename, filter, summary, reopen, bulk delete, injection variants, and World Model archiving.

@@ -1,0 +1,1283 @@
+---
+user:
+  text: start batch 3
+  time: 10/24/2026, 12:48:25.787 AM UTC
+assistant:
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Execute batch 3: commit 11 config, commit 12 docs. Then final verification: tests/build, prettier, markdownlint (known MD013), conformance/eval? The plan says full verification after final commit including conformance and Scout eval. We should run. Also git-commit-preview-verify script. Need inspect skill for commit preview verify. But first commits.
+
+      Commit 11: stage `.markdownlint-cli2.jsonc`. Check content.
+    thinking_duration: 460ms
+    thinking_duration_ms: 460
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && cat .markdownlint-cli2.jsonc && git add -- .markdownlint-cli2.jsonc && git diff --cached --stat && git diff --cached --check
+        result: |
+          {
+            "config": {
+              "MD013": {
+                "line_length": 120,
+                "code_blocks": false,
+                "tables": false
+              },
+              "MD007": {
+                "indent": 2
+              },
+              "MD046": {
+                "style": "fenced"
+              }
+            }
+          }
+           .markdownlint-cli2.jsonc | 15 +++++++++++++++
+           1 file changed, 15 insertions(+)
+    time: 10/24/2026, 12:48:25.868 AM UTC
+    response: "\n\n"
+    duration: 1.875s
+    duration_ms: 1875
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Commit 11.
+    thinking_duration: 19ms
+    thinking_duration_ms: 19
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "chore(lint): add markdownlint configuration" -m "Configure MD013 at 120 columns without code-block/table limits, MD007 with two-space indentation, and fenced code blocks for the planning artifacts."'
+          timeout: 120000
+        result: "10\t0\n[main 6101691] chore(lint): add markdownlint configuration\n 1 file changed, 15 insertions(+)\n create mode 100644 .markdownlint-cli2.jsonc\n"
+    time: 10/24/2026, 12:48:27.820 AM UTC
+    response: "\n\n"
+    duration: 1.665s
+    duration_ms: 1665
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Commit 12 docs. Stage three files only. Ensure README not staged.
+    thinking_duration: 48ms
+    thinking_duration_ms: 48
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git add -- docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md && git diff --cached --stat && git diff --cached --check
+        result: |2
+           docs/meterless-fit.md                           |  58 +--
+           docs/testing/README.md                          |  18 +-
+           docs/testing/meterless-engines-testing-guide.md | 454 +++++++++++++++---------
+           3 files changed, 330 insertions(+), 200 deletions(-)
+    time: 10/24/2026, 12:48:29.574 AM UTC
+    response: "\n\n"
+    duration: 1.081s
+    duration_ms: 1081
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Check cached docs don't mention provider or 100 tests? Our docs mention no provider. Search cached diff for "provider" maybe generator only.
+    thinking_duration: 157ms
+    thinking_duration_ms: 157
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git diff --cached | grep -inE "provider-panel|meterless runtime|100 tests|15 spec" || true
+        result: (no output)
+    time: 10/24/2026, 12:48:30.743 AM UTC
+    response: "\n\n"
+    duration: 1.147s
+    duration_ms: 1147
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Commit 12.
+    thinking_duration: 10ms
+    thinking_duration_ms: 10
+    tool_calls:
+      - tool: bash
+        args:
+          command: 'git -C /home/ext_root/lab-data/angular-todo-app fetch origin && git -C /home/ext_root/lab-data/angular-todo-app rev-list --left-right --count HEAD...origin/main && git -C /home/ext_root/lab-data/angular-todo-app commit -m "docs(testing): document combined engine coverage" -m "Update the test guide to 74 tests across 12 spec files, add the context-plan, pipeline, project, alternatives, research, trace, and World-to-H-MEM cases, and align the architecture map with the new runtime flow."'
+          timeout: 120000
+        result: "11\t0\n[main 84502e0] docs(testing): document combined engine coverage\n 3 files changed, 330 insertions(+), 200 deletions(-)\n"
+    time: 10/24/2026, 12:48:31.988 AM UTC
+    response: "\n\n"
+    duration: 1.537s
+    duration_ms: 1537
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      All 12 commits done. Now final verification. Need run:
+      - `CI=true npm test -- --watch=false` (100/100 with provider).
+      - `npm run build`.
+      - Prettier check on our files? `npx prettier --check "src/app/**/*.{ts,html,css}" docs...` but provider files may fail? Let's check only our files or all. Earlier summary says all. Run `npx prettier --check "src/app/**/*.{ts,html,css}" "docs/**/*.md" "README.md"`? README modified by provider may be formatted. Could fail due provider files. Better run on committed files or all; if fails, note provider. Use all to see.
+      - Markdownlint on our docs? Known MD013. Maybe run on plan/task artifacts and config? The config commit message says planning artifacts. We should run markdownlint on plan/task (untracked) to verify config. But docs still fail MD013 pre-existing. We can run `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc docs/2026...plan.md docs/2026...task.md` and expect pass. That's what previous summary did. Do.
+      - Conformance H-MEM, World Model, Markovian; Scout eval. Need exact commands and env paths. Summary:
+        - H-MEM: `HMEM_IMPL=.../src/app/engines/hmem/index.ts npx tsx /home_ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`
+        - World Model similar.
+        - Markovian similar.
+        - Scout eval: `SCOUT_IMPL=.../eval/scout-entry.ts npx tsx .../scout-intent/evals/runner/index.ts all` from spec folder.
+      Need run from correct cwd. Use `/home/ext_root/lab-data/meterless-spec/engines/scout-intent` for npx tsx local. Could take. Let's run tests/build first in parallel? Tests and build can run parallel but may compete; better sequential? They are independent but heavy. Run tests first, build. We can parallel with conformance maybe, but avoid resource contention. Let's do tests + build sequential.
+    thinking_duration: 1.296s
+    thinking_duration_ms: 1296
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && CI=true npm test -- --watch=false
+          timeout: 180000
+        result: "\n> angular-todo-app@0.0.0 test\n> ng test --watch=false\n\n❯ Building...\n✔ Building...\nInitial chunk files                                    | Names                                               |  Raw size\nspec-app-app.js                                        | spec-app-app                                        |  79.07 kB | \nchunk-3Z7NUIEP.js                                      | -                                                   |  45.19 kB | \nchunk-PV4S5CEZ.js                                      | -                                                   |  38.21 kB | \nchunk-TPX5DZWD.js                                      | -                                                   |  34.92 kB | \nchunk-2I5AWLMX.js                                      | -                                                   |  27.94 kB | \nchunk-Q3P4X4ZK.js                                      | -                                                   |  23.46 kB | \nchunk-ABHKTR5A.js                                      | -                                                   |  16.06 kB | \nchunk-25TFXSTP.js                                      | -                                                   |  15.89 kB | \nchunk-4H42BMRQ.js                                      | -                                                   |  13.58 kB | \nchunk-GSKP7XKE.js                                      | -                                                   |  11.15 kB | \nchunk-GMD5AYHH.js                                      | -                                                   |   9.81 kB | \nspec-app-services-assistant.service.js                 | spec-app-services-assistant.service                 |   9.33 kB | \nchunk-Z2S4E2A3.js                                      | -                                                   |   8.33 kB | \nspec-app-providers-meterless-provider.service.js       | spec-app-providers-meterless-provider.service       |   7.14 kB | \nspec-app-services-planning.service.js                  | spec-app-services-planning.service                  |   5.52 kB | \nchunk-JBWBLPNK.js                                      | -                                                   |   5.24 kB | \nchunk-JARNQN2X.js                                      | -                                                   |   4.39 kB | \nspec-app-services-task-store.js                        | spec-app-services-task-store                        |   4.21 kB | \nspec-app-services-memory.service.js                    | spec-app-services-memory.service                    |   4.08 kB | \nspec-app-services-world-model.service.js               | spec-app-services-world-model.service               |   3.16 kB | \nspec-app-components-provider-panel-provider-panel.js   | spec-app-components-provider-panel-provider-panel   |   3.02 kB | \nchunk-6EOVOVZP.js                                      | -                                                   |   2.91 kB | \nspec-app-services-engine-sync.service.js               | spec-app-services-engine-sync.service               |   2.73 kB | \nspec-app-services-scout.service.js                     | spec-app-services-scout.service                     |   2.70 kB | \ninit-testbed.js                                        | init-testbed                                        |   2.27 kB | \nspec-app-providers-meterless-url.js                    | spec-app-providers-meterless-url                    |   2.18 kB | \nspec-app-services-context-plan.service.js              | spec-app-services-context-plan.service              |   1.91 kB | \nspec-app-services-assistant-pipeline.service.js        | spec-app-services-assistant-pipeline.service        |   1.87 kB | \nspec-app-components-trace-panel-trace-panel.js         | spec-app-components-trace-panel-trace-panel         |   1.54 kB | \nchunk-7KUOU6FS.js                                      | -                                                   |   1.34 kB | \nspec-app-components-assistant-panel-assistant-panel.js | spec-app-components-assistant-panel-assistant-panel |   1.26 kB | \nstyles.css                                             | styles                                              |   1.07 kB | \nvitest-mock-patch.js                                   | vitest-mock-patch                                   | 988 bytes | \nchunk-3NKMHWL6.js                                      | -                                                   | 457 bytes | \ninit-compiler.js                                       | init-compiler                                       | 166 bytes | \n\n                                                       | Initial total                                       | 393.12 kB\n\nApplication bundle generation complete. [3.696 seconds] - 2026-10-24T00:48:40.430Z\n\n\n\e[1m\e[30m\e[46m RUN \e[49m\e[39m\e[22m \e[36mv5.0.5 \e[39m\e[90m/home/ext_root/lab-data/angular-todo-app\e[39m\n\n\n\e[2m Test Files \e[22m \e[1m\e[32m15 passed\e[39m\e[22m\e[90m (15)\e[39m\n\e[2m      Tests \e[22m \e[1m\e[32m100 passed\e[39m\e[22m\e[90m (100)\e[39m\n\e[2m   Start at \e[22m 00:48:40\n\e[2m   Duration \e[22m 3.23s\e[2m (environment 80%, tests 9%, setup 6%, transform 4%, import 1%)\e[22m\n\n"
+    time: 10/24/2026, 12:48:33.632 AM UTC
+    response: "\n\n\n\n"
+    duration: 10.447s
+    duration_ms: 10447
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Build.
+    thinking_duration: 12ms
+    thinking_duration_ms: 12
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && npm run build
+          timeout: 180000
+        result: |+
+
+          > angular-todo-app@0.0.0 build
+          > ng build
+
+          ❯ Building...
+          ✔ Building...
+          Initial chunk files | Names         |  Raw size | Estimated transfer size
+          main-73TT6BXB.js    | main          | 276.62 kB |                76.23 kB
+          styles-N63C6YOP.css | styles        | 778 bytes |               778 bytes
+
+                              | Initial total | 277.39 kB |                77.01 kB
+
+          Application bundle generation complete. [3.520 seconds] - 2026-10-24T00:48:49.796Z
+
+          Output location: /home/ext_root/lab-data/angular-todo-app/dist/angular-todo-app
+
+    time: 10/24/2026, 12:48:44.158 AM UTC
+    response: "\n\n"
+    duration: 5.916s
+    duration_ms: 5916
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Prettier check. Use all src/docs; provider files may be formatted. Run.
+    thinking_duration: 62ms
+    thinking_duration_ms: 62
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && npx prettier --check "src/app/**/*.{ts,html,css}" "docs/**/*.md" "README.md" "THIRD_PARTY_NOTICES.md"
+          timeout: 120000
+        result: |
+          Checking formatting...
+          [warn] src/app/components/provider-panel/provider-panel.html
+          [warn] src/app/providers/meterless-provider.service.ts
+          [warn] Code style issues found in 2 files. Run Prettier with --write to fix.
+    time: 10/24/2026, 12:48:50.154 AM UTC
+    response: "\n\n"
+    duration: 4.755s
+    duration_ms: 4755
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Only concurrent provider files fail. Our files pass. We should not format them (not ours). Note.
+
+      Markdownlint on plan/task artifacts. Need exact paths. Use glob? We know. Run.
+    thinking_duration: 113ms
+    thinking_duration_ms: 113
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && npx markdownlint-cli2 --config .markdownlint-cli2.jsonc docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md
+          timeout: 120000
+        result: |
+          markdownlint-cli2 v0.24.0 (markdownlint v0.42.0)
+          Finding: docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md
+          Linting: 2 files
+          Summary: 0 issues in 0 files
+    time: 10/24/2026, 12:48:54.986 AM UTC
+    response: "\n\n"
+    duration: 3.285s
+    duration_ms: 3285
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Good. Docs guide MD013 still. Could run markdownlint on docs/testing to quantify; known. We'll mention pre-existing. But maybe we should fix docs MD013 now? We already committed docs; would need amend or new commit. Not necessary. But user asked test docs; they may not care lint. However final report should note.
+
+      Conformance. Run H-MEM, World Model, Markovian in parallel? They are independent. Use parallel tool calls. Need cwd spec folder for npx tsx. Commands:
+      ```
+      cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && HMEM_IMPL=/home/.../src/app/engines/hmem/index.ts npx tsx /home/.../engines/hmem/conformance/runner.ts
+      ```
+      World Model, Markovian. Do in parallel.
+    thinking_duration: 623ms
+    thinking_duration_ms: 623
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && HMEM_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts
+          timeout: 180000
+        result: |
+          mise ERROR No version is set for shim: npx
+          Set a global default version with one of the following:
+          mise use -g node@18.20.8
+          mise use -g node@26.10.0
+          mise ERROR Version: 2026.10.3 linux-x64 (2026-10-05)
+          mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && WORLD_MODEL_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts
+          timeout: 180000
+        result: |
+          mise ERROR No version is set for shim: npx
+          Set a global default version with one of the following:
+          mise use -g node@18.20.8
+          mise use -g node@26.10.0
+          mise ERROR Version: 2026.10.3 linux-x64 (2026-10-05)
+          mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && MARKOVIAN_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts
+          timeout: 180000
+        result: |
+          mise ERROR No version is set for shim: npx
+          Set a global default version with one of the following:
+          mise use -g node@18.20.8
+          mise use -g node@26.10.0
+          mise ERROR Version: 2026.10.3 linux-x64 (2026-10-05)
+          mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+    time: 10/24/2026, 12:48:58.361 AM UTC
+    response: "\n\n\n\n"
+    duration: 2.832s
+    duration_ms: 2832
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Need use `mise x node@26.10.0 -- npx tsx ...` per docs. Do.
+    thinking_duration: 80ms
+    thinking_duration_ms: 80
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && HMEM_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/index.ts mise x node@26.10.0 -- npx tsx /home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts
+          timeout: 180000
+        result: |
+
+          H-MEM conformance: implementation = /home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/index.ts
+
+            record-validation
+              PASS rv-001 a record with no source is rejected by construction
+              PASS rv-002 a record with a source is accepted
+
+            feedback-deltas
+              PASS fd-001 helpful adds exactly +0.05 confidence and +1 accessCount
+              PASS fd-002 not_helpful subtracts exactly 0.03
+              PASS fd-003 wrong subtracts exactly 0.20 and adds the review tag
+              PASS fd-004 confidence clamps at 0 (wrong at 0.1)
+              PASS fd-005 confidence clamps at 1 (helpful at 0.98)
+
+            ranking-order
+              PASS ro-001 superseded penalty dominates: a superseded record ranks below a fresh one with identical content relevance
+              PASS ro-002 confidence multiplies the whole score: identical records rank by confidence
+
+            sleep-guardrails
+              PASS sg-001 old low-access plain record archives; dream-derived record with identical age does not
+
+            conflict-gate
+              PASS cg-001 auto-resolve marks the loser supersededBy and deletes nothing
+
+            ledger-audit
+              PASS la-001 create then feedback reconstructs: actions in order, previous and new confidence present
+
+            dream-boundary
+              PASS db-001 dream proposals never materialize before approval; approval creates a long_term record with lineage
+
+            13/13 checks passed
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && WORLD_MODEL_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts mise x node@26.10.0 -- npx tsx /home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts
+          timeout: 180000
+        result: |
+
+          World Model conformance: implementation = /home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts
+
+            PASS sid-001 stable ids: diacritics and NBSP normalize identically (NFKD + strip marks)
+            PASS sid-002 stable ids: distinct names stay distinct (no over-normalization)
+            PASS band-001 merge bands at the boundaries: 0.85 auto, 0.84 review, 0.82 review, 0.81 new
+            PASS prov-001 writes without provenance are rejected
+            PASS idem-001 ingest idempotency: same batch twice produces an empty diff
+            PASS idem-002 the idempotency check can fail: a mutated batch changes the shape
+            PASS bitemp-001 bitemporal edges: a superseding edge closes the old one; point-in-time queries respect validity
+            PASS audit-001 every mutation writes an audit entry in order
+
+            8/8 checks passed
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && MARKOVIAN_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/index.ts mise x node@26.10.0 -- npx tsx /home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts
+          timeout: 180000
+        result: |
+
+          Markovian conformance: implementation = /home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/index.ts
+
+            PASS eff-001 efficiency model reproduces the documented worked example: N=20 -> 86% (within 0.5%)
+            PASS snap-001 run records carry a mandatory chunkConfig snapshot
+            PASS snap-002 historical efficiency is computed against the run's own snapshot, not current config
+            PASS ovl-001 overlap contract: implement [OVERLAP] or reject non-zero; accept-and-ignore fails
+            PASS lab-001 token numbers are labeled: runs carry estimated or measured
+            PASS ref-001 reflection failure does not fail the run
+            PASS mrk-001 markers are cleaned from display content and drive completion
+            PASS cfg-001 config bounds reject out-of-range values with a typed error, never silent truncation
+
+            8/8 checks passed
+    time: 10/24/2026, 12:49:01.316 AM UTC
+    response: "\n\n\n\n"
+    duration: 3.149s
+    duration_ms: 3149
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      Scout eval. Command from summary:
+      `SCOUT_IMPL=.../eval/scout-entry.ts npx tsx .../scout-intent/evals/runner/index.ts all`
+      cwd spec folder. Use mise.
+    thinking_duration: 133ms
+    thinking_duration_ms: 133
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/meterless-spec/engines/scout-intent && SCOUT_IMPL=/home/ext_root/lab-data/angular-todo-app/eval/scout-entry.ts mise x node@26.10.0 -- npx tsx evals/runner/index.ts all
+          timeout: 300000
+        result: |
+          Loaded 32 examples from v1/all
+          Report written: /home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/reports/latest.md
+          ┌─────────────────────┬────────┐
+          │ (index)             │ Values │
+          ├─────────────────────┼────────┤
+          │ intent_top1         │ 1      │
+          │ intent_top3_recall  │ 1      │
+          │ injection_precision │ 1      │
+          │ injection_recall    │ 1      │
+          │ tool_precision      │ 1      │
+          │ clarification_rate  │ 0.0625 │
+          │ override_frequency  │ 0      │
+          └─────────────────────┴────────┘
+          note: override_frequency = 0.000 by definition of the corpus, not by measurement: no override data in corpus v1. Overrides are user corrections captured in telemetry ("No, I meant…" + intent switch within the same trace) ÷ contracts issued — measure this in production telemetry (docs/telemetry-and-learning.md).
+    time: 10/24/2026, 12:49:04.577 AM UTC
+    response: "\n\n"
+    duration: 2.372s
+    duration_ms: 2372
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Now commit preview verify. Need skill `git-commit-preview-verify`. Load skill and list scripts per AGENTS.
+    thinking_duration: 96ms
+    thinking_duration_ms: 96
+    tool_calls:
+      - tool: skill
+        args:
+          name: git-commit-preview-verify
+        result: |-
+          <skill_content name="git-commit-preview-verify">
+          # Skill: git-commit-preview-verify
+
+          # Git Commit Preview Verify Skill
+
+          > **Skill ID:** `git-commit-preview-verify`<br>
+          > **Version:** 1.0.0<br>
+          > **Standard:** [Agent Skills (agentskills.io)](https://agentskills.io)
+
+          ## Description
+
+          Provides a deterministic, domain-agnostic primitive for verifying
+          whether the commits listed in a commit-preview markdown file have been
+          executed against git history. It parses the standard §2d preview format
+          produced by [`git-atomic-commit-construction`](../../../../git-atomic-commit-construction/SKILL.md),
+          cross-references each `Commit N:` title against `git log --oneline`, and
+          reports each arranged commit as `done` or `pending`.
+
+          The primitive supports human-readable text output and machine-readable
+          JSON, plus an optional `--cleanup` gate that deletes the preview file
+          ONLY when every listed commit is verified as executed — so a partially
+          executed plan never loses its handoff artifact.
+
+          ## Environment & Dependencies
+
+          | Requirement | Minimum |
+          | --- | --- |
+          | Git | 2.x |
+          | Python | 3.10+ |
+
+          Verify:
+
+          ```bash
+          git --version
+          python3 --version
+          ```
+
+          ## When to Apply
+
+          Apply this skill when:
+
+          - A user points to an existing `scratch/commit-preview.md` and asks "is
+            this done?" or "check if these commits were made".
+          - Resuming a session that previously generated a commit preview but may
+            not have executed all commits.
+          - Auditing whether a planned commit sequence was fully executed.
+          - Cleaning up a stale preview file after all commits are confirmed
+            executed.
+
+          Do NOT apply when:
+
+          - The preview has not been written yet — use
+            [`git-atomic-commit-construction`](../../../../git-atomic-commit-construction/SKILL.md)
+            §2d to generate it first.
+          - The user wants to verify individual commit content — use
+            [`git-commit-metadata-extraction`](../../../../git-commit-metadata-extraction/SKILL.md).
+          - The user wants to split or rewrite existing commits — use
+            [`git-history-refinement`](../../../../git-history-refinement/SKILL.md).
+
+          ## Scripts (Public CLI Contract)
+
+          The deterministic Tier-A primitive is
+          [`scripts/verify-commit-preview.py`](scripts/verify-commit-preview.py)
+          per `script-over-instruction-decomposition`. It is read-only by default
+          and never mutates the working tree unless `--cleanup` is passed with all
+          commits done.
+
+          ```bash
+          python3 scripts/verify-commit-preview.py --preview <path> [--repo <path>] [--format text|json] [--cleanup]
+          ```
+
+          | Flag | Meaning |
+          | --- | --- |
+          | `--preview PATH` | Path to the commit-preview markdown file (required) |
+          | `--repo PATH` | Git repository root (default: auto-detect from CWD) |
+          | `--format text\|json` | Output format (default: `text`) |
+          | `--window N` | `git log` window size in commits (default: 50) |
+          | `--cleanup` | Delete the preview file only when ALL commits are done |
+
+          ### Examples
+
+          ```bash
+          # Text report (default)
+          python3 scripts/verify-commit-preview.py --preview scratch/commit-preview.md
+
+          # Machine-readable JSON
+          python3 scripts/verify-commit-preview.py --preview scratch/commit-preview.md --format json
+
+          # Verify, then delete the preview (only fires when all commits done)
+          python3 scripts/verify-commit-preview.py --preview scratch/commit-preview.md --cleanup
+          ```
+
+          ### Exit Codes
+
+          | Code | Meaning |
+          | --- | --- |
+          | 0 | All commits verified as executed |
+          | 1 | One or more commits not found in git log |
+          | 2 | Preview file not found or unreadable |
+          | 3 | Not inside a git repository (and `--repo` not provided / invalid) |
+          | 4 | Preview file contains no parseable commit entries |
+
+          ### Input / Output Format
+
+          The parser accepts the §2d preview's `Commit N:` section headers at any
+          heading level (`## Commit 1: <title>` or `### Commit 1: <title>`). For
+          each entry it records `{ index, title, status, sha }`. `status` is
+          `done` when the title matches a line of `git log --oneline -<window>`
+          (returning that line's SHA), otherwise `pending` with a null SHA.
+
+          Text output:
+
+          ```text
+          Commit Preview Verification
+          ==========================
+          Preview: scratch/commit-preview.md
+          Repository: /Users/dk/lab-data/ai-suite
+
+           #  Status   SHA       Title
+           1  done     febd2a47  docs(gists-ai-prompts): add commit preview instruction log entries
+
+          Result: 5/5 commits executed
+          ```
+
+          JSON output:
+
+          ```json
+          {
+            "preview_file": "scratch/commit-preview.md",
+            "repo": "/Users/dk/lab-data/ai-suite",
+            "total": 5,
+            "done": 5,
+            "pending": 0,
+            "commits": [
+              { "index": 1, "title": "docs(gists-ai-prompts): ...", "status": "done", "sha": "febd2a47" }
+            ]
+          }
+          ```
+
+          ### Cleanup Semantics
+
+          - `--cleanup` deletes the preview file and prints `Cleaned up: <path>`
+            ONLY when `pending == 0`.
+          - If any commit is pending, cleanup is refused with a warning and the
+            exit code is 1 — the preview MUST be retained for the next session.
+
+          ## Composition by Higher-Level Skills
+
+          | Composer | Composition Mechanism |
+          | --- | --- |
+          | [`git-atomic-commit-construction`](../../../../git-atomic-commit-construction/SKILL.md) | Invoked in §2d.2 for post-execution verification of arranged commits and preview cleanup |
+
+          ## Related Skills
+
+          - [`git-atomic-commit-construction`](../../../../git-atomic-commit-construction/SKILL.md)
+            — the composer that generates the preview this skill verifies.
+          - [`git-commit-metadata-extraction`](../../../../git-commit-metadata-extraction/SKILL.md)
+            — for extracting individual commit metadata.
+          - [`git-hunk-staging-primitives`](../../../../git-hunk-staging-primitives/SKILL.md)
+            — sibling base skill for hunk-based staging during commit construction.
+          - [`repo-scratch-output-capture`](../../../../repo-scratch-output-capture/SKILL.md)
+            — for managing the `scratch/` directory where previews live.
+
+          ## Traceability
+
+          - **Created**: 2026-08-11
+          - **Source**: Observed workflow gap — user pointed to an existing
+            `scratch/commit-preview.md`, agent verified commits manually via
+            `git log`, then deleted the file; none of that was documented.
+          - **Extracted from**: [`git-atomic-commit-construction`](../../../../git-atomic-commit-construction/SKILL.md)
+            §2d — post-execution preview verification was not documented.
+
+          Base directory for this skill: /home/ext_root/lab-data/ai-suite/.agents/skills/git/basic/edit/git-commit-preview-verify
+          Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
+          Note: file list is sampled.
+
+          <skill_files>
+          <file>/home/ext_root/lab-data/ai-suite/.agents/skills/git/basic/edit/git-commit-preview-verify/AGENTS.md</file>
+          <file>/home/ext_root/lab-data/ai-suite/.agents/skills/git/basic/edit/git-commit-preview-verify/scripts/verify-commit-preview.py</file>
+          </skill_files>
+          </skill_content>
+    time: 10/24/2026, 12:49:07.046 AM UTC
+    response: "\n\n\n\n"
+    duration: 1.381s
+    duration_ms: 1381
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: Run script with preview path and repo.
+    thinking_duration: 46ms
+    thinking_duration_ms: 46
+    tool_calls:
+      - tool: bash
+        args:
+          command: python3 /home/ext_root/lab-data/ai-suite/.agents/skills/git/basic/edit/git-commit-preview-verify/scripts/verify-commit-preview.py --preview /home/ext_root/lab-data/angular-todo-app/scratch/commit-preview.md --repo /home/ext_root/lab-data/angular-todo-app
+          timeout: 120000
+        result: |
+          Commit Preview Verification
+          ==========================
+          Preview: /home/ext_root/lab-data/angular-todo-app/scratch/commit-preview.md
+          Repository: /home/ext_root/lab-data/angular-todo-app
+
+           #  Status   SHA       Title
+           1  done     65eaa7b   feat(scout): add context plans and contextual intent scoring
+           2  done     fde6779   feat(memory): add plan recall, world facts, and project scopes
+           3  done     4d9cbe5   feat(world-model): add project context and plan drafts
+           4  done     b77195a   feat(memory): mirror World Model facts into H-MEM
+           5  done     9414f87   feat(markovian): allow per-run chunk configuration
+           6  done     19f3dba   feat(assistant): add the engine context pipeline
+           7  done     9882a39   feat(planning): gate Markovian runs on Scout contracts
+           8  done     4c9c674   feat(tasks): add project-scoped task lists
+           9  done     ca1f980   feat(assistant): route requests through the engine pipeline
+          10  done     57f1c50   feat(ui): add pipeline trace and memory provenance
+          11  done     6101691   chore(lint): add markdownlint configuration
+          12  done     84502e0   docs(testing): document combined engine coverage
+
+          Result: 12/12 commits executed
+    time: 10/24/2026, 12:49:08.529 AM UTC
+    response: "\n\n"
+    duration: 1.254s
+    duration_ms: 1254
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      All 12 done. Now safety stash verify-and-release. Need capture post-execution status, apply stash, compare. But safety stash predates batch 1 and includes the original working tree with docs unmodified (old docs) and no provider files. After all commits, working tree has:
+      - Provider files untracked (new, not in stash)
+      - README modified (new, not in stash)
+      - app.ts/html/spec restored with provider changes (stash had no provider changes; but stash has app.ts/html/spec original? Wait stash captured pre-batch state with no provider changes. After restoring backups with provider, these files differ from stash and HEAD. Applying stash will conflict? The stash contains versions of app.ts/html/spec with our trace/project changes but no provider. HEAD has project+trace without provider. Working tree has provider changes on top. `git stash apply` would try to apply old stash changes to files that already contain them plus provider. It may conflict. But Phase 3 says apply and verify no-op; with provider residue, not no-op. We need handle carefully.
+
+      Actually the safety stash captured the entire pre-batch working tree, including all our code changes (now committed), docs old versions (now updated), app.ts etc without provider. Since all planned changes reached HEAD except concurrent provider changes and docs? Docs updated and committed; working tree docs clean. The stash apply will try to apply diffs that are already in HEAD, likely no-op for most files. For app.ts, stash version = project+trace, no provider; HEAD = project+trace, no provider; working tree = project+trace+provider. `git stash apply` uses merge; since HEAD matches stash content, it may leave working tree unchanged (provider preserved) or conflict? Git stash apply with changes already applied often reports conflicts for files modified since. Could be messy. The skill says Phase 3 apply on top; if conflict, retain stash and investigate. We can avoid applying to working tree? We must follow. Alternatively first stash provider changes? Not allowed/destructive. We can run `git stash apply` and see. If conflicts, do not drop; report. But we want clean verification.
+
+      Maybe use `git stash apply` with `--index`? No. We can use `git diff stash@{0} -- <file>` to verify planned files match HEAD, and use `git stash show -u` to compare. The skill's 3c optional per-file audit. But mandatory 3b apply. Hmm.
+
+      We could temporarily move provider files and README? That's modifying user changes. Not ideal. But we can create a temporary worktree? The skill says apply on current tree. We can apply and if conflict, abort? `git stash apply` conflicts leave markers; we'd need reset. Risk.
+
+      Alternative: Since the safety stash was created before batch 1, and all 12 commits are done, we can verify that stash content is superseded by HEAD via `git-ref-content-audit` skill (optional 3c.1), which avoids apply. But 3b is mandatory. The skill says "Apply the safety stash on top of the current tree" and 3c no-op. However with unexpected concurrent changes, a non-no-op is expected; classify residue. We can apply and compare. Let's think what will happen.
+
+      `git stash apply` default uses merge strategy with stash commit. For each file changed in stash:
+      - If working tree/HEAD already has same changes, it may say "already up to date" or create conflict? Git's stash apply uses `merge-recursive` with base = stash^1 (original HEAD), ours = current working tree, theirs = stash. For app.ts, base has no project/trace, ours has project/trace/provider, theirs has project/trace. Merge sees both added same lines and ours adds provider. Likely clean merge (same changes in both = no conflict) and provider preserved. For docs, base old, ours new, theirs old. Ours changed, theirs unchanged -> keep ours. For files committed and clean, ours == theirs -> no change. For README, base old, ours provider, theirs old -> keep ours. For untracked provider files, stash doesn't know. So apply likely clean and a no-op (status unchanged). Good. Let's do it.
+
+      First capture `git status --short` to file? We can capture output in variable via shell and compare. Since output is small, use `git status --short > /tmp/pre`? AGENTS says no temp folders; use `scratch/`? We can use `scratch/status-pre.txt` and `post`. Scratch is gitignored. That's okay. But "no scripts" not issue. Use `git status --short | sort > scratch/status-pre.txt`, then apply, then post, diff. Need ensure status includes untracked provider files and README. Use `--untracked-files=all` maybe. Compare line-by-line. Let's do.
+
+      Before apply, verify stash present. Then pre status. Then apply. Then post status. Diff.
+    thinking_duration: 8.298s
+    thinking_duration_ms: 8298
+    tool_calls:
+      - tool: bash
+        args:
+          command: cd /home/ext_root/lab-data/angular-todo-app && git stash list && git status --short --untracked-files=all | sort > scratch/status-pre.txt && wc -l scratch/status-pre.txt && cat scratch/status-pre.txt
+        result: |
+          stash@{0}: On main: safety: pre-batch-1 snapshot of 49 working-tree entries before commits 1..5 land (2026-10-24)
+          14 scratch/status-pre.txt
+           M README.md
+           M src/app/app.html
+           M src/app/app.spec.ts
+           M src/app/app.ts
+          ?? docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md
+          ?? docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md
+          ?? src/app/components/provider-panel/provider-panel.css
+          ?? src/app/components/provider-panel/provider-panel.html
+          ?? src/app/components/provider-panel/provider-panel.spec.ts
+          ?? src/app/components/provider-panel/provider-panel.ts
+          ?? src/app/providers/meterless-provider.service.spec.ts
+          ?? src/app/providers/meterless-provider.service.ts
+          ?? src/app/providers/meterless-url.spec.ts
+          ?? src/app/providers/meterless-url.ts
+    time: 10/24/2026, 12:49:09.861 AM UTC
+    response: "\n\n\n\n"
+    duration: 9.229s
+    duration_ms: 9229
+  - agent: compaction
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: |-
+      We need produce structured summary combining prior and new conversation. Need be accurate, terse, preserve exact paths/commands/identifiers. Need reflect current state: Batch 1 committed; Batch 2 commits 6-10 committed; docs updated; test docs commit pending; batch 3 pending (commit 11 lint config, commit 12 docs). Need note provider panel concurrent unexpected files, excluded. Need note tests run after batch 2 includes provider specs; output truncated, unknown result. Important: The conversation ends with test run after batch 2, output truncated. We need state active: verifying tests/build after batch 2, with unexpected provider specs included. Need infer test count changed? The output shows spec-app-providers-meterless-provider.service.js included, so test suite may now have extra tests. We don't know pass/fail due truncation. Must mark unknown/active.
+
+      Need reconcile prior summary 10 commits with current 12 commits and reordered commits. Current actual sequence:
+      1 feat(scout) 65eaa7b
+      2 feat(memory) fde6779
+      3 feat(world-model) 4d9cbe5
+      4 feat(memory) mirror b77195a
+      5 feat(markovian) 9414f87
+      6 feat(assistant) pipeline 19f3dba
+      7 feat(planning) 9882a39
+      8 feat(tasks) project 4c9c674
+      9 feat(assistant) route ca1f980
+      10 feat(ui) trace 57f1c50
+      11 chore(lint) pending
+      12 docs(testing) pending
+
+      Need note preview artifact updated to 12 commits; batch 2 executed with authorization; batch 3 preview needed. Need note docs commit includes docs/testing README, guide, meterless-fit. Docs updated 74/12, new coverage. Prettier passes; markdownlint has pre-existing MD013 line-length debt (102 issues initially; only MD013 remains after Prettier). Need note commit 12 docs not yet committed. Need note `.markdownlint-cli2.jsonc` still untracked.
+
+      Need note safety stash stash@{0} still exists; must not drop until final verification. It was created before batch 1 with 49 entries, apply-not-pop. Batch 1 and 2 done. Need final apply-back verification and approval before drop. Note unexpected provider files created after stash, not in stash, excluded.
+
+      Need note provider files paths:
+      - `src/app/providers/meterless-url.ts`
+      - `src/app/providers/meterless-provider.service.ts`
+      - `src/app/providers/meterless-url.spec.ts`
+      - `src/app/providers/meterless-provider.service.spec.ts`
+      - `src/app/components/provider-panel/provider-panel.ts/html/css`
+      And references in app.ts/html/spec. These are concurrent/unrequested, not part of task, left untracked/unstaged. Important because tests now include provider specs and app.spec expects provider panel; working tree includes them. Our commits exclude them. Need note mixed staging backups in `scratch/batch2-backup/` (app.ts/html/spec). Scratch is ignored. Need possibly cleanup later.
+
+      Need note docs lint: `npx prettier --check docs/...` passes; `markdownlint-cli2 --config .markdownlint-cli2.jsonc docs/...` reports only MD013 line-length (pre-existing) after formatting. The summary can state.
+
+      Need note app.ts/app.html/app.spec mixed staging:
+      - Commit 8 project-only; temporarily removed ProviderPanel and TracePanel lines from app.ts/html; committed; restored.
+      - Commit 10 trace-only; temporarily removed ProviderPanel lines from app.ts/html/spec; committed; restored full working tree.
+      - Commit 8 actual SHA 4c9c674; commit 10 57f1c50.
+      - Commit 10 includes trace panel, assistant-panel html/spec, memory-panel css/html, app trace wiring.
+      - Commit 9 assistant service 209 insertions.
+
+      Need note tests after batch 1: 74/74 pass, build succeeds. After batch 2 test run initiated; output includes provider specs and truncated; result unknown. Need run build too. Next move: verify batch 2 tests/build; if provider specs pollute, determine whether to run with `--include` excluding provider? But user asked test docs; we must be careful not to alter provider work. Could run tests and report. Since app.spec now expects provider panel, tests may pass. But provider specs may pass too. Unknown.
+
+      Need note batch 3 preview requirements: commit 11 `.markdownlint-cli2.jsonc`, commit 12 docs. Need present batch 3 preview and request `start batch 3`. Before that, complete batch 2 verification and maybe inspect status/log. Need note full verification after final commit includes conformance/eval, Playwright, prettier, markdownlint, tests/build. Need note markdownlint config commit maybe batch 3; docs lint depends on config? Docs already formatted. Commit 12 includes docs.
+
+      Need note prior summary details still relevant: mandatory rules paths, git constraints, safety stash, no push, no scripts during commit prep unless authorized, docs excluded planning artifacts with session ID and absolute paths, public repo, branch main, remote URL, conformance commands, Playwright path. Keep objective.
+
+      Need not mention "summary process". Use exact template. Need decide how much prior details to carry. Keep essential.
+
+      Let's reconstruct chronology accurately:
+
+      - Initial prior state: all code implemented, 10-commit plan, preview artifact, awaiting start. Then user asked continue; assistant asked for exact start. User said "start batch 1 i also need test docs too: refer .../docs". Assistant inspected docs/testing, found stale 37 tests/7 spec files, updated docs/testing README, guide, meterless-fit; added docs commit 12; ran safety stash; executed batch 1 commits 1-5. Tests 74/74 pass, build pass. Presented batch 2 preview noting ProviderPanel concurrent changes. User authorized start batch 2. Assistant executed commits 6-10 with mixed staging. Then restored backups and ran tests; output truncated. That's current.
+
+      Need note docs were modified before batch 1 and remain uncommitted. The docs commit is batch 3. Did docs modifications happen before safety stash? Safety stash created before batch 1; docs modified after safety stash (during batch 1). So safety stash does not contain docs updates. Important for apply-back no-op? The stash snapshot predates docs changes, so final apply-back won't be a no-op because docs changes are newer. Hmm. The safety stash was created at 00:?? before docs edits. The stash contains original 49 entries (including no docs modifications). Docs modifications happened after stash. At final verification, applying stash would conflict? The stash is still there; apply-back no-op expectation now invalid because docs changed after stash. But docs commit will include docs, so after commit docs are in HEAD; stash apply of original docs may be no-op for docs? The stash has no docs changes, so applying it to HEAD with docs changes might not touch docs; but it contains all other original changes that are now committed, so apply should be no-op for those? Git stash apply computes diff from stash base to stash tree; if HEAD already contains same changes, apply may be clean no-op or conflict. The docs changes are not in stash, so no conflict from docs. But the working tree has ProviderPanel untracked files created after stash; stash apply -u might try to restore untracked docs planning artifacts and scratch? It could conflict with existing untracked files. We need be cautious. The prior summary said apply-back no-op verification. But with docs changes and provider files, not exactly. We can still verify stash apply in a temp? The skill says apply-back no-op. We may need adapt. But current summary should note stash still held and final verification needed, with caveat docs/provider changes postdate stash. Maybe not overcomplicate, but important.
+
+      Need note safety stash command used:
+      `git stash push -u -m "safety: pre-batch-1 snapshot of 49 working-tree entries before commits 1..5 land (2026-10-24)" && git stash apply`
+      Stash `stash@{0}` remains. Good.
+
+      Need note batch 1 commit SHAs:
+      65eaa7b, fde6779, 4d9cbe5, b77195a, 9414f87.
+      Batch 2 SHAs:
+      19f3dba, 9882a39, 4c9c674, ca1f980, 57f1c50.
+      Total 10 commits. Pending 2.
+
+      Need note commit order changed from prior: pipeline commit 6 before planning commit 7 because planning spec imports AssistantPipelineService. Project tasks moved to 8, assistant service 9, trace UI 10. This is important for continuation.
+
+      Need note commit 8 includes `app.css` project styles; commit 8 stat 13 files, 378 insertions/47 deletions; rewrite task-filters html. Commit 10 stat 11 files, 313 insertions/4 deletions.
+
+      Need note commit 6 pipeline service/spec; commit 7 planning service/spec; commit 9 assistant service/spec.
+
+      Need note docs content updates specifics:
+      - docs/testing/README.md: 74 tests/12 spec files, combined-mechanisms coverage, trace key.
+      - guide: 74/12, 23 assistant tests, 7 Scout, 6 memory, 4 World Model, 8 planning, 11 task store; new manual cases NL-24..30, SC-11..13, HM-10..13, WM-09..12, MK-09..13; inventory grouped; bundle ~264 kB.
+      - docs/meterless-fit.md: updated runtime flow, intents, H-MEM, World Model, Markovian.
+      - Prettier formatting changed 454 lines guide, 58 fit, 18 README; 330 insertions/200 deletions.
+      - markdownlint only MD013 line-length remains (pre-existing debt), no structural errors. Need maybe state exact: after `prettier --write`, markdownlint reports only `MD013/line-length` in docs; no other rules. Is that true? Tail showed only MD013. We can state.
+
+      Need note docs planning artifacts still excluded. `.markdownlint-cli2.jsonc` untracked pending commit 11. Docs changes modified pending commit 12.
+
+      Need note user explicitly wants test docs included, so commit 12 must be in batch 3. Good.
+
+      Need note batch 3 preview artifact has 12 commits and execution plan updated. The preview artifact currently still says batch 1 authorized, batch 2/3 separate? It was updated before batch 2: "Batch 1 authorized. Batch 2...". After batch 2, we need update to batch 2 authorized, batch 3 pending. The artifact may still say batch 1 authorized. Need next move include update preview artifact authorization text before presenting batch 3. Important.
+
+      Need note current working tree status after batch 2:
+      - Modified: docs/meterless-fit.md, docs/testing/README.md, docs/testing/meterless-engines-testing-guide.md, app.css/html/spec/ts? After restore, app.ts/html/spec modified due ProviderPanel only; app.css? Commit 8 committed app.css, so no modification. Let's reconstruct status after commit 10 and restore:
+        - docs 3 modified
+        - src/app/app.html, app.spec.ts, app.ts modified (ProviderPanel)
+        - untracked: .markdownlint-cli2.jsonc, docs planning artifacts (2), provider-panel dir, providers dir, maybe trace-panel? committed, assistant-pipeline committed. Also scratch ignored.
+        - Possibly `.opencode` ignored.
+        - `src/app/components/provider-panel/`, `src/app/providers/` untracked.
+      - app.ts/html/spec modifications are only ProviderPanel lines (since trace/project committed). Need confirm? After restore, yes app.ts includes ProviderPanel and TracePanel, but TracePanel already committed; diff should show only ProviderPanel. app.html diff only provider line; app.spec only provider assertion. Good.
+      - Tests now include provider specs; output truncated. Need run build.
+
+      Need note `src/app/services/assistant-pipeline.service.ts` no longer untracked (committed). Good.
+
+      Need note `scratch/batch2-backup/` exists with app.ts/html/spec backups; scratch ignored. Could clean later. Not essential but relevant.
+
+      Need note all commits are local, no push. Branch ahead of origin by 10. `git rev-list` after commits shows 9? Last commit 10 shows 9 ahead because before commit 10 there were 9; after commit 10, 10 ahead. Not important.
+
+      Need note fetch origin before each commit; origin/main unchanged. Good.
+
+      Need note `git diff --cached --check` passed before commits. Good.
+
+      Need note tests after batch 1 passed 74/74; build 263.50 kB raw (docs says 264). Good.
+
+      Need note prior summary's "10 commits" is superseded by 12 commits. Need not carry old 10 plan.
+
+      Need note current objective: finish atomic commit sequence, batch 3 (lint config + docs), then full verification and safety stash release. User also wants test docs committed.
+
+      Need note blockers: unknown result of post-batch-2 test run due truncated output; provider specs now included; must rerun/confirm. Also markdownlint MD013 pre-existing. Could list as active/blocked.
+
+      Need note exact commands:
+      - `CI=true npm test -- --watch=false`
+      - `npm run build`
+      - `npx prettier --check docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md` passes
+      - `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc docs/...` -> MD013 only
+      - `git -C /home/ext_root/lab-data/angular-todo-app ...`
+      - Full verification later: `npx prettier --check "src/app/**/*.{ts,html,css}" "docs/**/*.md" "README.md" "THIRD_PARTY_NOTICES.md"`; conformance commands; Playwright.
+
+      Need note Playwright path from prior summary; carry.
+
+      Need note docs excluded planning artifacts contain session ID `e95056dc3ffe4pKzS75TOwh4yI` and `/home/ext_root/...` paths; public repo. Keep.
+
+      Need note `scratch/commit-preview.md` untracked, must not commit. `scratch/` ignored. `scratch/batch2-backup` also not commit.
+
+      Need note provider panel unexpected concurrent changes; do not commit; user may be working on separate feature. Need flag to user in next response. This is important.
+
+      Need note batch 3 preview should include commits 11-12; request `start batch 3`. Need update preview artifact authorization text from "Batch 1 authorized" to "Batches 1-2 authorized. Batch 3..." and maybe add batch 2 SHAs? Not necessary but update.
+
+      Need note after batch 2, must emit one-line summary `Batch 2 committed: ...` per rules, then present batch 3 preview. We haven't yet in conversation; next move. The final summary should say next move: verify batch 2 tests/build, update preview artifact, emit batch 2 summary and batch 3 preview, request `start batch 3`. Since user hasn't authorized batch 3. Good.
+
+      Need note if tests fail due provider specs, do not modify provider files; maybe run targeted suite excluding provider? But app.spec includes provider assertion, so test suite requires provider files; they exist. If provider tests fail, not our task; report. Build may fail if ProviderPanel has errors. But working tree has provider files; our final full verification should maybe be on our committed tree excluding provider. We need decide. For continuation, note: post-batch-2 test run included concurrent provider specs and output was truncated; rerun and capture result. If provider changes interfere, verify our commits using a clean worktree at HEAD or targeted specs, but do not commit provider. Could mention. But be careful not to overprescribe.
+
+      Need note docs update was done after batch 1, so docs not in batch 1/2 commits. Commit 12 pending.
+
+      Need note `.markdownlint-cli2.jsonc` created earlier and untracked; commit 11. Docs markdownlint config currently untracked but used. Good.
+
+      Need note docs commit message:
+      `docs(testing): document combined engine coverage`
+      Body: update test guide to 74 tests across 12 spec files, add context-plan, pipeline, project, alternatives, research, trace, World-to-H-MEM cases, align architecture map.
+
+      Commit 11 message:
+      `chore(lint): add markdownlint configuration`
+      Body: configure MD013 120 columns without code-block/table limits, MD007 two-space, fenced code blocks.
+
+      Need note batch 3 files:
+      - `.markdownlint-cli2.jsonc`
+      - `docs/testing/README.md`
+      - `docs/testing/meterless-engines-testing-guide.md`
+      - `docs/meterless-fit.md`
+      No docs/README. Good.
+
+      Need note commit 12 docs are modified, not staged. Check no docs/README modification. Fine.
+
+      Need note master table in preview artifact now 12 rows; batch 3 11-12; authorization section still says batch 1 authorized (needs update). Good.
+
+      Need note `git status` after batch 1 showed `fe9f290 chore(logs)` as parent; batch 2 commits on top. Fine.
+
+      Need note user directive "i also need test docs too: refer /home/ext_root/lab-data/angular-todo-app/docs" — docs updated, pending commit. Good.
+
+      Need note "start batch 2" authorized batch 2. Batch 1 and 2 done. No batch 3 authorization yet.
+
+      Need note tests after batch 2 output included `spec-app-providers-meterless-provider.service.js`, meaning test count likely >74; docs says 74/12 based on our suite excluding provider. Important conflict: after provider files, full `npm test` may report more tests/spec files. Docs claim 74/12 may become stale if provider specs are included. But provider files are not part of our task and untracked; when clean checkout of our commits, 74/12 holds. However current working tree tests include provider specs. Need note docs numbers refer to task suite excluding concurrent provider work. If final verification runs in dirty tree, test count differs. Important.
+
+      Need maybe update docs test count? No, provider work not ours. But user may expect docs to reflect current workspace including provider? They said "test docs too" likely our features. We should note docs numbers exclude unrequested provider work. If provider feature is intended, docs may need later update. But don't overcomplicate.
+
+      Need note post-batch-2 test run started at 00:?? and output truncated; unknown pass/fail. Build not run yet. Active.
+
+      Need note full safety stash `stash@{0}` still present. The stash apply-back no-op verification at end may need careful handling because docs/provider changes postdate stash. State "stash retained; final apply-back/no-op verification still required before drop." Maybe note "docs updates and ProviderPanel files postdate the stash, so apply-back verification must account for them." This is a nuanced but useful detail. Is it too much? Keep concise.
+
+      Need note no commits made for docs yet. Good.
+
+      Need note previous summary's "Task artifact updated" etc. Keep completed.
+
+      Need note conformance/eval passed earlier; after code commits unchanged, but final verification should rerun? Prior summary says passed. We can state passed before commit work; final full verification pending. Maybe completed: all conformance/eval passed prior to commits. But after commits, code unchanged. Keep.
+
+      Need note build after batch 1 passed. Batch 2 build pending.
+
+      Need note Prettier check for docs passed. Markdownlint MD013 only.
+
+      Need note exact SHAs and commit titles. Use table-like bullets.
+
+      Need format per template exactly:
+      ## Objective
+      - ...
+      ## Important Details
+      - ...
+      ## Work State
+      ### Completed
+      - ...
+      ### Active
+      - ...
+      ### Blocked
+      - ...
+      ## Next Move
+      1. ...
+      2. ...
+      ## Relevant Files
+      - ...
+
+      Need keep every section. Terse bullets. No template tags. Same language as conversation: English. Good.
+
+      Let's draft carefully.
+
+      Objective: "Commit this session's Meterless engine changes as atomic commits in `/home/ext_root/lab-data/angular-todo-app`, including updated test docs, following mandated git rules; batches 1-2 are committed, batch 3 remains."
+
+      Important Details:
+      - Rules paths.
+      - Repo/branch/remote/public; no push; git -C; no scripts during commit prep; explicit start per batch; batches max 5; safety stash apply-not-pop.
+      - 12-commit plan; commit order corrected: pipeline before planning. List pending batch 3 only? Maybe list all 12 with SHAs. This is key.
+      - Mixed staging summary.
+      - Provider panel unexpected.
+      - Docs excluded.
+      - Docs updated content and lint status.
+      - Safety stash.
+      - Test docs numbers conflict with provider specs.
+      - Conformance/Playwright paths.
+
+      Need avoid huge list of all 12? It is important. Use compact lines:
+        - Committed batch 1: `65eaa7b` ..., etc.
+        - Committed batch 2: ...
+        - Pending batch 3: 11 ...; 12 ...
+      Maybe list titles with SHAs. Good.
+
+      Work State Completed:
+      - All phases implemented and verified (74/74, build, conformance, Playwright) from prior.
+      - Batch 1 committed and verified 74/74 + build.
+      - Batch 2 committed (5 SHAs).
+      - Docs updated and Prettier formatted.
+      - Preview artifact updated to 12 commits.
+      - Safety stash created/retained.
+
+      Active:
+      - Post-batch-2 `CI=true npm test` run started; output truncated; includes concurrent provider specs; result unknown.
+      - `npm run build` after batch 2 not yet run.
+      - Batch 3 pending; docs and lint config uncommitted.
+      - Working tree has ProviderPanel modifications/untracked; excluded.
+      - Preview artifact authorization section needs update to batch 2 authorized.
+      - Docs markdownlint MD013 debt.
+
+      Blocked:
+      - Unknown batch 2 test/build result due truncated output; potential provider specs interference. Maybe mark as blocker/unknown.
+      - Markdownlint MD013 pre-existing; not blocking.
+      - No user authorization for batch 3 yet (expected).
+
+      Next Move:
+      1. Re-run `CI=true npm test -- --watch=false` and `npm run build` after batch 2; capture results; if provider specs interfere, verify committed suite separately without committing provider files.
+      2. Update `scratch/commit-preview.md` authorization text and present batch 3 preview (commits 11-12), noting docs; request `start batch 3`.
+      3. After authorization, commit 11 and 12 with staging/diff/fetch gates; then full verification, stash apply-back/no-op, request approval before drop.
+      Maybe 3 bullets allowed. Template says 1,2; can include 3.
+
+      Relevant Files:
+      - scratch/commit-preview.md
+      - rules/skill
+      - docs files
+      - .markdownlint-cli2.jsonc
+      - app.ts/html/spec mixed + provider files
+      - safety stash? not file.
+      - docs planning artifacts excluded.
+      - Key service files maybe not all; prior summary had many. Keep essential for continuation.
+      - `scratch/batch2-backup/`.
+      - provider files.
+      - conformance/Playwright paths maybe under Important Details.
+
+      Need mention exact docs lint:
+      - `npx prettier --check docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md` passes.
+      - `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc ...` reports only `MD013/line-length` (pre-existing; docs not previously lint-clean).
+      This is useful.
+
+      Need mention `docs/testing` expected 74/12; docs guide bundle ~264 kB. Not necessary.
+
+      Need mention "test docs also" user directive. In Objective/Important.
+
+      Need mention provider files timestamps? Not necessary.
+
+      Need mention `ProviderPanel` lines in `app.ts`, `app.html`, `app.spec.ts` are restored in working tree; commits exclude. Good.
+
+      Need mention commit 8/10 mixed staging backups in scratch. Good.
+
+      Need mention batch 2 test output included provider spec `spec-app-providers-meterless-provider.service.js`; docs 74/12 refers to task suite. Good.
+
+      Need mention `app.spec.ts` working tree expects provider panel, so app tests require provider files; if provider files removed, tests fail. This is important for verification. State: "Current working tree `app.spec.ts` expects `app-provider-panel`; do not remove provider files before verification." Good.
+
+      Need mention safety stash created before docs/provider changes; apply-back verification must account. This is subtle. State: "`stash@{0}` predates docs edits and ProviderPanel files; final apply-back/no-op check must account for post-stash changes." Good.
+
+      Need mention no push. Good.
+
+      Need maybe note commit 10 has trace panel files and app trace wiring; commit 9 assistant service. Good.
+
+      Need note docs commit 12 includes `docs/meterless-fit.md` architecture doc, not just test docs. Good.
+
+      Need note `docs/README.md` unchanged. Not necessary.
+
+      Need note batch 3 preview should be "full" per rules. Good.
+
+      Need not mention "prior summary" or compaction. Fine.
+
+      Let's ensure no factual errors:
+      - Batch 1 commit 4 SHA b77195a; yes.
+      - Batch 2 commit 8 SHA 4c9c674; yes.
+      - Batch 2 commit 10 SHA 57f1c50; yes.
+      - Commit 6 19f3dba; commit 7 9882a39; commit 9 ca1f980.
+      - Batch 1 test 74/74 pass; build pass. Yes.
+      - Docs modified after batch 1? Yes, during batch 1 after tests. Docs are uncommitted.
+      - Preview artifact updated to 12 commits; yes.
+      - `scratch/commit-preview.md` authorization says batch 1 authorized; yes, needs update.
+      - Safety stash `stash@{0}` exists; yes.
+      - Provider files untracked; yes.
+      - Tests after batch 2 output truncated; yes.
+      - `spec-app-providers-meterless-provider.service.js` included; yes.
+      - `app.spec.ts` expects provider; yes.
+      - Docs Prettier pass; markdownlint only MD013; yes (tail showed only MD013; initial 102 issues included table style but Prettier fixed; after prettier tail only MD013; likely all remaining are MD013). State "remaining lint issues are MD013 line-length" safe.
+      - `.markdownlint-cli2.jsonc` untracked pending commit 11. Yes.
+      - Docs commit 12 files: docs/testing/README, guide, meterless-fit. Yes.
+      - Batch 3 = commits 11-12. Yes.
+      - No batch 3 authorization. Yes.
+
+      Need maybe mention commit 11 config is needed for markdownlint; docs lint uses it even untracked. Fine.
+
+      Need mention full verification commands/conformance from prior. Keep concise:
+      - `CI=true npm test -- --watch=false`; `npm run build`
+      - Prettier full check
+      - markdownlint plan/task artifacts
+      - conformance H-MEM 13/13, World 8/8, Markovian 8/8, Scout eval pass
+      - Playwright via mise path. Maybe too much but prior summary says carry. Keep under Important Details.
+
+      Need mention docs excluded planning artifacts exact names? Could shorten: two `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_...` planning artifacts contain session ID and absolute paths; excluded. Good.
+
+      Need mention remote URL? Maybe not essential but carry. Could include repo branch and no push. Remote URL not needed for continuation. But prior summary had; keep maybe.
+
+      Need mention `TaskStore` direct CRUD invariant? Completed, not needed for commit continuation. But could carry key architecture decisions. The summary should focus current work; prior objective done. We can drop less relevant runtime details except docs. But rules say carry decisions/parallel workstreams. The code is committed; not needed. Keep only key decisions that affect docs/tests (74 tests, trace key, etc.)? Maybe not necessary. But the summary should be useful for next agent continuing commit sequence, not reimplementing. Focus on commit state.
+
+      Need mention `docs/testing` docs numbers and test docs. Good.
+
+      Need mention `scratch/batch2-backup/` contains backups; don't commit. Good.
+
+      Need mention `scratch/` ignored. Good.
+
+      Need mention `.opencode/` excluded. Good.
+
+      Need mention `docs` planning artifacts untracked. Good.
+
+      Need mention no commit of provider files. Good.
+
+      Let's draft with terse bullets. Avoid overly long paragraphs. Use semicolons.
+
+      Potential final:
+
+      ## Objective
+      - Finish committing this session's Meterless engine + test-doc changes as atomic commits in `/home/ext_root/lab-data/angular-todo-app` under the mandated git protocol; batches 1-2 are done, batch 3 (lint config + docs) remains.
+
+      ## Important Details
+      - Rules: ...; explicit per-batch `start`; `git -C` only; no push; no scripts during commit prep; max 5 commits/batch; safety stash apply-not-pop.
+      - Repo ... branch main; origin/main unchanged; remote public; planning artifacts excluded...
+      - Commit sequence now 12 (pipeline before planning):
+        - Batch 1 (committed): `65eaa7b` ..., `fde6779` ..., `4d9cbe5` ..., `b77195a` ..., `9414f87` ...
+        - Batch 2 (committed): `19f3dba` ..., `9882a39` ..., `4c9c674` ..., `ca1f980` ..., `57f1c50` ...
+        - Batch 3 (pending): 11 `chore(lint)...` `.markdownlint-cli2.jsonc`; 12 `docs(testing)...` docs...
+      - Mixed staging: commit 8 project-only; commit 10 trace-only; `ProviderPanel` lines excluded...
+      - Unexpected concurrent provider work...
+      - Docs updated: ...
+      - Safety stash...
+      - Verification...
+
+      ## Work State
+      ### Completed
+      ...
+      ### Active
+      ...
+      ### Blocked
+      ...
+
+      ## Next Move
+      1. ...
+      2. ...
+      3. ...
+
+      ## Relevant Files
+      ...
+
+      Need ensure "Important Details" not too bloated. Desired oververbosity 5. But summary needs enough. Maybe 15 bullets.
+
+      Let's think about the test docs markdownlint issue: The user asked test docs; docs are updated but markdownlint still fails MD013. Is that a blocker? It could prevent "full verification" if markdownlint is run on docs. But prior verification command only linted plan/task artifacts, not docs. The docs were never lint-clean. We should note as known debt, not blocker. If final full verification includes docs markdownlint, it will fail. Next agent should decide whether to wrap lines or report. Mention.
+
+      Need mention docs Prettier formatted, causing 454-line diff. Fine.
+
+      Need mention "test docs claim 74/12 but current dirty tree includes provider specs; clean commit tree should be 74/12." Important.
+
+      Need mention "current working tree app.spec expects provider panel; don't remove provider files before tests." Good.
+
+      Need mention "Batch 2 test run output truncated after listing spec bundles; pass/fail unknown." Good.
+
+      Need mention "Build after batch 2 not run." Good.
+
+      Need mention "Batch 3 preview artifact authorization text still says batch 1 authorized; update before presenting." Good.
+
+      Need mention "Batch 2 one-line summary not yet emitted in chat." Did assistant present? The conversation ends after test run; no batch 2 summary. So next move should emit `Batch 2 committed: 19f3dba, 9882a39, 4c9c674, ca1f980, 57f1c50` and batch 3 preview. Important per rules. Add.
+
+      Need mention "Batch 1 summary was emitted" yes.
+
+      Need mention "Safety stash drop requires approval." Yes.
+
+      Need mention "No commits made for docs/lint yet." Yes.
+
+      Need mention "The preview artifact has 12-commit table and execution plan; batch 3 section needs authorization text update." Yes.
+
+      Need mention "ProviderPanel files were created at 00:45 during batch 1; not in safety stash." Maybe not necessary but helpful. State "created after safety stash."
+
+      Need mention "scratch/batch2-backup/ app.ts/html/spec backups exist; scratch ignored." Good.
+
+      Need mention "docs/testing/README.md trace key added." Not necessary.
+
+      Need mention "docs/meterless-fit.md updated architecture/runtime flow." Good.
+
+      Need mention "full verification includes Playwright, conformance, Scout eval." Good.
+
+      Let's ensure no conflict: Prior summary said HEAD `fe9f290`; now HEAD `57f1c50`; update. Branch ahead 10. Mention current HEAD `57f1c50`. Good.
+
+      Need mention origin/main unchanged; yes.
+
+      Need mention "No push" still.
+
+      Need mention "docs planning artifacts remain untracked and excluded" still.
+
+      Need mention "scratch/commit-preview.md untracked; must not commit." Good.
+
+      Need mention "ProviderPanel references in app.ts/html/spec are currently restored in working tree; excluded from commits." Good.
+
+      Need mention "Commit 10 app.ts trace import/array, app.html trace line, app.spec trace assertion; commit 8 app project wiring." Good.
+
+      Need mention "Commit 8 also app.css; commit 10 memory panel etc." Not necessary but file list in Relevant Files.
+
+      Need mention "Batch 2 commit 8 stat 13 files; commit 10 11 files." Not necessary.
+
+      Need mention "Tests after batch 1 74/74; docs numbers 74/12." Good.
+
+      Need mention "Conformance/eval passed before commit work; code unchanged by commits." Maybe completed. Good.
+
+      Need mention "Playwright passed before commit work." Completed. Good.
+
+      Need mention "Task artifact updated" maybe completed. Not essential but carry? The task artifact is excluded docs; updated. Could omit.
+
+      Need mention "docs/2026...task.md contains completed checklist" not needed.
+
+      Need mention "docs/testing guide now 74/12, 23 assistant, 7 scout, 6 memory, 4 world, 8 planning, 11 task-store." Maybe too detailed. The docs commit is ready; next agent just needs to commit. But if they need verify docs, mention counts. Keep one bullet.
+
+      Need mention "docs markdownlint MD013 pre-existing" and "Prettier pass". Good.
+
+      Need mention "`.markdownlint-cli2.jsonc` config is untracked but used for lint; commit 11." Good.
+
+      Need mention "Batch 3 preview must be full; ask `start batch 3`." Good.
+
+      Let's write final now. Ensure exact template headings. Use no extra sections. Keep bullets terse.
+
+      Potential final content:
+
+      ## Objective
+      - Complete the atomic commit sequence for the implemented Meterless engine work plus updated test docs in `/home/ext_root/lab-data/angular-todo-app`; batches 1–2 are committed, batch 3 remains.
+
+      ## Important Details
+      - Mandatory rules ...; explicit `start` per batch; max 5; `git -C`; no push; no scripts during commit prep; safety stash apply-not-pop.
+      - Repo ... HEAD `57f1c50`; branch main; origin/main unchanged; remote public...
+      - Current 12-commit sequence (pipeline moved before planning):
+        - Batch 1 committed: ...
+        - Batch 2 committed: ...
+        - Batch 3 pending: ...
+      - Mixed staging...
+      - ProviderPanel...
+      - Docs...
+      - Safety stash...
+      - Verification...
+      - Docs lint...
+      - Test count caveat...
+
+      Maybe 10 bullets. Good.
+
+      Work State Completed:
+      - All code phases implemented; 74/74, build, conformance, Scout eval, Playwright passed pre-commit.
+      - Batch 1 committed + verified 74/74/build.
+      - Batch 2 committed 5 SHAs.
+      - Docs updated/formatted; preview updated.
+      - Safety stash created/retained.
+
+      Active:
+      - Batch 2 test run truncated; includes provider specs; result unknown; build pending.
+      - Batch 3 uncommitted.
+      - Working tree provider refs restored; docs modified.
+      - Preview authorization text needs update; batch 2 summary not emitted.
+
+      Blocked:
+      - Unknown batch 2 test/build result; possible provider interference.
+      - Markdownlint MD013 debt (non-blocking).
+      - Batch 3 not authorized (expected).
+
+      Next Move:
+      1. Rerun tests/build after batch 2; capture result; if provider specs interfere, verify clean committed suite without staging provider files.
+      2. Emit `Batch 2 committed: ...`; update preview authorization; present full batch 3 preview; request `start batch 3`.
+      3. After authorization, commit 11/12 with gates; run full verification; stash apply-back/no-op; request approval before drop.
+
+      Relevant Files:
+      - scratch/commit-preview.md
+      - rules/skill
+      - docs files
+      - .markdownlint-cli2.jsonc
+      - app.ts/html/spec + provider files
+      - scratch/batch2-backup
+      - excluded docs
+      - maybe key service files? Since commits done, not necessary. But relevant for full verification? Could include `src/app/services/...` not needed. The template says file/directory path: why it matters. Include commit preview, docs, config, mixed files, provider, backups, excluded artifacts, rules. Good.
+
+      Need mention `scratch/commit-preview.md` authorization section still says batch 1; update. Good.
+
+      Let's ensure "docs markdownlint MD013" exact: `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md` reports only `MD013/line-length`; Prettier passes. Good.
+
+      Need mention "docs numbers 74/12 refer to task suite; provider specs add extra tests in dirty tree." Good.
+
+      Need mention "app.spec.ts currently expects `app-provider-panel`; don't remove provider files before tests." Good.
+
+      Need mention "ProviderPanel files not in stash, created after stash." Good.
+
+      Need mention "safety stash apply-back no-op caveat" maybe in Important Details: "`stash@{0}` predates docs edits and ProviderPanel files; final apply-back verification must account for post-stash changes." Good.
+
+      Need mention "Batch 1 stash message" maybe not necessary.
+
+      Need mention "No push" in Important.
+
+      Need mention "commit 12 docs includes docs/meterless-fit.md, not docs/README." Good.
+
+      Need mention "Commit 11 config needed for markdownlint; docs lint currently uses untracked config." Good.
+
+      Let's compose final answer with concise bullets.
+    thinking_duration: 38.678s
+    thinking_duration_ms: 38678
+    time: 10/24/2026, 12:49:19.501 AM UTC
+    response: |-
+      ## Objective
+      - Complete the atomic commit sequence for the implemented Meterless engine work plus updated test docs in `/home/ext_root/lab-data/angular-todo-app`; batches 1–2 are committed, batch 3 remains.
+
+      ## Important Details
+      - Mandatory rules: `/home/ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md` and `/home/ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`.
+      - Commit protocol: `git -C <path>` only; explicit `start` per batch; max 5 commits per batch; no push; no scripts during commit prep unless authorized; apply-not-pop safety stash retained until final no-op verification and approval.
+      - Repo `/home/ext_root/lab-data/angular-todo-app`, branch `main`, remote public `https://github.com/baneeishaque/meterless-angular-to-app.git`; `origin/main` unchanged; current HEAD `57f1c50`.
+      - Commit order corrected: assistant pipeline lands before planning because `planning.service.spec.ts` imports `AssistantPipelineService`.
+      - Batch 1 committed:
+        - `65eaa7b` `feat(scout): add context plans and contextual intent scoring`
+        - `fde6779` `feat(memory): add plan recall, world facts, and project scopes`
+        - `4d9cbe5` `feat(world-model): add project context and plan drafts`
+        - `b77195a` `feat(memory): mirror World Model facts into H-MEM`
+        - `9414f87` `feat(markovian): allow per-run chunk configuration`
+      - Batch 2 committed:
+        - `19f3dba` `feat(assistant): add the engine context pipeline`
+        - `9882a39` `feat(planning): gate Markovian runs on Scout contracts`
+        - `4c9c674` `feat(tasks): add project-scoped task lists`
+        - `ca1f980` `feat(assistant): route requests through the engine pipeline`
+        - `57f1c50` `feat(ui): add pipeline trace and memory provenance`
+      - Batch 3 pending:
+        - 11 `chore(lint): add markdownlint configuration` — `.markdownlint-cli2.jsonc`
+        - 12 `docs(testing): document combined engine coverage` — `docs/testing/README.md`, `docs/testing/meterless-engines-testing-guide.md`, `docs/meterless-fit.md`
+      - Mixed staging handled: commit 8 staged project-only `app.ts`/`app.html`; commit 10 staged trace-only `app.ts`/`app.html`/`app.spec.ts`. Backups remain in `scratch/batch2-backup/`.
+      - Unexpected concurrent `ProviderPanel` work appeared during batch 1 and is excluded from all commits: `src/app/providers/`, `src/app/components/provider-panel/`, plus references in `app.ts`, `app.html`, `app.spec.ts`. These are restored in the working tree and remain untracked/modified.
+      - Current working-tree `app.spec.ts` expects `app-provider-panel`; do not remove provider files before running tests.
+      - Test docs now claim **74 tests / 12 spec files**; this refers to the task suite. The dirty tree now also discovers provider specs (`spec-app-providers-meterless-provider.service.js`), so raw `npm test` counts may differ.
+      - Docs formatting: `npx prettier --check docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md` passes. `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc ...` still reports only `MD013/line-length` debt (docs were not previously lint-clean).
+      - Safety stash: `stash@{0}` message `safety: pre-batch-1 snapshot of 49 working-tree entries before commits 1..5 land (2026-10-24)`; it predates docs edits and ProviderPanel files, so final apply-back verification must account for post-stash changes.
+      - Excluded planning artifacts remain untracked: `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_..._implementation-plan-combined-mechanisms_v1.md` and `..._task.md` contain session ID and absolute `/home/ext_root/...` paths; public-repo rule forbids committing them.
+      - `scratch/` is ignored; `scratch/commit-preview.md` and `scratch/batch2-backup/` must not be committed.
+      - Verification commands: `CI=true npm test -- --watch=false`; `npm run build`; full Prettier check; markdownlint on plan/task artifacts; H-MEM 13/13, World Model 8/8, Markovian 8/8 conformance; Scout eval thresholds; Playwright headless Chromium via `mise x node@26.10.0 -- node -` with Playwright at `/home_ext_root/.local/share/mise/installs/npm-playwright/1.64.1/node_modules/playwright`.
+
+      ## Work State
+      ### Completed
+      - All Meterless combined-mechanism phases implemented and previously verified: 74/74 tests, production build, Prettier, markdownlint on planning artifacts, all conformance suites, Scout eval, and Playwright smoke.
+      - Batch 1 committed and verified: 74/74 tests pass; production build succeeds.
+      - Batch 2 committed (5 SHAs above).
+      - Test docs updated for 74/12, context plans, pipeline traces, project tasks, alternatives, research, World-to-H-MEM sync, trace persistence, and refreshed architecture map.
+      - Preview artifact updated to 12 commits with execution plan and batch 3 entries.
+      - Safety stash created and retained.
+
+      ### Active
+      - Post-batch-2 `CI=true npm test -- --watch=false` was started; output truncated after listing spec bundles, including provider specs. Pass/fail result unknown.
+      - Post-batch-2 `npm run build` not yet run.
+      - Batch 3 files remain uncommitted: `.markdownlint-cli2.jsonc` untracked; three docs files modified.
+      - Working tree still contains excluded `ProviderPanel` modifications/untracked files.
+      - `scratch/commit-preview.md` authorization text still says batch 1 authorized; update to batches 1–2 authorized.
+      - Batch 2 one-line summary not yet emitted in chat.
+
+      ### Blocked
+      - Unknown post-batch-2 test/build result due to truncated output and concurrent provider specs.
+      - Docs markdownlint `MD013` line-length debt remains non-blocking.
+      - Batch 3 awaits explicit `start batch 3` authorization.
+
+      ## Next Move
+      1. Re-run `CI=true npm test -- --watch=false` and `npm run build` after batch 2; capture results. If provider specs interfere, verify the committed suite separately without staging provider files.
+      2. Emit `Batch 2 committed: 19f3dba, 9882a39, 4c9c674, ca1f980, 57f1c50`; update preview authorization text; present full batch 3 preview for commits 11–12 and request `start batch 3`.
+      3. After authorization, commit 11 and 12 with staging/diff/fetch gates, run full verification, perform stash apply-back/no-op verification, then request approval before dropping `stash@{0}`.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/scratch/commit-preview.md`: 12-commit preview; update authorization text before batch 3.
+      - `/home/ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md`: mandatory commit protocol.
+      - `/home/ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`: mandatory skill instructions.
+      - `/home/ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc`: pending commit 11.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/testing/README.md`: updated test summary, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: updated 74/12 guide and inventory, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/meterless-fit.md`: updated architecture/runtime map, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/app.ts`, `app.html`, `app.spec.ts`: mixed staging completed; ProviderPanel-only diffs remain in working tree.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/providers/`, `src/app/components/provider-panel/`: unexpected concurrent work; exclude from all commits.
+      - `/home_ext_root/lab-data/angular-todo-app/scratch/batch2-backup/`: backups of `app.ts`, `app.html`, `app.spec.ts`; ignored, do not commit.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_..._implementation-plan-combined-mechanisms_v1.md` and `..._task.md`: excluded planning artifacts with session ID/absolute paths.
+    duration: 46.230s
+    duration_ms: 46230
+

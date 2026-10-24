@@ -1,0 +1,92 @@
+user:
+  text: start batch 3
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Complete the atomic commit sequence for the implemented Meterless engine work plus updated test docs in `/home/ext_root/lab-data/angular-todo-app`; batches 1–2 are committed, batch 3 remains.
+
+      ## Important Details
+      - Mandatory rules: `/home/ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md` and `/home/ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`.
+      - Commit protocol: `git -C <path>` only; explicit `start` per batch; max 5 commits per batch; no push; no scripts during commit prep unless authorized; apply-not-pop safety stash retained until final no-op verification and approval.
+      - Repo `/home/ext_root/lab-data/angular-todo-app`, branch `main`, remote public `https://github.com/baneeishaque/meterless-angular-to-app.git`; `origin/main` unchanged; current HEAD `57f1c50`.
+      - Commit order corrected: assistant pipeline lands before planning because `planning.service.spec.ts` imports `AssistantPipelineService`.
+      - Batch 1 committed:
+        - `65eaa7b` `feat(scout): add context plans and contextual intent scoring`
+        - `fde6779` `feat(memory): add plan recall, world facts, and project scopes`
+        - `4d9cbe5` `feat(world-model): add project context and plan drafts`
+        - `b77195a` `feat(memory): mirror World Model facts into H-MEM`
+        - `9414f87` `feat(markovian): allow per-run chunk configuration`
+      - Batch 2 committed:
+        - `19f3dba` `feat(assistant): add the engine context pipeline`
+        - `9882a39` `feat(planning): gate Markovian runs on Scout contracts`
+        - `4c9c674` `feat(tasks): add project-scoped task lists`
+        - `ca1f980` `feat(assistant): route requests through the engine pipeline`
+        - `57f1c50` `feat(ui): add pipeline trace and memory provenance`
+      - Batch 3 pending:
+        - 11 `chore(lint): add markdownlint configuration` — `.markdownlint-cli2.jsonc`
+        - 12 `docs(testing): document combined engine coverage` — `docs/testing/README.md`, `docs/testing/meterless-engines-testing-guide.md`, `docs/meterless-fit.md`
+      - Mixed staging handled: commit 8 staged project-only `app.ts`/`app.html`; commit 10 staged trace-only `app.ts`/`app.html`/`app.spec.ts`. Backups remain in `scratch/batch2-backup/`.
+      - Unexpected concurrent `ProviderPanel` work appeared during batch 1 and is excluded from all commits: `src/app/providers/`, `src/app/components/provider-panel/`, plus references in `app.ts`, `app.html`, `app.spec.ts`. These are restored in the working tree and remain untracked/modified.
+      - Current working-tree `app.spec.ts` expects `app-provider-panel`; do not remove provider files before running tests.
+      - Test docs now claim **74 tests / 12 spec files**; this refers to the task suite. The dirty tree now also discovers provider specs (`spec-app-providers-meterless-provider.service.js`), so raw `npm test` counts may differ.
+      - Docs formatting: `npx prettier --check docs/testing/README.md docs/testing/meterless-engines-testing-guide.md docs/meterless-fit.md` passes. `npx markdownlint-cli2 --config .markdownlint-cli2.jsonc ...` still reports only `MD013/line-length` debt (docs were not previously lint-clean).
+      - Safety stash: `stash@{0}` message `safety: pre-batch-1 snapshot of 49 working-tree entries before commits 1..5 land (2026-10-24)`; it predates docs edits and ProviderPanel files, so final apply-back verification must account for post-stash changes.
+      - Excluded planning artifacts remain untracked: `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_..._implementation-plan-combined-mechanisms_v1.md` and `..._task.md` contain session ID and absolute `/home/ext_root/...` paths; public-repo rule forbids committing them.
+      - `scratch/` is ignored; `scratch/commit-preview.md` and `scratch/batch2-backup/` must not be committed.
+      - Verification commands: `CI=true npm test -- --watch=false`; `npm run build`; full Prettier check; markdownlint on plan/task artifacts; H-MEM 13/13, World Model 8/8, Markovian 8/8 conformance; Scout eval thresholds; Playwright headless Chromium via `mise x node@26.10.0 -- node -` with Playwright at `/home_ext_root/.local/share/mise/installs/npm-playwright/1.64.1/node_modules/playwright`.
+
+      ## Work State
+      ### Completed
+      - All Meterless combined-mechanism phases implemented and previously verified: 74/74 tests, production build, Prettier, markdownlint on planning artifacts, all conformance suites, Scout eval, and Playwright smoke.
+      - Batch 1 committed and verified: 74/74 tests pass; production build succeeds.
+      - Batch 2 committed (5 SHAs above).
+      - Test docs updated for 74/12, context plans, pipeline traces, project tasks, alternatives, research, World-to-H-MEM sync, trace persistence, and refreshed architecture map.
+      - Preview artifact updated to 12 commits with execution plan and batch 3 entries.
+      - Safety stash created and retained.
+
+      ### Active
+      - Post-batch-2 `CI=true npm test -- --watch=false` was started; output truncated after listing spec bundles, including provider specs. Pass/fail result unknown.
+      - Post-batch-2 `npm run build` not yet run.
+      - Batch 3 files remain uncommitted: `.markdownlint-cli2.jsonc` untracked; three docs files modified.
+      - Working tree still contains excluded `ProviderPanel` modifications/untracked files.
+      - `scratch/commit-preview.md` authorization text still says batch 1 authorized; update to batches 1–2 authorized.
+      - Batch 2 one-line summary not yet emitted in chat.
+
+      ### Blocked
+      - Unknown post-batch-2 test/build result due to truncated output and concurrent provider specs.
+      - Docs markdownlint `MD013` line-length debt remains non-blocking.
+      - Batch 3 awaits explicit `start batch 3` authorization.
+
+      ## Next Move
+      1. Re-run `CI=true npm test -- --watch=false` and `npm run build` after batch 2; capture results. If provider specs interfere, verify the committed suite separately without staging provider files.
+      2. Emit `Batch 2 committed: 19f3dba, 9882a39, 4c9c674, ca1f980, 57f1c50`; update preview authorization text; present full batch 3 preview for commits 11–12 and request `start batch 3`.
+      3. After authorization, commit 11 and 12 with staging/diff/fetch gates, run full verification, perform stash apply-back/no-op verification, then request approval before dropping `stash@{0}`.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/scratch/commit-preview.md`: 12-commit preview; update authorization text before batch 3.
+      - `/home/ext_root/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md`: mandatory commit protocol.
+      - `/home/ext_root/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md`: mandatory skill instructions.
+      - `/home/ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc`: pending commit 11.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/testing/README.md`: updated test summary, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/testing/meterless-engines-testing-guide.md`: updated 74/12 guide and inventory, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/meterless-fit.md`: updated architecture/runtime map, pending commit 12.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/app.ts`, `app.html`, `app.spec.ts`: mixed staging completed; ProviderPanel-only diffs remain in working tree.
+      - `/home_ext_root/lab-data/angular-todo-app/src/app/providers/`, `src/app/components/provider-panel/`: unexpected concurrent work; exclude from all commits.
+      - `/home_ext_root/lab-data/angular-todo-app/scratch/batch2-backup/`: backups of `app.ts`, `app.html`, `app.spec.ts`; ignored, do not commit.
+      - `/home_ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_..._implementation-plan-combined-mechanisms_v1.md` and `..._task.md`: excluded planning artifacts with session ID/absolute paths.

@@ -1,0 +1,50 @@
+user:
+  text: start batch 2
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Batch 2 committed:
+
+      `19f3dba` `9882a39` `4c9c674` `ca1f980` `57f1c50`
+
+      Verification after batch 2: **100/100 tests pass** (including the concurrent provider specs), production build succeeds.
+
+      ### Batch 3 Preview (commits 11–12)
+
+      | # | Commit | Files |
+      |---|---|---|
+      | 11 | `chore(lint): add markdownlint configuration` | `.markdownlint-cli2.jsonc` |
+      | 12 | `docs(testing): document combined engine coverage` | `docs/testing/README.md`, `docs/testing/meterless-engines-testing-guide.md`, `docs/meterless-fit.md` |
+
+      Commit 12 documents the **74-test / 12-spec combined-mechanisms scope**. It does not claim the concurrent provider tests, which remain outside this task.
+
+      **Excluded concurrent changes:** `README.md`, `src/app/providers/`, `src/app/components/provider-panel/`, and the `ProviderPanel` lines in `app.ts`/`app.html`/`app.spec.ts` are left uncommitted.
+
+      Reply **`start batch 3`** to execute commits 11–12.

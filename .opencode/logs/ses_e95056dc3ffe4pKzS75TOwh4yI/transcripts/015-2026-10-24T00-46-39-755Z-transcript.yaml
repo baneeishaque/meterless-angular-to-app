@@ -1,0 +1,128 @@
+user:
+  text: |-
+    start batch 1
+
+    i also need test docs too: refer /home/ext_root/lab-data/angular-todo-app/docs
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Batch 1 committed:
+
+      `65eaa7b` `fde6779` `4d9cbe5` `b77195a` `9414f87`
+
+      Verification after batch 1: **74/74 tests pass**, production build succeeds.
+
+      ### Batch 2 Preview (commits 6–10)
+
+      | # | Commit | Files |
+      |---|---|---|
+      | 6 | `feat(assistant): add the engine context pipeline` | Assistant pipeline service/spec |
+      | 7 | `feat(planning): gate Markovian runs on Scout contracts` | Planning service/spec |
+      | 8 | `feat(tasks): add project-scoped task lists` | TaskStore/spec, task input/filters/item, app project wiring |
+      | 9 | `feat(assistant): route requests through the engine pipeline` | Assistant service/spec |
+      | 10 | `feat(ui): add pipeline trace and memory provenance` | Trace panel, assistant panel, memory panel, app trace wiring |
+
+      Mixed staging: commits 8 and 10 split `app.ts`, `app.html`, and `app.spec.ts`. Commit 8 gets project wiring only; commit 10 adds trace wiring.
+
+      **Unexpected concurrent change:** `ProviderPanel` files appeared in `src/app/providers/` and `src/app/components/provider-panel/` during batch 1, plus references in `app.ts`, `app.html`, and `app.spec.ts`. These are not part of this task and will be excluded from every commit and left untracked.
+
+      ### Test Docs
+
+      Updated and staged for commit 12 (batch 3):
+
+      - `docs/testing/README.md`
+      - `docs/testing/meterless-engines-testing-guide.md`
+      - `docs/meterless-fit.md`
+
+      They now document **74 tests / 12 spec files**, plus context plans, pipeline traces, project tasks, alternatives, research, World-to-H-MEM sync, and trace persistence.
+
+      Reply **`start batch 2`** to execute commits 6–10.
