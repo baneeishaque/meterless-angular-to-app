@@ -6,37 +6,42 @@ The original design review is superseded: the engines are now part of the produc
 
 ## What is implemented
 
-| Engine           | Port location                  | App role                                                               | Persistence key                 |
-| ---------------- | ------------------------------ | ---------------------------------------------------------------------- | ------------------------------- |
-| **Scout Intent** | `src/app/engines/scout/`       | Classify natural-language input, block injections, gate risky actions  | None; execution contracts only  |
-| **H-MEM**        | `src/app/engines/hmem/`        | Remember and retrieve user preferences and notes                       | `angular-todo-app.hmem.v1`      |
-| **World Model**  | `src/app/engines/world-model/` | Event-sourced task entities, audit trail, merge proposals              | `angular-todo-app.world.v1`     |
-| **Markovian**    | `src/app/engines/markovian/`   | Generate bounded plans with per-run chunk configuration and efficiency | `angular-todo-app.markovian.v1` |
+| Engine           | Port location                  | App role                                                                                    | Persistence key                 |
+| ---------------- | ------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------- |
+| **Scout Intent** | `src/app/engines/scout/`       | Classify natural-language input, contextual rescoring, block injections, gate risky actions | None; execution contracts only  |
+| **H-MEM**        | `src/app/engines/hmem/`        | Remember preferences, project scopes, World Model facts, and plan completions               | `angular-todo-app.hmem.v1`      |
+| **World Model**  | `src/app/engines/world-model/` | Event-sourced tasks, projects, containment relations, plan drafts, audit trail              | `angular-todo-app.world.v1`     |
+| **Markovian**    | `src/app/engines/markovian/`   | Generate grounded plans, research, and alternatives with per-run chunk configuration        | `angular-todo-app.markovian.v1` |
 
-Task records remain in `TaskStore` under `angular-todo-app.tasks`. The engines observe or assist; they do not replace the task store as the commit point.
+Task records remain in `TaskStore` under `angular-todo-app.tasks`. The last assistant pipeline trace persists under `angular-todo-app.trace.v1`. The engines observe or assist; they do not replace the task store as the commit point.
 
 ## Runtime flow
 
 ```text
 user input
-  -> Scout Intent        classify, guard, route
-  -> H-MEM               remember or recall preferences
-  -> World Model         ground task entities
-  -> Markovian           plan long-horizon goals
+  -> Context Plan        choose memory/world sources, budgets, and project scope
+  -> Scout Intent        classify, rescore with context, guard, route
+  -> H-MEM               recall project-scoped and global preferences
+  -> World Model         ground tasks, projects, and plan drafts
+  -> Markovian           plan long-horizon goals, research, or alternatives
   -> TaskStore           commit accepted task changes
-  -> World Model         append task events
+  -> World Model         append task/project events and relations
+  -> H-MEM               project task/project facts and plan completions
+  -> Assistant Trace     persist route, IDs, and pipeline stages
 ```
 
-Normal UI actions (add, toggle, edit, delete, filter) still go directly from the component to `TaskStore`. The assistant is an additional path, not a wrapper around every click.
+Normal UI actions (add, toggle, edit, delete, filter, project assignment) still go directly from the component to `TaskStore`. The assistant is an additional path, not a wrapper around every click.
 
 ## Scout Intent
 
 `ScoutService` loads the app registry from `src/app/engines/scout/app-registry.ts` with the `default` and `adversarial-tight` policy packs.
 
-- Intents cover task add/complete/uncomplete/delete/rename/list/filter/summary/plan, memory remember/recall/forget, and a safe `GENERAL` fallback.
+- Intents cover task add/complete/uncomplete/delete/rename/list/filter/summary/plan/compare/research, memory remember/recall/forget, and a safe `GENERAL` fallback.
+- `ContextPlanService` chooses memory/world sources, token and chunk budgets, project scope, and redaction policy per intent.
+- A Stage-3 contextual scorer raises plan/compare/research scores when the pipeline supplies memory or world context.
 - High-risk actions such as deleting all tasks require explicit confirmation in the assistant panel.
 - Prompt-injection patterns are blocked before any action runs.
-- Every decision produces a signed execution contract; the app verifies it through `ScoutService.verify`.
+- Every decision produces a signed execution contract; the app verifies it through `ScoutService.verifyContract`.
 
 The eval adapter is `eval/scout-entry.ts`. It reads the registry path supplied by the harness and passes the parsed registry into the browser core.
 
@@ -44,8 +49,11 @@ The eval adapter is `eval/scout-entry.ts`. It reads the registry path supplied b
 
 `MemoryService` wraps a browser-safe `HMEM` instance.
 
-- Explicit "remember" requests are stored as long-term memory with source `user`.
-- Recall uses hybrid ranking; if a generic recall query has no strong match, the panel falls back to recent memories.
+- Explicit "remember" requests are stored as long-term memory with source `user`; an active project adds a `project:<id>` tag.
+- Recall uses hybrid ranking; plan recall filters project-tagged and global memories, and a generic recall with no strong match falls back to recent memories.
+- World Model task/project events are projected as `world_model` facts with one record per entity, updated in place.
+- Completed plans and research runs are stored with source `markovian:<run-id>` and origin `plan_completion`.
+- The Memory panel shows provenance labels and links to the source World Model entity.
 - Feedback, conflicts, sleep, and dreaming are available in the engine API, but the current UI surfaces memory creation, retrieval, and deletion only.
 - Persistence is injected through a localStorage adapter; the engine core has no filesystem dependency.
 
@@ -53,9 +61,11 @@ The eval adapter is `eval/scout-entry.ts`. It reads the registry path supplied b
 
 `WorldModelService` owns a `WorldModel` with namespace `todo`.
 
-- Each task is an entity keyed by the stable external key `todo:<task-id>`.
-- `TaskStore` syncs add, toggle, and rename operations with `upsertEntitySync`.
-- Delete operations append a tombstone and archive the entity.
+- Each task is an entity keyed by the stable external key `todo:<task-id>`; each project uses `todo:<project-id>`.
+- `TaskStore` syncs add, toggle, rename, project assignment, and project removal with `upsertEntitySync`, `relateSync`, and `tombstoneSync`.
+- Project-to-task `contains` relations power project context and `buildPromptContext`.
+- Plan alternatives are `plan_draft` entities; selecting one marks exactly one draft selected.
+- `EngineSyncService` subscribes to the timeline and mirrors task/project facts into H-MEM.
 - The activity panel reads recent events and audit entries; merge proposals are available in the engine API for future review UI.
 - Persistence is injected; the browser port does not write `.world/` files.
 
@@ -63,10 +73,12 @@ The eval adapter is `eval/scout-entry.ts`. It reads the registry path supplied b
 
 `PlanningService` wraps a `Markovian` instance with a local deterministic generator.
 
-- "Plan ..." requests run one bounded chunk, so the plan completes without an external model.
+- Plan, compare, and research requests are gated by the Scout contract (`markovian.chain`, unblocked, valid signature).
+- Planning uses the context-plan budget: `4` chunks for plan/compare and `6` for research; alternatives increase the budget by one each, capped at `12`.
+- Grounded plans include memory notes, world state, and current task names in the first chunk.
 - Every run records its own `chunkConfig` snapshot, as required by the spec.
-- The assistant shows the plan and the run's efficiency percentage.
-- History and cumulative stats persist across reloads.
+- The assistant shows the plan, alternatives, and the run's efficiency percentage.
+- History, plan drafts, and cumulative stats persist across reloads.
 - The generator can be replaced with a provider-backed `generator` or `stepFn` without changing the engine.
 
 ## Conformance and eval

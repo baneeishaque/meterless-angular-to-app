@@ -17,12 +17,13 @@ npm run build
 
 Expected on the current implementation:
 
-- **37 Vitest tests pass** across 7 spec files.
+- **74 Vitest tests pass** across 12 spec files.
 - **Production build succeeds** with no budget errors.
 - **Scout eval** passes all thresholds.
 - **H-MEM conformance** passes 13/13 checks.
 - **World Model conformance** passes 8/8 checks.
 - **Markovian conformance** passes 8/8 checks.
+- **Playwright headless Chromium smoke** passes the assistant, project, trace, and persistence flows.
 
 ## Test layers
 
@@ -34,6 +35,20 @@ Expected on the current implementation:
 | Conformance      | Meterless runners under `tsx`          | Engine invariants that are independent of this app         |
 | Eval             | Scout eval harness under `tsx`         | Intent accuracy, injection recall/precision, tool routing  |
 | Production build | Angular AOT build                      | Templates, types, CSS budgets, and bundling                |
+
+## Combined-mechanisms coverage
+
+The current suite adds dedicated coverage for:
+
+- Context planning: memory/world source selection, project anchoring, and direct-intent bypass.
+- Assistant pipeline: shared Scout decision, H-MEM recall, World Model query, and trace assembly.
+- Planning contracts: capability, signature, intent, blocked-contract, and expiry refusals.
+- Alternatives: one contract producing selectable plan drafts with a selected draft.
+- Research: a completed research run reused by a second identical request.
+- World-to-H-MEM sync: task upserts, project facts, and tombstones mirrored without duplicates.
+- Project tasks: project creation, task scoping, and unassignment on project removal.
+- Trace UI: direct-action traces, reload restoration, and routing metadata.
+- Vague references: “the usual” resolved from remembered preferences.
 
 ## Test data reset
 
@@ -51,6 +66,7 @@ localStorage.removeItem('angular-todo-app.tasks');
 localStorage.removeItem('angular-todo-app.hmem.v1');
 localStorage.removeItem('angular-todo-app.world.v1');
 localStorage.removeItem('angular-todo-app.markovian.v1');
+localStorage.removeItem('angular-todo-app.trace.v1');
 ```
 
 ## Related
