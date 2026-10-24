@@ -260,38 +260,45 @@ export class WorldModel {
   }
 
   relate(input: RelateInput): Promise<Relationship> {
-    return this.enqueue(() => {
-      const source = this.normalizeProvenance(input.source);
-      const from = this.store.resolveAlias(input.from);
-      const to = this.store.resolveAlias(input.to);
-      const id = relationshipId(from, input.type, to, input.context, input.validFrom);
-      if (this.store.state.relationships.has(id)) {
-        return this.store.state.relationships.get(id)!; // content-addressed no-op
-      }
-      const rel: Relationship = {
-        id,
-        from,
-        type: input.type,
-        to,
-        context: input.context,
-        attrs: input.attrs,
-        validFrom: input.validFrom ?? source.at,
-        validTo: input.validTo,
-        schemaVersion: 1,
-        source,
-        createdAt: source.at,
-      };
-      const event = this.store.append('relate', rel, source.at);
-      this.store.logAudit(
-        'relate',
-        source.by ?? 'system',
-        `${from} -[${input.type}]-> ${to}`,
-        event.id,
-        source.runId,
-        source.at,
-      );
-      return this.store.state.relationships.get(id)!;
-    });
+    return this.enqueue(() => this.relateNow(input));
+  }
+
+  /** Synchronous variant for local-first UI stores that project immediately. */
+  relateSync(input: RelateInput): Relationship {
+    return this.relateNow(input);
+  }
+
+  private relateNow(input: RelateInput): Relationship {
+    const source = this.normalizeProvenance(input.source);
+    const from = this.store.resolveAlias(input.from);
+    const to = this.store.resolveAlias(input.to);
+    const id = relationshipId(from, input.type, to, input.context, input.validFrom);
+    if (this.store.state.relationships.has(id)) {
+      return this.store.state.relationships.get(id)!; // content-addressed no-op
+    }
+    const rel: Relationship = {
+      id,
+      from,
+      type: input.type,
+      to,
+      context: input.context,
+      attrs: input.attrs,
+      validFrom: input.validFrom ?? source.at,
+      validTo: input.validTo,
+      schemaVersion: 1,
+      source,
+      createdAt: source.at,
+    };
+    const event = this.store.append('relate', rel, source.at);
+    this.store.logAudit(
+      'relate',
+      source.by ?? 'system',
+      `${from} -[${input.type}]-> ${to}`,
+      event.id,
+      source.runId,
+      source.at,
+    );
+    return this.store.state.relationships.get(id)!;
   }
 
   assertFact(input: AssertFactInput): Promise<Fact> {
