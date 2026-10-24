@@ -1,0 +1,114 @@
+user:
+  text: |-
+    Add Meterless Runtime to this codebase as an OpenAI-compatible provider, next to the providers it already has.
+
+    The contract (Meterless Runtime 1.4, provider contract v4):
+    - Provider id meterless, name Meterless Runtime, default base URL http://127.0.0.1:8088/v1. Accept a pasted URL with or without a scheme, /v1, /v1/chat/completions, /v1/models or /healthz, and normalise it to <host>/v1. Never produce /v1/v1.
+    - Auth is real. Send Authorization: Bearer <token> on every call. The runtime writes the token to <stateDir>/proxy-token. Store it under the key meterless_runtime_token. The placeholder rt-local is rejected.
+    - Send meterless-app: <a stable lowercase id for this app> on every request, and meterless-scope: user on chat.
+    - Model ids are routing modes, not models: meterless/<disposition> (auto, fast, deep, cheap, local, fusion), meterless/<class> and meterless/<class>.<disposition>. Read them from GET /v1/models and keep any meterless/* id you don't recognise.
+    - GET /healthz only proves the process is up. GET /v1/models decides: 401 or 403 is "unauthorized" (show a field to paste the token), 200 with meterless ids is "online", anything else is "offline".
+    - Auto Detect tries ports 8088, 8090, 8787 and 11434 on 127.0.0.1, localhost and [::1], and saves the first online or unauthorized hit.
+    - Plain text requests stay a string, exactly like OpenAI. Use a 180 s timeout, because a model load can take minutes.
+    - If the user pastes a connect link (http://<host>:<port>/connect#k=<key>), take the base URL from its origin + /v1 and the key from k. Never log it.
+
+    You are done when a wrong token shows unauthorized (not offline), Auto Detect finds the runtime, and a plain text request on meterless/auto returns a string.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |+
+      I’ll add this as a provider module plus a Runtime panel in the Angular app, with URL normalization, token/auth handling, status detection, Auto Detect, model routing modes, and a plain-text chat check.
+
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Finish adding Meterless Runtime 1.4 as an OpenAI-compatible local provider in `/home/ext_root/lab-data/angular-todo-app`, including provider logic, UI, tests, and verification.
+      - Preserve the already-completed Meterless engine integration (Scout Intent, H-MEM, World Model, Markovian) and its passing verification.
+
+      ## Important Details
+      - Contract: provider id `meterless`, name `Meterless Runtime`, default base URL `http://127.0.0.1:8088/v1`.
+      - Normalize pasted URLs with/without scheme and paths `/v1`, `/v1/chat/completions`, `/v1/models`, `/healthz` to `<origin>/v1`; never `/v1/v1`.
+      - Auth: send `Authorization: Bearer <token>` on every call; token key `meterless_runtime_token`; reject placeholder `rt-local`.
+      - Runtime token lives at `<stateDir>/proxy-token`; browser cannot auto-read it, so planned UI supports paste + `proxy-token` file import.
+      - Send `meterless-app: angular-todo-app` on every request; send `meterless-scope: user` on chat.
+      - Model IDs are routing modes: `meterless/<disposition>` (`auto`, `fast`, `deep`, `cheap`, `local`, `fusion`), `meterless/<class>`, and `meterless/<class>.<disposition>`. Read from `GET /v1/models`; retain any unrecognized `meterless/*`.
+      - Status semantics: `/v1/models` returning 401/403 = `unauthorized`; 200 with meterless IDs = `online`; anything else = `offline`. `/healthz` only proves process is up.
+      - Auto Detect: ports `8088, 8090, 8787, 11434` on `127.0.0.1`, `localhost`, `[::1]`; save first `online` or `unauthorized` hit. Current implementation probes hosts outer, ports inner.
+      - Chat timeout: `180_000` ms. Probe timeout currently `5_000` ms.
+      - Plain-text chat requests must stay a string exactly like OpenAI; `chat()` returns the assistant content string.
+      - Connect links `http://<host>:<port>/connect#k=<key>`: base URL is origin + `/v1`, token from `k`; never log token or connect key.
+      - Assumption: target is `angular-todo-app`; it has no existing LLM provider system, so the provider module and a new Runtime panel are being added next to Assistant/Memory/Trace/World panels.
+      - No commits without explicit request.
+      - Test setup: Angular 22 + Vitest 5 + jsdom; use `CI=true npm test -- --watch=false`, `npm run build`.
+      - Use `mise x node@26.10.0 --` if Node shim errors occur.
+      - Playwright is available under mise: `/home/ext_root/.local/share/mise/installs/npm-playwright/1.64.1/node_modules/playwright`; headless Chromium is installed. Run via `mise x node@26.10.0 -- node -` with absolute `require`.
+      - Prior app constraints still apply: task CRUD remains local via `TaskStore`/`localStorage`; no backend/cloud; provider network is limited to the local Meterless Runtime.
+
+      ## Work State
+      ### Completed
+      - All Meterless combined mechanism phases 1-8 implemented, including context planning, contract-gated Markovian runs, plan-completion memory, World Model↔H-MEM sync, trace UI, plan alternatives with `plan_draft` entities, research intent, project-scoped context, “The usual” memory resolution, and trace persistence.
+      - Prior verification passed: `74/74` tests, production build, Prettier, markdownlint, H-MEM `13/13`, World Model `8/8`, Markovian `8/8`, Scout eval thresholds, and Playwright headless smoke (add, memory, vague reference, two plans, trace stages, delete/archive, refresh persistence, zero console/page/network errors).
+      - Task artifact updated: `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`.
+      - Created provider directories: `src/app/providers/`, `src/app/components/provider-panel/`.
+
+      ### Active
+      - Provider module drafted:
+        - `src/app/providers/meterless-url.ts`: `normalizeMeterlessBaseUrl`, `parseMeterlessConnectLink`, `isMeterlessConnectLink`, `METERLESS_DEFAULT_BASE_URL`.
+        - `src/app/providers/meterless-provider.service.ts`: constants, status/model/token signals, `setBaseUrl`, `setModel`, `setToken`, `loadTokenFromFile`, `connect`, `checkStatus`, `autoDetect`, `chat`, `MeterlessError`, `meterlessModelIds`, `meterlessContent`.
+      - Provider code has not yet been compiled, tested, wired into `App`, or documented.
+      - `src/app/components/provider-panel/` is currently empty.
+      - Potential cleanup: `meterlessContent()` has a convoluted nested conditional/type-assertion expression and needs compile/behavior verification.
+      - Planned provider panel: status badge, base URL/connect-link input, token field shown when unauthorized/no token, Auto Detect button, `proxy-token` file import, model select, plain-text test prompt/reply, error display.
+      - Need to update `App` imports/template and `app.spec.ts` for the new panel; update `README.md`.
+      - Need provider tests for URL normalization, connect links, token rejection/persistence, auth/app/scope headers, status 401/403 vs offline, model filtering, Auto Detect, and chat returning a string.
+
+      ### Blocked
+      - None currently.
+      - Open assumption: if “next to providers it already has” referred to another codebase, the provider registry/UI target may need adjustment.
+
+      ## Next Move
+      1. Compile/type-check the new provider files; fix `meterlessContent()` and any URL/IPv6 edge cases, then add `meterless-url.spec.ts` and `meterless-provider.service.spec.ts` with mocked `fetch`.
+      2. Implement `provider-panel.ts/html/css/spec`, wire it into `src/app/app.ts`, `src/app/app.html`, and `src/app/app.spec.ts`; update README, run `CI=true npm test -- --watch=false`, `npm run build`, Prettier, markdownlint, and a Playwright smoke test.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/providers/meterless-url.ts`: URL normalization and connect-link parsing.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/providers/meterless-provider.service.ts`: provider/auth/status/Auto Detect/chat service.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/provider-panel/`: empty directory for new Runtime panel.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.ts`, `app.html`, `app.css`, `app.spec.ts`: wire/verify the provider panel.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/persistence.ts`: `readJson`/`writeJson` used by provider settings.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: existing assistant panel/service patterns.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/memory-panel/`, `trace-panel/`, `assistant-panel/`: panel/CSS/spec patterns.
+      - `/home/ext_root/lab-data/angular-todo-app/README.md`: document provider setup, token file, keys, and panel.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`: prior task checklist already marked complete.
+      - `/home/ext_root/lab-data/meterless-spec/docs/agent-ready/add-meterless-provider.md`: source prompt/spec; user’s newer 1.4/v4 contract takes precedence.
+      - `/home/ext_root/.local/share/mise/installs/npm-playwright/1.64.1/node_modules/playwright`: Playwright module for browser smoke tests.

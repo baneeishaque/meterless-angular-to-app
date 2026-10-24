@@ -1,0 +1,225 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Implement all approved Meterless combined mechanisms (core Phases 1-5 plus optional Phases 6-8) in `/home/ext_root/lab-data/angular-todo-app` with tests, docs, and passing conformance/lint.
+      - User approved `approve all`; tests are mandatory for every phase.
+
+      ## Important Details
+      - Plan artifact: `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`.
+      - Task artifact: `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`; still needs status update.
+      - Direct CRUD invariant: task UI → `TaskStore` → `localStorage`; `TaskStore` → `WorldModelService`; engines only assist AI/ambiguous/long-horizon actions.
+      - No backend, network, remote LLM, auth, multi-user, destructive automation, or commits without explicit request.
+      - Engine order: 1 Scout Intent, 2 H-MEM, 3 World Model, 4 Markovian.
+      - Spec repo: `/home/ext_root/lab-data/meterless-spec`; use `mise x node@26.10.0 --` if Node shim errors occur.
+      - Test runner: Angular CLI 22 + Vitest 5 + jsdom; `CI=true npm test -- --watch=false`; build `npm run build`.
+      - Conformance commands:
+        - `HMEM_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`
+        - `WORLD_MODEL_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts`
+        - `MARKOVIAN_IMPL=/home/ext_root/lab-data/angular-todo-app/src/app/engines/markovian/index.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts`
+        - `SCOUT_IMPL=/home/ext_root/lab-data/angular-todo-app/eval/scout-entry.ts npx tsx /home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/runner/index.ts all`
+      - `.markdownlint-cli2.jsonc` added: MD013 line length 120/code_blocks false/tables false, MD007 indent 2, MD046 fenced.
+      - Key implementation decisions/gotchas:
+        - `classifyPrompt` contextual blend must only run when `contextual > 0`; blending a 0 score dilutes base scores and broke baseline delete/recall tests.
+        - Markovian `stepFn` is 0-based; first grounded chunk uses `step === 0`, continuation otherwise.
+        - Scout registry triggers need double backslashes (`\\b`) in TS string literals; single `\b` became backspace.
+        - `task.compare` and `task.plan` can both score 0.95; alphabetical tie-break favors `task.compare`; contextual scorer is intent-specific to avoid tie clarifications.
+        - `Markovian` `RunOptions` has no per-run `chunkConfig`; global `maxChunks: 4` is used.
+        - `MemoryService.recallForPlan` falls back to up to 3 recent memories when lexical recall returns none, so plans include preferences.
+        - `EngineSyncService` only starts via `provideAppInitializer` in `app.config.ts`; specs must call `sync.start()` manually.
+      - New intents: `task.compare` and `task.research`, both with capability `markovian.chain`, risk low.
+      - Contract gate: `PlanningService.assertContract` requires allowed intent (`task.plan`/`task.research`/`task.compare`), capability `markovian.chain`, `risk.level !== 'block'`, and valid signature/expiry; throws `ContractRefusalError`.
+      - Grounded plan: chunk 1 `buildGroundedPlan` includes memory/world counts and up to 3 real task names + `[STATE_CHECKPOINT]`; chunk 2 `buildPlanContinuation` ends `[TASK_COMPLETE]`.
+      - Plan completion memory: source `markovian:<run.id>`, content `Completed plan for "<goal>": <summary>`, provenance `plan_completion`, `goalRunId`.
+      - World fact memory: source `world:<entity.id>`, provenance `world_model`, archived tombstone becomes `Task "<name>" was archived.` with `archived` tag.
+      - Project support: `Task.projectId/projectName`, `Project` model, `angular-todo-app.projects` storage, project filter/select, project `contains` relations, `buildPromptContext` anchored on project/subject.
+      - `MemoryService.remember` accepts optional `{ project?: string }` tag, but assistant/UI do not currently pass project scope — possible Phase 8 gap.
+      - Plan doc claims vague “The usual” resolves via memory, but current Scout still routes vague prompts to `GENERAL`; pipeline passes memory context but no concrete execution resolution — verify whether to implement or document.
+      - Plan doc Phase 6 mentioned optional `plan_draft` entities; current implementation keeps alternatives in `PlanningService.lastAlternatives` only, no World Model draft entities.
+      - Baseline before changes: 37/37 tests, 7 spec files, HEAD `38fe6c1`.
+      - Current tests: 63/63 pass; production build passes; H-MEM 13/13, World Model 8/8, Markovian 8/8; Scout eval: intent_top1 1, top3 1, injection precision/recall 1, tool precision 1, clarification_rate 0.0625, override_frequency 0.
+      - Existing docs to consult: `docs/testing/meterless-engines-testing-guide.md`, `docs/testing/README.md`, `docs/README.md`, `docs/meterless-fit.md`.
+
+      ## Work State
+      ### Completed
+      - Phase 0: added `.markdownlint-cli2.jsonc`.
+      - Phase 1: added `ContextPlanService` and types; added `contextualScorer`/`context` to Scout types, scoring, engine; added `ScoutService.planContext`, `classify`, `decide(prompt, context?)`, `verifyContract`; added `AssistantPipelineService` with `AssistantTrace`/`PipelineDecision`; rewired `AssistantService` to pipeline with `lastTrace`.
+      - Phase 2: `MemoryStoreService.updateContent`; added `world_model` provenance origin; `MemoryService` gained `recallForPlan`, `findBySource`, `updateBySource`, `upsertWorldFact`, `archiveWorldFact`, `recordPlanCompletion`, optional project tags.
+      - Phase 3: `PlanningService` gained `ContractRefusalError`, `planFromContract`, `assertContract`, grounded deterministic plan builders, plan-completion memory; legacy `plan(goal)` preserved.
+      - Phase 4: `WorldModelService` gained `projectEntities`, `upsertProject`, `archiveProject`, `linkTaskToProject`, `projectSummaries`, `tasksForProject`, `projectFor`, `buildPromptContext`, `subscribe`, `entityFor`, `projectEntityId`; engine gained `relateSync`/`relateNow`; added `EngineSyncService` and `app.config.ts` initializer.
+      - Phase 5: added `src/app/components/trace-panel/` component, spec, CSS/HTML; wired into `App` imports/template; updated `app.spec.ts`; memory panel provenance labels; assistant panel hint updated.
+      - Phase 6: `PlanningService.lastAlternatives`, `planAlternatives`, `selectAlternative`; assistant selection by numeric option (`/^(?:use\s+)?(?:option\s+)?([1-9])$/i`).
+      - Phase 7: `task.research` registry intent, RESEARCH mode via `planFromContract`, plan-completion memory reuse.
+      - Phase 8: `Task.projectId/projectName`, `Project`/`ProjectFilter` models; `TaskStore` projects persistence/filtering/`addProject`/`removeProject`/`setTaskProject`; TaskInput project select; TaskFilters project filter; app project-add form; TaskItem project badge.
+      - Added/updated specs: `context-plan.service.spec.ts`, `assistant-pipeline.service.spec.ts`, `memory.service.spec.ts`, `world-model.service.spec.ts`, `task-store.spec.ts`, `planning.service.spec.ts`, `scout.service.spec.ts`, `engine-sync.service.spec.ts`, `assistant.service.spec.ts`, `trace-panel.spec.ts`.
+      - Verified: 63/63 tests pass; `npm run build` passes; all conformance suites pass; Scout eval passes thresholds.
+      - Earlier baseline verification and plan/task artifact creation completed.
+
+      ### Active
+      - Reviewing approved plan doc for remaining acceptance gaps after implementation.
+      - Need to update `task.md` and todo list to reflect actual completed phases (todo list currently stale: Phase 1 in progress, Phases 2-8 pending).
+      - Investigating “The usual” vague-reference behavior and whether Phase 8 project-scoped memory/plan_draft entities need additional wiring.
+      - Final verification pending: Prettier, markdownlint, full tests/build/conformance, docs update, optional browser smoke check.
+
+      ### Blocked
+      - None.
+      - Open questions: whether “The usual” must resolve to a concrete remembered action; whether project-scoped memory must be exercised via assistant/UI; whether Phase 6 requires World Model `plan_draft` entities or signal-only alternatives are acceptable.
+
+      ## Next Move
+      1. Update `docs/..._task.md` and todo list to mark Phases 0-8 implemented and list remaining verification items.
+      2. Inspect plan Phase 5-8 acceptance criteria and close gaps: vague “The usual” behavior, project-scoped memory tagging, optional `plan_draft` entities if required.
+      3. Run Prettier and markdownlint on changed docs/config; run final `CI=true npm test -- --watch=false`, `npm run build`, all conformance commands, and Scout eval; update docs if needed.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`: approved plan/acceptance criteria.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`: task checklist to update.
+      - `/home/ext_root/lab-data/angular-todo-app/.markdownlint-cli2.jsonc`: Phase 0 lint config.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/context-plan.service.ts`: context-plan rules/types.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant-pipeline.service.ts`: pipeline and trace.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/assistant.service.ts`: assistant routing, trace, alternatives selection.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/scout.service.ts`: `planContext`, `classify`, `decide`, contextual scoring.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/memory.service.ts`: recall/fallback, world facts, plan completion.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/world-model.service.ts`: projects, `buildPromptContext`, `subscribe`.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/planning.service.ts`: contract gate, grounded plans, alternatives.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/engine-sync.service.ts`: World→H-MEM sync.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: project persistence/filtering.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.config.ts`: `EngineSyncService` initializer.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.ts`, `app.html`, `app.css`, `app.spec.ts`: trace panel and project UI.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/trace-panel/`: trace UI/spec.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/task-input/`, `task-filters/`, `task-item/`, `memory-panel/`, `assistant-panel/`: Phase 5/8 UI.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/app-registry.ts`: `task.compare`/`task.research`.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/scout/types.ts`, `scoring.ts`, `index.ts`: contextual scorer plumbing.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/hmem/memoryStore.ts`, `types.ts`: `updateContent`, `world_model` origin.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/engines/world-model/index.ts`: `relateSync`.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/models/task.model.ts`: `Task`/`Project`/filters.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/*.spec.ts`: new coverage.
+      - `/home/ext_root/lab-data/meterless-spec`: conformance/eval harnesses.

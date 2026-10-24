@@ -1,0 +1,14 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: |-
+      - Pushed `main` to `origin/main`: `84502e0..7ee01c0`.
+      - Local and remote are synchronized (`0 0`); remote `main` is `7ee01c0`.
+      - Safety stash dropped successfully; no stashes remain.
+      - Only untracked `.opencode/logs/ses_e950…` session logs remain, intentionally uncommitted.

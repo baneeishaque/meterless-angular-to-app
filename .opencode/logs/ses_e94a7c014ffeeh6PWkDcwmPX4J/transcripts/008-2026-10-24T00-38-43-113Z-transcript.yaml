@@ -1,0 +1,107 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      **Plan ready**
+
+      - Plan: `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_implementation-plan-combined-mechanisms_v1.md`
+      - Task: `docs/2026-10-23_e95056dc3ffe4pKzS75TOwh4yI_angular-todo-app-meterless-engine-integration_task.md`
+      - Baseline re-verified: 37/37 tests, production build clean, plan passes markdownlint and Prettier.
+
+      **Where each combined mechanism plugs in**
+
+      | # | Combined prompt | Integration point | User benefit | Phase |
+      | :--- | :--- | :--- | :--- | :--- |
+      | 1 | Memory plus long tasks | `PlanningService.planFromContract` → Markovian chunk 0; `MemoryService.recordPlanCompletion` | Plans remember preferences and prior outcomes | 3 |
+      | 2 | Check memory before acting | `AssistantPipelineService` → `ScoutService.planContext` + `MemoryService.recallForPlan` | Fewer clarification loops; “the usual” works | 1 |
+      | 3 | Route long jobs to Markovian | `AssistantService` → `PlanningService.planFromContract` after contract verification | Bounded, resumable plans | 3 |
+      | 4 | World state into memory | `EngineSyncService` subscribes to World events → `MemoryService.upsertWorldFact` | Assistant remembers completed/archived tasks | 4 |
+      | 5 | Plan from the world model | `WorldModelService.buildPromptContext` → Scout context plan → Markovian | Plans name real open tasks | 2 |
+      | 6 | Many drafts, shared state | Optional `PlanningService.planAlternatives` with one World snapshot | Compare fast vs thorough plans | 6 optional |
+      | 7 | Full stack in one agent | New `AssistantPipelineService` + trace panel | One coherent, auditable assistant | 5 |
+      | 8 | Upgrade the starter | Umbrella equivalent of 1-5 and 7 | Combined behavior without a rewrite | 1-5 |
+      | 9 | Research agent that remembers | Optional `task.research` + RESEARCH mode | Repeated research reuses prior findings | 7 optional |
+      | 10 | Accounts remember people | Optional project entities + project-scoped memory | Project plans use project tasks/preferences | 8 optional |
+
+      “Sign every tool call” is an IMPLEMENT prompt, not a COMBINE prompt; its useful part is the strict contract gate in Phase 3.
+
+      **Additional scenarios covered**
+
+      - “Plan my week” grounded in open tasks and remembered work preferences.
+      - “What should I do next?” with three task-linked actions.
+      - “The usual” resolving a vague reference from memory.
+      - Bulk edits with preview and confirmation.
+      - “What did I finish this week?” from world-backed memory.
+      - Plan comparison, research reuse, project planning, explain-why trace, memory correction, crash-safe resume, meeting-notes-to-tasks.
+
+      **Phases**
+
+      0. Baseline and docs lint config.
+      1. Context plan and memory-aware Scout.
+      2. World Model context for grounded planning.
+      3. Contract-gated Markovian and plan-completion memory.
+      4. World Model → H-MEM one-way sync.
+      5. Full pipeline trace and audit UI.
+      6. Optional plan alternatives.
+      7. Optional research intent.
+      8. Optional project context.
+
+      **Decisions needed before implementation**
+
+      1. Implement the core 7 now, or all 10 including optional phases?
+      2. Defer the “accounts remember people” analog to projects (Phase 8), or include it?
+      3. Include plan comparison (Phase 6) and research intent (Phase 7), or keep them deferred?
+      4. Confirm strict contract refusal with no unverified fallback.
+      5. Confirm no commits unless explicitly requested.
+
+      Reply `approve core` to start Phases 1-5, `approve all` to include 6-8, or specify changes.

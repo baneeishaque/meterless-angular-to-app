@@ -1,0 +1,133 @@
+user:
+  text: |-
+    also commit the files in proper structure.
+    only handle the changes by us. strictly & deeply follow /Users/dk/lab-data/ai-suite/ai-agent-rules/git-atomic-commit-construction-rules.md instructions & /Users/dk/lab-data/ai-suite/.agents/skills/git-atomic-commit-construction/SKILL.md instructions. give me complete arranged commits preview. you must add 'Execution Plan
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      ## Arranged Commits Preview
+
+      Target repo: `/home/ext_root/lab-data/angular-todo-app`  
+      Branch: `main` · upstream `origin/main` · base HEAD `84502e0`  
+      Full preview: `scratch/commit-preview.md`  
+      Full raw diff: `scratch/commit-preview.diff` (1,357 lines)
+
+      ### Master Plan Table
+
+      | # | type(scope): title | files | batch |
+      |---|---|---|---|
+      | 1 | `feat(providers): add Meterless Runtime URL helpers` | URL helper + spec | 1 |
+      | 2 | `feat(providers): add Meterless Runtime client service` | service + spec | 1 |
+      | 3 | `feat(providers): add Meterless Runtime connection panel` | panel files, app wiring, app spec | 1 |
+      | 4 | `docs(providers): document Meterless Runtime setup` | README, testing README | 1 |
+
+      ### Commit 1: feat(providers): add Meterless Runtime URL helpers
+
+      - **Files**: `src/app/providers/meterless-url.ts`, `src/app/providers/meterless-url.spec.ts`
+      - **Stats**: 2 new files, 123 lines
+      - **Message**:
+
+      ```text
+      feat(providers): add Meterless Runtime URL helpers
+
+      - Normalize pasted runtime URLs to the origin plus /v1, including
+        /v1/models, /v1/chat/completions, and /healthz forms.
+      - Parse /connect#k=... links into the base URL and token without
+        retaining the key in the URL.
+      - Reject non-HTTP protocols and cover normalization, IPv6, and
+        connect-link parsing with unit tests.
+      ```
+
+      ### Commit 2: feat(providers): add Meterless Runtime client service
+
+      - **Files**: `src/app/providers/meterless-provider.service.ts`, `src/app/providers/meterless-provider.service.spec.ts`
+      - **Stats**: 2 new files, 575 lines
+      - **Message**:
+
+      ```text
+      feat(providers): add Meterless Runtime client service
+
+      - Add token storage, status probes, model discovery, Auto Detect, and
+        plain-text chat against the OpenAI-compatible runtime.
+      - Send app identity on every request and user scope on chat; classify
+        401 and 403 as unauthorized rather than offline.
+      - Preserve unknown meterless/* routing modes and enforce the 180-second
+        chat timeout.
+      - Cover headers, status classification, token import, Auto Detect, and
+        chat behavior with unit tests.
+      ```
+
+      ### Commit 3: feat(providers): add Meterless Runtime connection panel
+
+      - **Files**:
+        - `src/app/components/provider-panel/provider-panel.ts`
+        - `src/app/components/provider-panel/provider-panel.html`
+        - `src/app/components/provider-panel/provider-panel.css`
+        - `src/app/components/provider-panel/provider-panel.spec.ts`
+        - `src/app/app.ts`
+        - `src/app/app.html`
+        - `src/app/app.spec.ts`
+      - **Stats**: 4 new files and 3 modified files, 476 insertions
+      - **Message**:
+
+      ```text
+      feat(providers): add Meterless Runtime connection panel
+
+      - Add the Runtime panel with status, URL and connect-link input, token
+        import, Auto Detect, routing-mode selection, and a chat check.
+      - Wire the panel into the app rail beside the assistant and engine
+        panels.
+      - Cover unauthorized, Auto Detect, and chat rendering in component
+        tests and assert the panel in the app shell.
+      ```
+
+      ### Commit 4: docs(providers): document Meterless Runtime setup
+
+      - **Files**: `README.md`, `docs/testing/README.md`
+      - **Stats**: 26 insertions, 3 deletions
+      - **Message**:
+
+      ```text
+      docs(providers): document Meterless Runtime setup
+
+      - Describe URL normalization, token storage, required headers, and the
+        status model for the Runtime provider.
+      - Update the test guide with provider coverage, the 101-test count, and
+        the runtime storage keys.
+      ```
+
+      ### Excluded
+
+      Left untracked and untouched:
+
+      - `docs/2026-10-23_..._implementation-plan-combined-mechanisms_v1.md`
+      - `docs/2026-10-23_..._task.md`
+
+      Reason: prior-session local planning artifacts, not provider changes; they contain an agent session ID and absolute local paths that must not enter a public commit.
+
+      ## Execution Plan
+
+      1. Capture the mandatory safety snapshot with `git stash push -u`, immediately `git stash apply`, and verify parity.
+      2. Commit 1: stage only the two URL files, run `git diff --cached --check`, refresh `origin`, then commit.
+      3. Commit 2: stage only the two service files, verify, refresh `origin`, then commit.
+      4. Commit 3: stage only the four panel files plus `app.ts`, `app.html`, and `app.spec.ts`; verify, refresh `origin`, then commit.
+      5. Commit 4: stage only `README.md` and `docs/testing/README.md`; verify, refresh `origin`, then commit.
+      6. After each commit, inspect `git show --stat --oneline HEAD` and `git status --short`; stop on unexpected staged content or a behind-upstream state.
+      7. After the final commit, re-run `CI=true npm test -- --watch=false` and `npm run build`, verify the preview against `git log`, then apply the safety stash again as a no-op before asking to drop it.
+      8. Do not push. Push requires separate explicit approval.
+
+      No file requires hunk-based staging: every changed file belongs wholly to one commit. Formatting-only line wraps were reverted so they are not mixed into the docs commit.
+
+      I have **not** executed any commits yet. Per the atomic-commit protocol, please say **`start`** to begin sequential execution.

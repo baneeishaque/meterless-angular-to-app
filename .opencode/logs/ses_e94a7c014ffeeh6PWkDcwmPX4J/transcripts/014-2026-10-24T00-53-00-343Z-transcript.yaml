@@ -1,0 +1,41 @@
+user:
+  text: Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Implemented the Meterless Runtime provider end-to-end: URL/connect-link normalization, token auth with `rt-local` rejection, `/v1/models` status handling, Auto Detect, routing-mode models, and plain-text chat with app/scope headers and a 180s timeout. Added the Runtime panel and wired it into the app.
+
+      Verification: **101 Vitest tests pass**, production build succeeds, Prettier/markdownlint pass on changed docs, and Playwright headless smoke passed wrong-token → unauthorized, Auto Detect, model retention, chat reply, and connect-link token storage with no console/page errors. No commits made.
