@@ -188,7 +188,11 @@ export function scoreIntent(
 export function classifyPrompt(
   profiles: IntentProfile[],
   prompt: string,
-  options: { semanticScorer?: (prompt: string, intent: IntentDefinition) => number } = {},
+  options: {
+    semanticScorer?: (prompt: string, intent: IntentDefinition) => number;
+    contextualScorer?: (prompt: string, intent: IntentDefinition, context: unknown) => number;
+    context?: unknown;
+  } = {},
 ): IntentCandidate[] {
   const promptNorm = normalizeText(prompt);
   const promptTokens = new Set(tokenize(prompt));
@@ -199,6 +203,12 @@ export function classifyPrompt(
     if (options.semanticScorer) {
       const semantic = clamp01(options.semanticScorer(prompt, profile.intent));
       score = clamp01(0.8 * score + 0.2 * semantic);
+    }
+    if (options.contextualScorer && options.context !== undefined) {
+      const contextual = clamp01(options.contextualScorer(prompt, profile.intent, options.context));
+      if (contextual > 0) {
+        score = clamp01(0.8 * score + 0.2 * contextual);
+      }
     }
     candidates.push({
       intent: profile.intent.id,

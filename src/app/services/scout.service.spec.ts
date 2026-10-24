@@ -31,3 +31,45 @@ describe('ScoutService', () => {
     expect(decision.clarification?.trigger).toBe('params');
   });
 });
+
+describe('ScoutService context', () => {
+  let scout: ScoutService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    scout = TestBed.inject(ScoutService);
+  });
+
+  it('plans memory and world context for a planning intent', async () => {
+    const plan = await scout.planContext('Plan my week');
+
+    expect(plan.sources).toEqual(['memory', 'world']);
+    expect(plan.maxChunks).toBe(4);
+  });
+
+  it('leaves direct intents context-free', async () => {
+    const plan = await scout.planContext('Add a task: buy milk');
+
+    expect(plan.sources).toEqual([]);
+  });
+
+  it('raises a matching intent score when context is present', async () => {
+    const baseline = await scout.decide('Plan my week');
+    const contextual = await scout.decide('Plan my week', {
+      memory: { text: '[MEMORY CONTEXT]\n- Prefer short steps' },
+    });
+
+    expect(contextual.intent.primary.id).toBe('task.plan');
+    expect(contextual.intent.primary.confidence).toBeGreaterThan(
+      baseline.intent.primary.confidence,
+    );
+  });
+
+  it('routes research and compare prompts to their own intents', async () => {
+    const research = await scout.decide('Research local-first sync options');
+    const compare = await scout.decide('Compare plan options for the launch');
+
+    expect(research.intent.primary.id).toBe('task.research');
+    expect(compare.intent.primary.id).toBe('task.compare');
+  });
+});

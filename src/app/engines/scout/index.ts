@@ -47,6 +47,7 @@ export class Scout {
   private readonly secret: string;
   private readonly clock: () => number;
   private readonly semanticScorer?: ScoutOptions['semanticScorer'];
+  private readonly contextualScorer?: ScoutOptions['contextualScorer'];
   private readonly lastDecisions = new Map<string, { input: DecisionInput; decision: Decision }>();
   private contractSeq = 0;
 
@@ -61,11 +62,14 @@ export class Scout {
     this.secret = options.signingSecret ?? DEFAULT_SECRET;
     this.clock = options.clock ?? Date.now;
     this.semanticScorer = options.semanticScorer;
+    this.contextualScorer = options.contextualScorer;
   }
 
   async classify(input: ClassifyInput): Promise<{ candidates: IntentCandidate[] }> {
     const candidates = classifyPrompt(this.profiles, input.prompt, {
       semanticScorer: this.semanticScorer,
+      contextualScorer: this.contextualScorer,
+      context: input.context,
     });
     return { candidates };
   }
@@ -81,8 +85,10 @@ export class Scout {
     const surface = input.surface ?? 'chat';
     const fullCandidates = classifyPrompt(this.profiles, prompt, {
       semanticScorer: this.semanticScorer,
+      contextualScorer: this.contextualScorer,
+      context: input.context,
     });
-    const composition = this.compose(prompt, fullCandidates);
+    const composition = this.compose(prompt, fullCandidates, input.context);
     const candidates = this.mergeCandidates(composition, fullCandidates);
     const primaryCandidate = this.ensurePrimary(composition.primary, candidates);
     const intent = this.intentFor(primaryCandidate.intent);
@@ -172,7 +178,11 @@ export class Scout {
     return signature === expected && Number.isFinite(expiresAt) && expiresAt >= this.clock();
   }
 
-  private compose(prompt: string, fullCandidates: IntentCandidate[]): CompositionResult {
+  private compose(
+    prompt: string,
+    fullCandidates: IntentCandidate[],
+    context?: unknown,
+  ): CompositionResult {
     const fullTop = fullCandidates[0];
     const clauses = prompt
       .split(/\s*(?:,\s*and\s+|,\s*|\s+and\s+|\s+then\s+)\s*/i)
@@ -187,6 +197,8 @@ export class Scout {
     for (const clause of clauses) {
       const top = classifyPrompt(this.profiles, clause, {
         semanticScorer: this.semanticScorer,
+        contextualScorer: this.contextualScorer,
+        context,
       })[0];
       if (top && top.score >= 0.55 && top.intent !== 'GENERAL') {
         clauseCandidates.push({

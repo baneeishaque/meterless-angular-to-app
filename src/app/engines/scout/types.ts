@@ -155,11 +155,14 @@ export interface ScoutOptions {
   clock?: () => number;
   /** Optional Stage-2 rescoring hook; Stage 1 stands when absent. */
   semanticScorer?: (prompt: string, intent: IntentDefinition) => number;
+  /** Optional Stage-3 contextual hook; no context means no change to the score. */
+  contextualScorer?: (prompt: string, intent: IntentDefinition, context: unknown) => number;
 }
 
 export interface ClassifyInput {
   prompt: string;
   surface?: string;
+  context?: unknown;
 }
 
 export interface ReplanInput {
