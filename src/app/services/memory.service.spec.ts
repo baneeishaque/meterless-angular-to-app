@@ -41,3 +41,83 @@ describe('MemoryService', () => {
     expect(snapshot.ledger.every((entry) => entry.memoryId === record!.id)).toBe(true);
   });
 });
+
+describe('MemoryService provenance', () => {
+  let memory: MemoryService;
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    memory = TestBed.inject(MemoryService);
+  });
+
+  it('updates a world fact by source instead of duplicating it', () => {
+    const entity = {
+      type: 'task',
+      id: 'task:todo:1',
+      attrs: { completed: false },
+      schemaVersion: 1,
+      source: { kind: 'user', at: new Date().toISOString() },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      aliases: [],
+      state: 'active' as const,
+      name: 'Buy milk',
+    };
+
+    memory.upsertWorldFact(entity);
+    memory.upsertWorldFact({ ...entity, attrs: { completed: true } });
+
+    expect(memory.count()).toBe(1);
+    expect(memory.memories()[0].content).toContain('completed');
+    expect(memory.memories()[0].provenance?.origin).toBe('world_model');
+  });
+
+  it('records plan completion with a stable source key', () => {
+    const run = {
+      id: 'run-1',
+      output: 'Plan for launch\n\n1. Ship it.',
+      status: 'completed',
+    } as Parameters<MemoryService['recordPlanCompletion']>[0];
+
+    memory.recordPlanCompletion(run, 'launch');
+    memory.recordPlanCompletion(
+      { ...run, output: 'Plan for launch\n\n1. Ship it safely.' },
+      'launch',
+    );
+
+    expect(memory.count()).toBe(1);
+    expect(memory.memories()[0].content).toContain('Completed plan for "launch"');
+    expect(memory.memories()[0].source).toBe('markovian:run-1');
+    expect(memory.memories()[0].goalRunId).toBe('run-1');
+  });
+});
+
+describe('MemoryService plan recall', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+  });
+
+  it('returns empty context when memory is empty', () => {
+    const memory = TestBed.inject(MemoryService);
+
+    const context = memory.recallForPlan('Plan my week');
+
+    expect(context.count).toBe(0);
+    expect(context.text).toBe('');
+  });
+
+  it('scopes recall to a project while keeping global preferences', () => {
+    const memory = TestBed.inject(MemoryService);
+    memory.remember('Prefer short answers');
+    memory.remember('Use the blue theme for launch', { project: 'p1' });
+    memory.remember('Use the red theme for billing', { project: 'p2' });
+
+    const context = memory.recallForPlan('launch plan', 8, { projectId: 'p1' });
+
+    expect(context.text).toContain('Prefer short answers');
+    expect(context.text).toContain('blue theme');
+    expect(context.text).not.toContain('red theme');
+  });
+});

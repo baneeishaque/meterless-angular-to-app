@@ -10,6 +10,7 @@ export type ProvenanceOrigin =
   | 'file_edit'
   | 'model_response'
   | 'plan_completion'
+  | 'world_model'
   | 'document'
   | 'manual'
   | 'dream'

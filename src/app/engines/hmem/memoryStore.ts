@@ -130,6 +130,20 @@ export class MemoryStoreService {
     return rec;
   }
 
+  updateContent(id: string, content: string, patch: Partial<MemoryRecord> = {}): MemoryRecord {
+    const rec = this.mustGet(id);
+    const prev = snapshot(rec);
+    rec.content = content;
+    rec.embedding = embed(content);
+    rec.entities = this.extractEntities(content);
+    Object.assign(rec, patch);
+    rec.domain = this.classifyDomain(rec.content, rec.tags, rec.type);
+    rec.namespace = this.namespace(rec.domain, rec.type);
+    this.ledger.log(id, 'update', this.actor, { previousState: prev, newState: snapshot(rec) });
+    this.persist();
+    return rec;
+  }
+
   delete(id: string, reason: string): void {
     const rec = this.mustGet(id);
     this.records.delete(id);
