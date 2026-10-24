@@ -17,13 +17,13 @@ npm run build
 
 Expected on the current implementation:
 
-- **74 Vitest tests pass** across 12 spec files.
+- **101 Vitest tests pass** across 15 spec files.
 - **Production build succeeds** with no budget errors.
 - **Scout eval** passes all thresholds.
 - **H-MEM conformance** passes 13/13 checks.
 - **World Model conformance** passes 8/8 checks.
 - **Markovian conformance** passes 8/8 checks.
-- **Playwright headless Chromium smoke** passes the assistant, project, trace, and persistence flows.
+- **Playwright headless Chromium smoke** passes the assistant, project, trace, persistence, and provider flows.
 
 ## Test layers
 
@@ -31,7 +31,7 @@ Expected on the current implementation:
 | ---------------- | -------------------------------------- | ---------------------------------------------------------- |
 | Unit             | Angular CLI unit-test builder + Vitest | Store math, persistence, engine service behavior           |
 | Integration      | Angular `TestBed` + jsdom              | Assistant intent -> action -> store -> engine side effects |
-| Component        | Angular `TestBed` + jsdom              | App shell and engine panels render                         |
+| Component        | Angular `TestBed` + jsdom              | App shell, engine panels, and provider panel render        |
 | Conformance      | Meterless runners under `tsx`          | Engine invariants that are independent of this app         |
 | Eval             | Scout eval harness under `tsx`         | Intent accuracy, injection recall/precision, tool routing  |
 | Production build | Angular AOT build                      | Templates, types, CSS budgets, and bundling                |
@@ -49,6 +49,8 @@ The current suite adds dedicated coverage for:
 - Project tasks: project creation, task scoping, and unassignment on project removal.
 - Trace UI: direct-action traces, reload restoration, and routing metadata.
 - Vague references: “the usual” resolved from remembered preferences.
+- Runtime provider: URL/connect-link normalization, token rejection, auth/app/scope headers, status
+  classification, Auto Detect, model filtering, and plain-text chat.
 
 ## Test data reset
 
@@ -67,6 +69,8 @@ localStorage.removeItem('angular-todo-app.hmem.v1');
 localStorage.removeItem('angular-todo-app.world.v1');
 localStorage.removeItem('angular-todo-app.markovian.v1');
 localStorage.removeItem('angular-todo-app.trace.v1');
+localStorage.removeItem('meterless_runtime_token');
+localStorage.removeItem('meterless_runtime_settings');
 ```
 
 ## Related

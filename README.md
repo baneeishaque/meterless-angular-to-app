@@ -18,6 +18,7 @@ The app also ships browser-safe ports of the four Meterless engines: **Scout Int
 - H-MEM preference memory with retrieval, persistence, and a trust ledger
 - World Model event log with task entities and an activity panel
 - Markovian plan generation with per-run chunk configuration and efficiency stats
+- Meterless Runtime provider panel: token auth, Auto Detect, routing-mode models, and plain-text chat
 
 ## Run it
 
@@ -48,6 +49,8 @@ src/app/
   services/world-model.service.ts       World Model facade and task sync
   services/planning.service.ts          Markovian facade and persistence
   services/assistant.service.ts         Natural-language action executor
+  providers/meterless-url.ts            URL and connect-link normalization
+  providers/meterless-provider.service.ts  Runtime auth, status, models, Auto Detect, chat
   services/persistence.ts               Shared localStorage JSON helpers
   engines/scout/                        Browser-safe Scout port
   engines/hmem/                         Browser-safe H-MEM port
@@ -59,6 +62,7 @@ src/app/
   components/task-filters/              All / Active / Completed control
   components/task-item/                 One task row with edit and delete
   components/assistant-panel/           Chat, confirmations, plan output
+  components/provider-panel/            Meterless Runtime connection and chat check
   components/memory-panel/              Remembered preferences
   components/world-panel/               Event and audit activity
   app.ts / app.html / app.css           Page shell and empty state
@@ -77,6 +81,18 @@ user input
   -> TaskStore           commit accepted task changes
   -> World Model         append events
 ```
+
+## Meterless Runtime provider
+
+The Runtime panel connects to the OpenAI-compatible Meterless Runtime. The default is
+`http://127.0.0.1:8088/v1`; pasted `/v1`, `/v1/models`, `/v1/chat/completions`, `/healthz`, and
+`/connect#k=…` links are normalized to `<host>/v1`. Status comes from `GET /v1/models`: `401` or `403` means
+unauthorized and reveals the token field, while a `200` with `meterless/*` models means online.
+
+Paste the token, or import the runtime's `<stateDir>/proxy-token` file. The token is stored under
+`meterless_runtime_token`; the placeholder `rt-local` is rejected. Chat requests send
+`Authorization: Bearer <token>`, `meterless-app: angular-todo-app`, and `meterless-scope: user`, and use a
+180-second timeout.
 
 ## Meterless engines
 
