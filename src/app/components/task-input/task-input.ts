@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import type { Project } from '../../models/task.model';
+
+export interface TaskAddedEvent {
+  title: string;
+  projectId?: string;
+}
 
 @Component({
   selector: 'app-task-input',
@@ -7,11 +13,17 @@ import { ChangeDetectionStrategy, Component, output, signal } from '@angular/cor
   styleUrl: './task-input.css',
 })
 export class TaskInput {
-  readonly taskAdded = output<string>();
+  readonly projects = input<readonly Project[]>([]);
+  readonly taskAdded = output<TaskAddedEvent>();
   protected readonly draft = signal('');
+  protected readonly selectedProject = signal('');
 
   protected onInput(event: Event): void {
     this.draft.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onProjectChange(event: Event): void {
+    this.selectedProject.set((event.target as HTMLSelectElement).value);
   }
 
   protected addTask(input: HTMLInputElement): void {
@@ -21,7 +33,10 @@ export class TaskInput {
       return;
     }
 
-    this.taskAdded.emit(title);
+    this.taskAdded.emit({
+      title,
+      projectId: this.selectedProject() || undefined,
+    });
     this.draft.set('');
     input.value = '';
     input.focus();

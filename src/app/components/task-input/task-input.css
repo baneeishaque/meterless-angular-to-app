@@ -26,6 +26,15 @@
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
+.task-input select {
+  max-width: 150px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+}
+
 .task-input button {
   padding: 0 22px;
   border: 0;
@@ -48,6 +57,15 @@
 }
 
 @media (max-width: 420px) {
+  .task-input select {
+    max-width: 150px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+  }
+
   .task-input button {
     padding: 0 16px;
   }

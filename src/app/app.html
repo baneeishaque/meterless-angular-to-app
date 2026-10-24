@@ -12,15 +12,30 @@
         </p>
       </header>
 
-      <app-task-input (taskAdded)="store.add($event)" />
+      <app-task-input [projects]="store.projects()" (taskAdded)="addTask($event)" />
 
-      @if (store.counts().all > 0) {
+      @if (store.tasks().length > 0) {
         <app-task-filters
           [filter]="store.filter()"
           [counts]="store.counts()"
+          [projects]="store.projects()"
+          [projectFilter]="store.projectFilter()"
           (filterChange)="store.setFilter($event)"
+          (projectFilterChange)="store.setProjectFilter($event)"
         />
       }
+
+      <form class="project-add" (submit)="$event.preventDefault(); addProject(projectName)">
+        <label class="sr-only" for="new-project">New project</label>
+        <input
+          #projectName
+          id="new-project"
+          type="text"
+          placeholder="New project"
+          autocomplete="off"
+        />
+        <button type="submit">Add project</button>
+      </form>
 
       @if (store.visibleTasks().length > 0) {
         <ul class="task-list" aria-label="Tasks">

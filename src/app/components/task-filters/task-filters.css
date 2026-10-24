@@ -48,3 +48,35 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-row .filters {
+  flex: 1;
+}
+
+.project-filter select {
+  max-width: 150px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 520px) {
+  .filter-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .project-filter select {
+    max-width: none;
+    width: 100%;
+  }
+}

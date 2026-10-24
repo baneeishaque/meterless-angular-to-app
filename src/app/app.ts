@@ -3,6 +3,7 @@ import { AssistantPanel } from './components/assistant-panel/assistant-panel';
 import { MemoryPanel } from './components/memory-panel/memory-panel';
 import { TaskFilters } from './components/task-filters/task-filters';
 import { TaskInput } from './components/task-input/task-input';
+import type { TaskAddedEvent } from './components/task-input/task-input';
 import { TaskItem } from './components/task-item/task-item';
 import { WorldPanel } from './components/world-panel/world-panel';
 import { TaskStore } from './services/task-store';
@@ -34,4 +35,16 @@ export class App {
         return { title: 'Your list is clear', hint: 'Add your first task above.' };
     }
   });
+
+  protected addTask(event: TaskAddedEvent): void {
+    this.store.add(event.title, event.projectId);
+  }
+
+  protected addProject(input: HTMLInputElement): void {
+    const project = this.store.addProject(input.value);
+    if (project) {
+      input.value = '';
+      this.store.setProjectFilter(project.id);
+    }
+  }
 }

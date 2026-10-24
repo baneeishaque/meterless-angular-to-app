@@ -9,5 +9,14 @@
     [value]="draft()"
     (input)="onInput($event)"
   />
+  @if (projects().length > 0) {
+    <label class="sr-only" for="task-project">Project</label>
+    <select id="task-project" [value]="selectedProject()" (change)="onProjectChange($event)">
+      <option value="">No project</option>
+      @for (project of projects(); track project.id) {
+        <option [value]="project.id">{{ project.name }}</option>
+      }
+    </select>
+  }
   <button type="submit" [disabled]="!draft().trim()">Add</button>
 </form>

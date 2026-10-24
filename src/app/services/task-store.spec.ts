@@ -113,3 +113,36 @@ describe('TaskStore', () => {
     expect(restored.tasks()[0].title).toBe('Valid');
   });
 });
+
+describe('TaskStore projects', () => {
+  let store: TaskStore;
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    store = TestBed.inject(TaskStore);
+  });
+
+  it('adds a project and scopes tasks to it', () => {
+    const project = store.addProject('Launch');
+    store.add('Ship the launch', project?.id);
+    store.add('Buy milk');
+
+    store.setProjectFilter(project!.id);
+
+    expect(store.projects()).toHaveLength(1);
+    expect(store.visibleTasks().map((task) => task.title)).toEqual(['Ship the launch']);
+    expect(store.visibleTasks()[0].projectName).toBe('Launch');
+  });
+
+  it('unassigns tasks when a project is removed', () => {
+    const project = store.addProject('Launch');
+    store.add('Ship the launch', project?.id);
+
+    store.removeProject(project!.id);
+
+    expect(store.projects()).toEqual([]);
+    expect(store.tasks()[0].projectId).toBeUndefined();
+    expect(store.projectFilter()).toBe('all');
+  });
+});

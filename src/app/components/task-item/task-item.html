@@ -6,21 +6,27 @@
   (change)="toggled.emit(task().id)"
 />
 
-@if (editing()) {
-  <input
-    #editInput
-    class="edit"
-    type="text"
-    appAutofocus
-    [value]="draft()"
-    [attr.aria-label]="'Edit ' + task().title"
-    (input)="onEditInput($event)"
-    (keydown)="onEditKeydown($event)"
-    (blur)="commitEdit()"
-  />
-} @else {
-  <span class="title" (dblclick)="startEditing()">{{ task().title }}</span>
-}
+<div class="body">
+  @if (editing()) {
+    <input
+      #editInput
+      class="edit"
+      type="text"
+      appAutofocus
+      [value]="draft()"
+      [attr.aria-label]="'Edit ' + task().title"
+      (input)="onEditInput($event)"
+      (keydown)="onEditKeydown($event)"
+      (blur)="commitEdit()"
+    />
+  } @else {
+    <span class="title" (dblclick)="startEditing()">{{ task().title }}</span>
+  }
+
+  @if (task().projectName) {
+    <span class="project">{{ task().projectName }}</span>
+  }
+</div>
 
 <div class="actions">
   @if (!editing()) {

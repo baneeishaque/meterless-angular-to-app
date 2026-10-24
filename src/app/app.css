@@ -134,3 +134,30 @@ h1 {
     gap: 8px;
   }
 }
+
+.project-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.project-add input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.project-add button {
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
