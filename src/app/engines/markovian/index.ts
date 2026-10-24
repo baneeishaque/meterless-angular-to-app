@@ -55,9 +55,12 @@ export class Markovian {
   }
 
   async run(options: RunOptions): Promise<MarkovianRun> {
+    const config = options.chunkConfig
+      ? resolveConfig({ ...this.config, ...options.chunkConfig })
+      : this.config;
     const run = await orchestrate({
       options,
-      config: this.config,
+      config,
       clock: this.clock,
       progress: this.progress,
       carryoverService: this.carryoverService,

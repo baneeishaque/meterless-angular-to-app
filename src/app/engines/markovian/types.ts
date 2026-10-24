@@ -121,6 +121,8 @@ export interface RunOptions {
   prompt?: string;
   goal?: string; // alias used by the examples
   mode?: Mode;
+  /** Optional per-run override; the resolved snapshot is recorded on the run. */
+  chunkConfig?: Partial<ChunkConfig>;
   stepFn?: StepFn;
   generator?: Generator;
   stopWhen?: (args: { step: number; carryover: string }) => boolean;
