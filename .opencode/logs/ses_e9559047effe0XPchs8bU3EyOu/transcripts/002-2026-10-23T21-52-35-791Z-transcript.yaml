@@ -1,0 +1,107 @@
+user:
+  text: |-
+    implement 1, then 2, then 3, then 4 on our app
+
+    you can refer all the implement prompts in https://meterless.ai/engines.html
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - agent: compaction
+    response: |-
+      ## Objective
+      - Implement Meterless engines 1–4 in order — **Scout Intent → H-MEM → World Model → Markovian** — on the existing Angular to-do app at `/home/ext_root/lab-data/angular-todo-app`, using the implementation prompts at `https://meterless.ai/engines.html`.
+      - Keep the app local-first, standalone-component based, and free of unnecessary backend dependencies while adding real engine integrations and passing the Meterless conformance/eval suites.
+
+      ## Important Details
+      - Original app requirements: Angular standalone components, add/toggle/edit/delete tasks, All/Active/Completed filters, remaining count, `localStorage` persistence, empty state, responsive minimal UI, no backend.
+      - The four engines are **AGENTS.md implementation specs, not installable npm packages**. H-MEM/World Model/Markovian ship reference implementations; Scout has no reference yet, only a real eval harness.
+      - Fixed adoption order from the user: **1 Scout, 2 H-MEM, 3 World Model, 4 Markovian**.
+      - App currently: Angular 22.2.x, signals, `OnPush`, Vitest/jsdom, `localStorage`; build clean and 12 tests pass.
+      - App is not a git repo (`ng new --skip-git`); `mise.toml` pins Node `26.10.0`, so plain `npm` works inside the project.
+      - Spec repo cloned to `/home/ext_root/lab-data/meterless-spec`.
+      - H-MEM conformance: `engines/hmem/conformance/runner.ts` (203 lines) loads `HMEM_IMPL` and requires a named `HMEM` class with `constructor({ clock })`, `add()`, `query()`, `feedback()`, plus `store`, `ledger`, `sleep`, `dreaming`, `conflicts` services. Vectors at `engines/hmem/conformance/vectors/vectors.json`.
+      - H-MEM key semantics: source mandatory; feedback deltas `helpful +0.05/+1 access`, `not_helpful -0.03`, `wrong -0.20 + review tag`, clamp 0..1; retrieval formula `0.35*semantic + 0.20*keyword + 0.10*tag + 0.10*domain + 0.15*entity + 0.05*layer + 0.05*recency - 0.20*superseded`, then `* confidence`; threshold `0.35`, top N `5`; conflict auto-resolve at `>= 0.70`; dreaming approval-only; sleep preview-first with hub/derived/superseding guardrails.
+      - H-MEM reference is 1147 lines across `engines/hmem/reference/src/`; only `trustLedger.ts` and `memoryStore.ts` import `node:fs`/`node:path`. Apache-2.0, zero runtime deps.
+      - World Model conformance: `engines/world-model/conformance/runner.ts` (138 lines, 8 tests) requires exports `WorldModel`, `entityIdFromName`, `normalizeName`, `decide`; boundary rulings: similarity `0.85` exactly auto-merges, `0.82` exactly queues for review.
+      - World Model reference is 1421 lines: `index.ts` 496, `ingest.ts` 185, `resolve.ts` 60, `stableIds.ts` 186, `store.ts` 184, `types.ts` 310. Only `store.ts` imports `node:fs`/`node:path`.
+      - World Model semantics: per-instance state, sync `stateShapeCanonical`, `view("graph")`, `neighborsOf`, `audit`; timestamps derive from observation `at`, never wall clock; close superseded edges with `validTo`/`supersededBy`, never delete; `neighborsOf` without `at` means open edges.
+      - Markovian conformance: runner has 8 checks; required named exports `Markovian` (constructible, `.run(options): Promise<MarkovianRun>`), `modelTotals(N, k?)`, `runEfficiency(chunks, cfg)`. Reference sources: `carryover.ts`, `configManager.ts`, `history.ts`, `index.ts`, `markers.ts`, `orchestrator.ts`, `progress.ts`, `promptBuilder.ts`, `types.ts`; `history.ts` imports `node:fs`.
+      - Scout eval harness: `engines/scout-intent/evals/runner/index.ts` (370 lines). `SCOUT_IMPL` must point to a module file exporting a named `Scout`; constructor receives `{ intentRegistry: "/abs/.../evals/fixtures/intents.json", policyPack: ["default","adversarial-tight"] }`; `await scout.decide({ prompt, user: { id: "eval", role }, surface })`. `modelProfiles` and `signingSecret` are not passed, so safe defaults are required. `policyPack` is passed as an array despite spec typing.
+      - Scout fixture/regression data: `engines/scout-intent/evals/fixtures/intents.json`, `engines/scout-intent/evals/regression-set/v1/{intents,injection,edge-cases}/*.jsonl`. Expected outputs include `intent`, `parameters`, `risk`, `toolPlan`.
+      - Scout has no reference implementation; must implement classifier/scoring, parameter extraction, risk bands, capability/tool-plan filtering, injection guard, and execution contracts from spec + eval corpus.
+      - Reference code is Node-oriented; app ports must be browser-safe (replace fs persistence with IndexedDB/localStorage adapters). Add Apache-2.0 attribution if porting reference logic.
+      - Normal CRUD must stay on the direct path: component → `TaskStore` → storage. Engines only wrap AI/ambiguous/tool-driven actions.
+      - UI integration plan under discussion: command bar/Scout routing, memory panel, plan panel, event-log/undo surface, settings for an optional OpenAI-compatible provider with deterministic local fallback.
+      - Node strip-only TS rejects reference parameter properties; run conformance with `tsx` (e.g. `npx tsx`), not plain `node`.
+      - Existing docs currently recommend **not** adopting the full engines; `docs/meterless-fit.md` must be updated because the user has overridden that recommendation.
+
+      ## Work State
+      ### Completed
+      - Read Meterless `stack-overview.md` and all four `docs/engines/*` overviews.
+      - Built the Angular to-do app at `/home/ext_root/lab-data/angular-todo-app` with:
+        - `src/app/models/task.model.ts`
+        - `src/app/services/task-store.ts` (`STORAGE_KEY = 'angular-todo-app.tasks'`, signal store, computed views, effect persistence, schema validation)
+        - `src/app/directives/autofocus.ts`
+        - `src/app/components/task-input/`, `task-filters/`, `task-item/`
+        - `app.ts/html/css`, global `styles.css`, responsive empty states
+        - `docs/meterless-fit.md`, `README.md`, `mise.toml`
+      - Verified app: `npm run build` clean; `CI=true npm test -- --watch=false` → 12 tests passing.
+      - Cloned spec repo: `git clone --depth 1 https://github.com/Meterless/Meterless.git /home/ext_root/lab-data/meterless-spec`.
+      - Inspected H-MEM conformance runner, vectors, and all reference source files.
+      - Inspected World Model conformance runner and all reference source files.
+      - Inspected Markovian conformance API from the explore report; read reference file list.
+      - Inspected Scout eval runner entry API, fixture registry, and sample regression JSONL.
+      - Read `https://meterless.ai/engines.html` (output truncated; implementation prompts exist but specific prompt bodies not yet extracted).
+
+      ### Active
+      - Pre-implementation investigation for all four engines; **no engine code has been written into the app yet**.
+      - Need full details of `engines/markovian/conformance/runner.ts`, Markovian reference source, Scout eval runner metrics/thresholds, and all Scout regression JSONL files before coding.
+      - Need finalize browser-safe core layout and persistence adapter strategy.
+
+      ### Blocked
+      - No hard blocker.
+      - Spec reference folders have no `node_modules`; conformance requires `tsx` (or esbuild transpilation) because Node’s strip-only TypeScript mode rejects parameter properties.
+      - Scout eval metric thresholds and full corpus are not yet fully captured.
+      - Scope is large; UI integration for all four engines is not yet designed in code.
+
+      ## Next Move
+      1. Read `engines/markovian/conformance/runner.ts` plus `engines/markovian/reference/src/*.ts`, and fully read `engines/scout-intent/evals/runner/index.ts` and all `evals/regression-set/v1/**/*.jsonl`; record exact thresholds, scoring rules, and runner commands.
+      2. Implement the framework-free **Scout** core + app intent registry + Node eval entry, then run `SCOUT_IMPL=<abs-entry.ts> npm run evals` (or the runner’s documented `npx tsx` command) and fix until the suite passes.
+      3. Port **H-MEM** reference to browser-safe `src/app/ai/memory/` with a persistence adapter; run `HMEM_IMPL=<abs-index.ts> npx tsx engines/hmem/conformance/runner.ts`; then wire memory into the assistant path.
+      4. Port **World Model** to browser-safe `src/app/ai/world-model/`; run `WORLD_MODEL_IMPL=<abs-index.ts> npx tsx engines/world-model/conformance/runner.ts`; then replace/augment `TaskStore` persistence with event log + projection.
+      5. Port **Markovian** to `src/app/ai/planning/`; run its conformance suite; add the long-task planning UI with deterministic fallback and optional OpenAI-compatible provider.
+      6. Re-run app `npm run build` and `CI=true npm test -- --watch=false`; update `docs/meterless-fit.md` and README to reflect the implemented engines.
+
+      ## Relevant Files
+      - `/home/ext_root/lab-data/angular-todo-app`: target Angular app and all deliverables.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/services/task-store.ts`: canonical task state, persistence, future World Model seam.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/models/task.model.ts`: `Task` and `TaskFilter` types.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/components/task-item/task-item.ts`: `li[app-task-item]` selector and edit/toggle/delete outputs.
+      - `/home/ext_root/lab-data/angular-todo-app/src/app/app.ts` / `app.html` / `app.css`: page shell, filters, empty state, remaining count.
+      - `/home/ext_root/lab-data/angular-todo-app/docs/meterless-fit.md`: engine mapping and adoption rationale; needs update after implementation.
+      - `/home/ext_root/lab-data/angular-todo-app/README.md`: run/build/test instructions and structure.
+      - `/home/ext_root/lab-data/angular-todo-app/mise.toml`: pins Node `26.10.0`.
+      - `/home/ext_root/lab-data/angular-todo-app/package.json`: Angular 22, Vitest, scripts `start`, `build`, `test`.
+      - `/home/ext_root/lab-data/meterless-spec`: cloned Meterless spec/reference repo.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/runner/index.ts`: Scout eval loader and assertions.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/fixtures/intents.json`: Scout fixture registry.
+      - `/home/ext_root/lab-data/meterless-spec/engines/scout-intent/evals/regression-set/v1/`: Scout regression corpus.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/runner.ts`: H-MEM hard gate.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/conformance/vectors/vectors.json`: H-MEM expected deltas/rankings.
+      - `/home/ext_root/lab-data/meterless-spec/engines/hmem/reference/src/`: H-MEM reference to port (`types.ts`, `embeddings.ts`, `memoryStore.ts`, `trustLedger.ts`, `memoryRetrieval.ts`, `memoryMining.ts`, `conflictDetection.ts`, `sleepCycle.ts`, `dreaming.ts`, `index.ts`).
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/conformance/runner.ts`: World Model hard gate.
+      - `/home/ext_root/lab-data/meterless-spec/engines/world-model/reference/src/`: World Model reference (`index.ts`, `ingest.ts`, `resolve.ts`, `stableIds.ts`, `store.ts`, `types.ts`).
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/conformance/runner.ts`: Markovian hard gate; not yet fully read.
+      - `/home/ext_root/lab-data/meterless-spec/engines/markovian/reference/src/`: Markovian reference sources; not yet fully read.

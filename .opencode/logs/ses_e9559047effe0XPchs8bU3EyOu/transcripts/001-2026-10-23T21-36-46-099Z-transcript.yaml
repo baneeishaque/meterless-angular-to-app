@@ -1,0 +1,85 @@
+user:
+  text: |-
+    Read https://github.com/Meterless/Meterless/blob/main/docs/architecture/stack-overview.md and the engine overviews in docs/engines/.
+
+    I’ll describe my product and stack below. Show me exactly where memory (H-MEM), shared state (World Model), long-task compression (Markovian) and intent routing (Scout Intent) would plug in, what each would improve for my users, and what I should NOT adopt yet.
+
+    My product:
+    Build a simple, responsive **To-Do List app using Angular**.
+
+    Requirements:
+    - Add new tasks.
+    - Mark tasks as completed or incomplete.
+    - Edit and delete tasks.
+    - Filter tasks by All, Active, and Completed.
+    - Display the total number of remaining tasks.
+    - Save tasks in `localStorage` so they persist after refreshing the page.
+    - Use Angular best practices and standalone components.
+    - Create a clean, modern UI with minimal styling, good spacing, and mobile responsiveness.
+    - Show an empty state when there are no tasks.
+
+    Keep the app simple, functional, and easy to understand. Avoid unnecessary dependencies and backend services.
+
+    use lab-data/<project-folder>
+assistant:
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: "\n\n"
+  - response: |-
+      Built at `/home/ext_root/lab-data/angular-todo-app` — Angular 22, standalone components, signals, `localStorage`, responsive UI, empty states, 12 passing tests, clean production build.
+
+      Full write-up: `docs/meterless-fit.md`
+
+      ## Where each engine would plug in
+
+      | Engine | Exact seam | What users gain |
+      |---|---|---|
+      | **H-MEM** | New `src/app/ai/memory/` service, called only by an AI assistant. `TaskStore` remains the task system of record. Retrieve memories before the prompt, mine the response afterward. | Assistant remembers preferences and corrections across sessions (“no chores before 9am”, “that plan was too granular”) and can explain why it recalled something. |
+      | **World Model** | Persistence boundary in `src/app/services/task-store.ts`: replace the `Task[]` snapshot with append-only `TaskEvent[]` plus a projector (`task-events.ts`, `task-projector.ts`). | Undo/redo, audit trail, provenance, and safe multi-tab or multi-device merge. The current app already borrows two principles: stable IDs and canonical state + derived views. |
+      | **Markovian** | New `src/app/ai/planning/` service used only for long AI jobs, such as “break this goal into 30 subtasks” or a multi-step list-rewriting agent. | Long planning stays within the model’s context window with flat per-step cost, checkpoints, progress, and resume. Short requests are unaffected. |
+      | **Scout Intent** | New `src/app/ai/scout/` layer in front of any AI or tool action, with registry entries like `task.add`, `task.complete`, `task.delete`, `task.plan`. | Natural-language capture, prompt-injection checks when task text reaches a model, safe bulk deletes, and predictable routing between a local parser and an LLM. |
+
+      Normal CRUD bypasses all four: component → `TaskStore` → `localStorage`. Engines only enter the AI-assisted path: Scout decides → H-MEM remembers → World Model grounds → Markovian compresses (only for long jobs).
+
+      ## What not to adopt yet
+
+      - **All four full engines.** H-MEM, World Model, and Markovian are `AGENTS.md` implementation specs, not installable packages. You would be building subsystems for a local to-do app.
+      - **H-MEM dreaming/sleep/conflict/trust ledger** — no model, no memory corpus.
+      - **World Model event sourcing and control plane** — one user, one writer, no sync or undo requirement.
+      - **Markovian chunking/checkpoints/telemetry** — no long model calls to compress.
+      - **Scout signed contracts, policy packs, and eval harness** — no downstream tools or models to route or guard.
+      - Any backend, auth, vector DB, or hosted model dependency.
+
+      ## If the product grows
+
+      1. **Scout Intent** — first, once natural-language input or model-chosen actions exist.
+      2. **H-MEM** — when the assistant must remember preferences across sessions.
+      3. **World Model** — when history, undo, or multi-device sync becomes real.
+      4. **Markovian** — when one AI job no longer fits in a single context window.
+
+      Run it with `cd /home/ext_root/lab-data/angular-todo-app && npm start`.

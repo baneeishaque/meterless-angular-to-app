@@ -1,0 +1,25 @@
+---
+user:
+  text: so, the spec and outeside node_modules has nothing to do with app. also, app didn;t refer them - right?
+  time: 10/23/2026, 11:01:17.192 PM UTC
+assistant:
+  - agent: build
+    model:
+      id: deepseek-ai/DeepSeek-V4.1-Flash-1017
+      provider: tokenjuice
+    thinking: 'Need answer direct. Confirm: spec has nothing to do with app at runtime/build/test; app doesn''t refer to spec or outside node_modules. Caveats: docs mention `<meterless-spec>` as optional conformance instructions, and `eval/scout-entry.ts` is Node-only adapter that doesn''t import spec. Does app refer them? No imports, no package dependency, no config. The docs reference placeholder, but that''s documentation, not code dependency. Need be precise: "Correct, with one nuance: docs mention it as an optional external checkout; that''s not a code reference or dependency." Also outside node_modules not referenced. The app''s own tests/build don''t need it. The only time it''s used is if someone manually runs conformance suites from spec. Need answer concise.'
+    thinking_duration: 1.003s
+    thinking_duration_ms: 1003
+    time: 10/23/2026, 11:01:17.303 PM UTC
+    response: |-
+      Correct.
+
+      - App code, build, and tests do **not** import, reference, or depend on `meterless-spec`.
+      - App code does **not** reference the outside `meterless-spec/.../node_modules/`.
+      - The only mention is in **documentation**, where `<meterless-spec>` is an optional placeholder for running external conformance checks.
+      - `eval/scout-entry.ts` imports the app’s local Scout code; it does not import spec code.
+
+      So the app is self-contained. The spec checkout and its `node_modules/` are unrelated to the app’s commits.
+    duration: 3.008s
+    duration_ms: 3008
+

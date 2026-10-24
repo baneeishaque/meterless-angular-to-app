@@ -1,0 +1,12 @@
+user:
+  text: so, the spec and outeside node_modules has nothing to do with app. also, app didn;t refer them - right?
+assistant:
+  - response: |-
+      Correct.
+
+      - App code, build, and tests do **not** import, reference, or depend on `meterless-spec`.
+      - App code does **not** reference the outside `meterless-spec/.../node_modules/`.
+      - The only mention is in **documentation**, where `<meterless-spec>` is an optional placeholder for running external conformance checks.
+      - `eval/scout-entry.ts` imports the app’s local Scout code; it does not import spec code.
+
+      So the app is self-contained. The spec checkout and its `node_modules/` are unrelated to the app’s commits.

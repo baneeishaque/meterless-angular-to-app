@@ -1,0 +1,13 @@
+user:
+  text: start
+assistant:
+  - response: |-
+      `start` received, but execution is blocked: this repository has no `user.name` or `user.email`, so Git cannot create commits.
+
+      Reply with:
+
+      ```text
+      Name <email>
+      ```
+
+      Then I’ll run the five commits sequentially. No commits have been executed yet.

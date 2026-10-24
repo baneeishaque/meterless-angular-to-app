@@ -1,0 +1,10 @@
+user:
+  text: is angular-todo-app needs meterless-spec? or angular-todo-app is independednt? also wahtabout node_modules/ is outside this repository
+assistant:
+  - response: "\n\n"
+  - response: |-
+      `angular-todo-app` is independent. All four engines are vendored under `src/app/engines/`; neither `package.json` nor the Angular build references `meterless-spec`. Build, test, and runtime work without that checkout.
+
+      `meterless-spec` is only an optional conformance oracle used by the docs commands. `eval/scout-entry.ts` is a Node-only adapter that imports the app’s local Scout code, not spec code.
+
+      The outside `meterless-spec/engines/scout-intent/node_modules/` is untracked spec-repo tooling created for conformance runs. It is outside the app repo, excluded from the 95-file commit inventory, and cannot enter these commits. The app’s own `node_modules/` is inside the app but gitignored. I can leave the spec install as optional tooling or remove it; removing it will not affect the app.
