@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AssistantPanel } from './components/assistant-panel/assistant-panel';
 import { MemoryPanel } from './components/memory-panel/memory-panel';
+import { ProviderPanel } from './components/provider-panel/provider-panel';
 import { TaskFilters } from './components/task-filters/task-filters';
 import { TaskInput } from './components/task-input/task-input';
 import type { TaskAddedEvent } from './components/task-input/task-input';
@@ -17,6 +18,7 @@ import { TaskStore } from './services/task-store';
     TaskFilters,
     TaskItem,
     AssistantPanel,
+    ProviderPanel,
     MemoryPanel,
     TracePanel,
     WorldPanel,

@@ -1,0 +1,100 @@
+<section class="panel" aria-labelledby="provider-title">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">OpenAI-compatible</p>
+      <h2 id="provider-title">Meterless Runtime</h2>
+    </div>
+    <span
+      class="badge"
+      [class.online]="provider.status() === 'online'"
+      [class.warn]="provider.status() === 'unauthorized'"
+    >
+      {{ provider.status() }}
+    </span>
+  </header>
+
+  <p class="hint">
+    Local runtime at <code>127.0.0.1:8088</code>. Paste a URL or a <code>/connect#k=…</code> link.
+    Status comes from <code>/v1/models</code>.
+  </p>
+
+  <form class="endpoint" (submit)="$event.preventDefault(); connect()">
+    <label for="meterless-url">Base URL</label>
+    <div class="row">
+      <input
+        id="meterless-url"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="http://127.0.0.1:8088/v1"
+        [value]="draftUrl()"
+        (input)="onUrlInput($event)"
+      />
+      <button type="submit" [disabled]="provider.busy()">Connect</button>
+    </div>
+    <button type="button" class="secondary" (click)="autoDetect()" [disabled]="provider.busy()">
+      Auto Detect
+    </button>
+  </form>
+
+  @if (showToken()) {
+    <form class="token" (submit)="$event.preventDefault(); saveToken()">
+      <label for="meterless-token">
+        Token
+        <span
+          >from <code>&lt;stateDir&gt;/proxy-token</code>; <code>{{ placeholderToken }}</code> is
+          rejected</span
+        >
+      </label>
+      <div class="row">
+        <input
+          id="meterless-token"
+          type="password"
+          autocomplete="off"
+          placeholder="Paste the runtime token"
+          [value]="tokenDraft()"
+          (input)="onTokenInput($event)"
+        />
+        <button type="submit">Save token</button>
+      </div>
+      <label class="file">
+        Import proxy-token
+        <input type="file" (change)="importToken($event)" />
+      </label>
+    </form>
+  }
+
+  @if (provider.models().length > 0) {
+    <label class="model" for="meterless-model">
+      Routing mode
+      <select id="meterless-model" [value]="provider.model()" (change)="onModelChange($event)">
+        @for (model of modelOptions(); track model) {
+          <option [value]="model">{{ model }}</option>
+        }
+      </select>
+    </label>
+  }
+
+  <form class="chat" (submit)="$event.preventDefault(); send()">
+    <label for="meterless-prompt">Plain-text request</label>
+    <div class="row">
+      <input
+        id="meterless-prompt"
+        type="text"
+        autocomplete="off"
+        placeholder="Ask meterless/auto…"
+        [value]="prompt()"
+        (input)="onPromptInput($event)"
+      />
+      <button type="submit" [disabled]="provider.busy() || !prompt().trim()">Send</button>
+    </div>
+  </form>
+
+  @if (provider.lastReply(); as reply) {
+    <pre class="reply">{{ reply }}</pre>
+  }
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+</section>

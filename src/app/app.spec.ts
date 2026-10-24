@@ -24,6 +24,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('app-assistant-panel')).toBeTruthy();
+    expect(compiled.querySelector('app-provider-panel')).toBeTruthy();
     expect(compiled.querySelector('app-memory-panel')).toBeTruthy();
     expect(compiled.querySelector('app-trace-panel')).toBeTruthy();
     expect(compiled.querySelector('app-world-panel')).toBeTruthy();
