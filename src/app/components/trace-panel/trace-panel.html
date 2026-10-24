@@ -1,0 +1,83 @@
+<section id="trace" class="panel" aria-labelledby="trace-title">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">Pipeline</p>
+      <h2 id="trace-title">Trace</h2>
+    </div>
+    @if (assistant.lastTrace(); as trace) {
+      <span class="badge" [class.refused]="trace.route === 'refused'">{{ trace.route }}</span>
+    }
+  </header>
+
+  @if (assistant.lastTrace(); as trace) {
+    <div class="stats">
+      <div>
+        <strong>{{ trace.intent }}</strong>
+        <span>intent · {{ percent(trace.confidence) }}</span>
+      </div>
+      <div>
+        <strong>{{ trace.risk }}</strong>
+        <span>risk · {{ duration(trace.durationMs) }}</span>
+      </div>
+    </div>
+
+    <dl class="facts">
+      <div>
+        <dt>Contract</dt>
+        <dd>{{ trace.contractId }}</dd>
+      </div>
+      <div>
+        <dt>Memory</dt>
+        <dd>{{ trace.memoryIds.length }} recalled</dd>
+      </div>
+      <div>
+        <dt>World</dt>
+        <dd>{{ trace.worldEntityIds.length }} entities</dd>
+      </div>
+      <div>
+        <dt>Stages</dt>
+        <dd>{{ trace.stages.join(' → ') }}</dd>
+      </div>
+    </dl>
+
+    <details>
+      <summary>Memory IDs</summary>
+      <ul>
+        @for (id of trace.memoryIds; track id) {
+          <li>{{ id }}</li>
+        } @empty {
+          <li>No memory recalled</li>
+        }
+      </ul>
+    </details>
+
+    <details>
+      <summary>World entity IDs</summary>
+      <ul>
+        @for (id of trace.worldEntityIds; track id) {
+          <li>{{ id }}</li>
+        } @empty {
+          <li>No world entities</li>
+        }
+      </ul>
+    </details>
+
+    <details>
+      <summary>Context plan</summary>
+      <p class="reason">{{ trace.contextPlan.reason }}</p>
+      <ul>
+        @for (source of trace.contextPlan.sources; track source) {
+          <li>{{ source }}</li>
+        } @empty {
+          <li>No extra context</li>
+        }
+      </ul>
+      <p class="policy">
+        topN {{ trace.contextPlan.topN }} · {{ trace.contextPlan.maxTokens }} tokens ·
+        {{ trace.contextPlan.maxChunks }} chunks
+      </p>
+    </details>
+  } @else {
+    <p class="hint">Ask the assistant and the last routing decision will appear here.</p>
+  }
+</section>

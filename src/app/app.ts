@@ -5,13 +5,22 @@ import { TaskFilters } from './components/task-filters/task-filters';
 import { TaskInput } from './components/task-input/task-input';
 import type { TaskAddedEvent } from './components/task-input/task-input';
 import { TaskItem } from './components/task-item/task-item';
+import { TracePanel } from './components/trace-panel/trace-panel';
 import { WorldPanel } from './components/world-panel/world-panel';
 import { TaskStore } from './services/task-store';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TaskInput, TaskFilters, TaskItem, AssistantPanel, MemoryPanel, WorldPanel],
+  imports: [
+    TaskInput,
+    TaskFilters,
+    TaskItem,
+    AssistantPanel,
+    MemoryPanel,
+    TracePanel,
+    WorldPanel,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

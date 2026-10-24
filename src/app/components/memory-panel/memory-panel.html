@@ -13,7 +13,16 @@
     <ul class="memory-list">
       @for (record of memory.memories().slice(0, 6); track record.id) {
         <li>
-          <p>{{ record.content }}</p>
+          <div>
+            <p>{{ record.content }}</p>
+            <span class="provenance">
+              {{ record.provenance?.label ?? record.source ?? 'manual' }} · {{ record.layer }} ·
+              {{ (record.confidence * 100).toFixed(0) }}%
+              @if (record.source.startsWith('world:')) {
+                <a class="world-link" href="#trace" [title]="record.source">world</a>
+              }
+            </span>
+          </div>
           <button
             type="button"
             [attr.aria-label]="'Forget ' + record.content"

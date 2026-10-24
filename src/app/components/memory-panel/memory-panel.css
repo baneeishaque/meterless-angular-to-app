@@ -74,6 +74,16 @@ h2 {
   margin: 0;
 }
 
+.provenance {
+  display: inline-block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .memory-list button {
   border: 0;
   background: transparent;

@@ -1,0 +1,119 @@
+.panel {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 20px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.badge.refused {
+  background: #fef3f2;
+  color: var(--danger);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stats div {
+  padding: 10px;
+  border-radius: 10px;
+  background: #f7f8fc;
+}
+
+.stats strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.stats span,
+.hint,
+.reason,
+.policy {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.hint,
+.reason,
+.policy {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.facts {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.76rem;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  text-align: right;
+  word-break: break-word;
+}
+
+details {
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
+  font-size: 0.78rem;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+ul {
+  margin: 8px 0;
+  padding-left: 18px;
+  color: var(--muted);
+}

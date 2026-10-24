@@ -10,7 +10,8 @@
   <div class="chat" aria-live="polite">
     @if (assistant.messages().length === 0) {
       <p class="hint">
-        Try “Add a task: buy milk”, “Plan my week”, or “Remember that I prefer short answers”.
+        Try “Add a task: buy milk”, “Plan my week”, “Research local-first sync”, or “Remember that I
+        prefer short answers”.
       </p>
     }
 
@@ -49,7 +50,7 @@
       #input
       id="assistant-input"
       type="text"
-      placeholder="Add a task, plan a goal, remember a preference…"
+      placeholder="Add a task, plan, research, or remember a preference…"
       autocomplete="off"
       [value]="draft()"
       [disabled]="assistant.busy()"
